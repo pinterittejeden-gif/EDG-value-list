@@ -2,6 +2,29 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
+      "name": "Green Bullet",
+      "changes": {
+        "value": {
+          "from": 4.516,
+          "to": 3.2
+        },
+        "holo": {
+          "from": 14.194,
+          "to": 9
+        }
+      },
+      "before": {
+        "valueOverride": 4.516,
+        "holoOverride": 14.194,
+        "demand": 6,
+        "holoDemand": 8,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
       "name": "Society",
       "changes": {
