@@ -2,6 +2,33 @@
   "schema": 1,
   "entries": [
     {
+      "id": "78d2148c-d0eb-468e-979a-aee250514f02",
+      "name": "ANNIHILATED",
+      "changes": {
+        "value": {
+          "from": 67,
+          "to": null
+        },
+        "demand": {
+          "from": 10,
+          "to": null
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": null
+        }
+      },
+      "before": {
+        "valueOverride": 67,
+        "holoOverride": null,
+        "demand": 10,
+        "holoDemand": 10,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "034634f7-f216-4f34-82dd-003eebd2897e",
       "name": "Artemis 13",
       "changes": {
