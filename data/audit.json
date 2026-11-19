@@ -5,6 +5,35 @@
       "id": "99bfbecd-4821-4914-85fd-dd0bb613510e",
       "name": "Silentlocked",
       "changes": {
+        "value": {
+          "from": null,
+          "to": 0.8
+        },
+        "holoDemand": {
+          "from": 8,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": "fair",
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
+      "id": "99bfbecd-4821-4914-85fd-dd0bb613510e",
+      "name": "Silentlocked",
+      "changes": {
         "holoDemand": {
           "from": null,
           "to": 8
