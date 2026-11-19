@@ -5,6 +5,29 @@
       "id": "78d2148c-d0eb-468e-979a-aee250514f02",
       "name": "ANNIHILATED",
       "changes": {
+        "demand": {
+          "from": null,
+          "to": 10
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 10
+        }
+      },
+      "before": {
+        "valueOverride": 67,
+        "holoOverride": null,
+        "demand": null,
+        "holoDemand": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
+      "id": "78d2148c-d0eb-468e-979a-aee250514f02",
+      "name": "ANNIHILATED",
+      "changes": {
         "value": {
           "from": null,
           "to": 67
