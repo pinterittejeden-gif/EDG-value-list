@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "24d0f430-f42f-45b9-af35-b6eea34be7df",
+      "name": "The Lightning Rod",
+      "changes": {
+        "value": {
+          "from": 0.452,
+          "to": 0.7
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.452,
+        "holoOverride": null,
+        "demand": 6,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "795f5f4f-4b8b-4e65-9eb6-dc09a66e6fb5",
       "name": "Flamewall",
       "changes": {
