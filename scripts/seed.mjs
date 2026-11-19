@@ -30,6 +30,7 @@ const cards = items.map(live => {
       demandSource: prev.demandSource ?? base.demandSource,
       holoDemand: prev.holoDemand ?? null,
       holoDemandSource: prev.holoDemandSource ?? null,
+      priceStatus: prev.priceStatus ?? null,
       note: prev.note || "",
       updatedAt: prev.updatedAt ?? null,
       addedAt: prev.addedAt ?? now

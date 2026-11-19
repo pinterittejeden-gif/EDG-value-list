@@ -415,6 +415,7 @@ function applyCardPatch(card, patch, now, by) {
     holoOverride: card.holoOverride == null ? null : card.holoOverride,
     demand: card.demand == null ? null : card.demand,
     holoDemand: card.holoDemand == null ? null : card.holoDemand,
+    priceStatus: card.priceStatus == null ? null : card.priceStatus,
     note: card.note || "",
     confirmed: card.confirmed !== false
   };
@@ -422,6 +423,8 @@ function applyCardPatch(card, patch, now, by) {
   const holoOverride = asNumberOrNull(patch.holoOverride, "Holo value", 0, 1e9);
   const demand = asDemand(patch.demand, "Demand");
   const holoDemand = asDemand(patch.holoDemand, "Holo demand");
+  const priceStatus = patch.priceStatus === undefined || patch.priceStatus === null || patch.priceStatus === "" ? null : String(patch.priceStatus);
+  if (priceStatus != null && !["over", "under", "fair"].includes(priceStatus)) throw fail("Invalid price status.", 400);
   const note = patch.note == null ? "" : String(patch.note).slice(0, 500);
   const changes = {};
   if (valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) changes.value = {
@@ -440,6 +443,10 @@ function applyCardPatch(card, patch, now, by) {
     from: card.holoDemand,
     to: holoDemand
   };
+  if (priceStatus !== (card.priceStatus == null ? null : card.priceStatus)) changes.priceStatus = {
+    from: card.priceStatus == null ? null : card.priceStatus,
+    to: priceStatus
+  };
   if (note !== (card.note || "")) changes.note = true;
   if (card.confirmed === false) changes.confirmed = true;
   if (changes.value || changes.holo) card.valueSource = valueOverride == null ? null : "manual";
@@ -449,6 +456,7 @@ function applyCardPatch(card, patch, now, by) {
   card.holoOverride = holoOverride;
   card.demand = demand;
   card.holoDemand = holoDemand;
+  card.priceStatus = priceStatus;
   card.note = note;
   card.confirmed = true;
   card.updatedAt = now;

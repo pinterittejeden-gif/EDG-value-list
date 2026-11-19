@@ -58,17 +58,6 @@
           <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false">
         </div>
         <div class="field">
-          <label class="sr-only" for="sort">Sort</label>
-          <select id="sort">
-            <option value="value-desc">Value high-low</option>
-            <option value="value-asc">Value low-high</option>
-            <option value="rank">Rank</option>
-            <option value="demand-desc">Demand</option>
-            <option value="name">Name</option>
-            <option value="updated">Updated</option>
-          </select>
-        </div>
-        <div class="field">
           <label class="sr-only" for="status">Status</label>
           <select id="status">
             <option value="all">All</option>
@@ -88,6 +77,7 @@
         <label class="bulk-field"><input type="checkbox" id="bulkHoloOn"> Holo <input type="number" id="bulkHolo" step="0.001" min="0" placeholder="clear" disabled></label>
         <label class="bulk-field"><input type="checkbox" id="bulkDemandOn"> Demand <select id="bulkDemand" disabled></select></label>
         <label class="bulk-field"><input type="checkbox" id="bulkHoloDemandOn"> Holo demand <select id="bulkHoloDemand" disabled></select></label>
+        <label class="bulk-field"><input type="checkbox" id="bulkPriceOn"> Price <select id="bulkPrice" disabled><option value="">none</option><option value="over">overpriced</option><option value="under">underpriced</option><option value="fair">fair</option></select></label>
         <label class="bulk-field"><input type="checkbox" id="bulkNoteOn"> Note <input type="text" id="bulkNote" maxlength="500" disabled></label>
         <button class="btn btn-primary" id="bulkApply" type="button">Apply</button>
         <button class="btn btn-danger" id="bulkRevert" type="button">Revert selected</button>
@@ -99,13 +89,13 @@
           <thead>
             <tr>
               <th class="col-select" scope="col"><input type="checkbox" id="selectPage" aria-label="Select page"></th>
-              <th class="col-rank" scope="col">#</th>
-              <th class="col-card" scope="col">Card</th>
-              <th class="col-tier" scope="col">Tier</th>
-              <th class="col-demand" scope="col">Demand</th>
-              <th class="col-value num" scope="col">Value</th>
-              <th class="col-holo num" scope="col">Holo</th>
-              <th class="col-updated" scope="col">Updated</th>
+              <th class="col-rank" scope="col" data-sort="rank" aria-sort="none">#</th>
+              <th class="col-card" scope="col" data-sort="name" aria-sort="none">Card</th>
+              <th class="col-tier" scope="col" data-sort="tier" aria-sort="none">Tier</th>
+              <th class="col-demand" scope="col" data-sort="demand" aria-sort="none">Demand</th>
+              <th class="col-value num" scope="col" data-sort="value" aria-sort="none">Value</th>
+              <th class="col-holo num" scope="col" data-sort="holo" aria-sort="none">Holo</th>
+              <th class="col-updated" scope="col" data-sort="updated" aria-sort="none">Updated</th>
               <th class="col-edit" scope="col"><span class="sr-only">Edit</span></th>
             </tr>
           </thead>

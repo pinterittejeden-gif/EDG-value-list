@@ -164,6 +164,9 @@
   function shownValue(card) {
     return state.view.holo ? holoOf(card) : displayValue(card);
   }
+  function priceLabel(s) {
+    return s === "over" ? "overpriced" : s === "under" ? "underpriced" : s === "fair" ? "fair" : "";
+  }
   function demandLabel(d) {
     if (d == null) return "N/A";
     var labels = state.anchors && state.anchors.demand && state.anchors.demand.labels || {};
@@ -426,6 +429,82 @@
       demand: demandOf(card)
     };
   }
+  function tierOf(card) {
+    var i = TIER_ORDER.indexOf(card.tier);
+    return i === -1 ? 99 : i;
+  }
+  function compareNullable(a, b, dir) {
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+    if (a === b) return 0;
+    return dir === "asc" ? a < b ? -1 : 1 : a > b ? -1 : 1;
+  }
+  function sortComparator(sort) {
+    return function(a, b) {
+      var tie = function() {
+        return (num(a.rank) || 0) - (num(b.rank) || 0) || String(a.name).localeCompare(String(b.name));
+      };
+      switch (sort) {
+        case "rank-asc":
+        case "rank":
+          return (num(a.rank) || 0) - (num(b.rank) || 0) || String(a.name).localeCompare(String(b.name));
+        case "rank-desc":
+          return (num(b.rank) || 0) - (num(a.rank) || 0) || String(a.name).localeCompare(String(b.name));
+        case "name-asc":
+          return String(a.name).localeCompare(String(b.name)) || tie();
+        case "name-desc":
+          return String(b.name).localeCompare(String(a.name)) || tie();
+        case "tier-asc":
+          return tierOf(a) - tierOf(b) || tie();
+        case "tier-desc":
+          return tierOf(b) - tierOf(a) || tie();
+        case "demand-asc":
+          return compareNullable(demandOf(a), demandOf(b), "asc") || tie();
+        case "demand-desc":
+          return compareNullable(demandOf(a), demandOf(b), "desc") || tie();
+        case "holo-asc":
+          return compareNullable(holoOf(a), holoOf(b), "asc") || tie();
+        case "holo-desc":
+          return compareNullable(holoOf(a), holoOf(b), "desc") || tie();
+        case "updated-asc":
+          return compareNullable(num(a.updatedAt) || null, num(b.updatedAt) || null, "asc") || tie();
+        case "updated-desc":
+          return compareNullable(num(a.updatedAt) || null, num(b.updatedAt) || null, "desc") || tie();
+        case "value-asc":
+          return compareNullable(shownValue(a), shownValue(b), "asc") || tie();
+        case "value-desc":
+          return compareNullable(shownValue(a), shownValue(b), "desc") || tie();
+        default:
+          return tie();
+      }
+    };
+  }
+  function cycleSort(key) {
+    var pairs = {
+      rank: [ "rank-asc", "rank-desc" ],
+      name: [ "name-asc", "name-desc" ],
+      tier: [ "tier-asc", "tier-desc" ],
+      demand: [ "demand-desc", "demand-asc" ],
+      value: [ "value-desc", "value-asc" ],
+      holo: [ "holo-desc", "holo-asc" ],
+      updated: [ "updated-desc", "updated-asc" ]
+    };
+    var pair = pairs[key];
+    if (!pair) return;
+    var current = state.view.sort;
+    if (current === pair[0]) state.view.sort = pair[1];
+    else if (current === pair[1]) state.view.sort = "rank";
+    else state.view.sort = pair[0];
+  }
+  function setSortIndicators() {
+    var sort = state.view.sort;
+    var key = sort === "rank" || sort === "rank-asc" ? "rank" : sort.split("-")[0];
+    var dir = sort === "rank" || sort === "rank-asc" || sort.slice(-4) === "-asc" ? "ascending" : "descending";
+    document.querySelectorAll("#vtable thead th[data-sort]").forEach(function(th) {
+      th.setAttribute("aria-sort", th.dataset.sort === key ? dir : "none");
+    });
+  }
   function applyFilters() {
     var q = norm(state.view.q);
     var tier = state.view.tier;
@@ -441,25 +520,7 @@
       return hay.indexOf(q) !== -1;
     });
     var sort = state.view.sort;
-    list.sort(function(a, b) {
-      if (sort === "rank") return num(a.rank) - num(b.rank);
-      if (sort === "name") return String(a.name).localeCompare(String(b.name));
-      if (sort === "updated") return (num(b.updatedAt) || 0) - (num(a.updatedAt) || 0);
-      if (sort === "demand-desc") {
-        var da = demandOf(a), db = demandOf(b);
-        if (da == null && db == null) return (shownValue(b) || 0) - (shownValue(a) || 0);
-        if (da == null) return 1;
-        if (db == null) return -1;
-        if (db !== da) return db - da;
-        return (shownValue(b) || 0) - (shownValue(a) || 0);
-      }
-      var va = shownValue(a), vb = shownValue(b);
-      if (va == null && vb == null) return num(a.rank) - num(b.rank);
-      if (va == null) return 1;
-      if (vb == null) return -1;
-      if (va === vb) return num(a.rank) - num(b.rank);
-      return sort === "value-asc" ? va - vb : vb - va;
-    });
+    list.sort(sortComparator(sort));
     state.filtered = list;
     var maxPage = Math.max(1, Math.ceil(list.length / state.view.size));
     if (state.view.page > maxPage) state.view.page = maxPage;
@@ -473,6 +534,7 @@
     renderAuthButton();
     renderUpdated();
     renderBulkBar();
+    setSortIndicators();
     syncUrl();
   }
   function renderStats() {
@@ -571,10 +633,13 @@
           "aria-label": "Open details for " + card.name
         }
       });
+      var priceText = priceLabel(card.priceStatus);
       var sub = h("div", {
-        class: "card-sub",
-        text: (card.creator && card.creator !== "-" ? card.creator : "unknown") + (card.twoPlayer ? " · 2P" : "")
-      });
+        class: "card-sub"
+      }, (card.creator && card.creator !== "-" ? card.creator : "unknown") + (card.twoPlayer ? " · 2P" : ""), priceText ? h("span", {
+        class: "price-tag " + card.priceStatus,
+        text: " · " + priceText
+      }) : null);
       tr.append(h("td", {
         class: "col-card"
       }, h("div", {
@@ -684,7 +749,7 @@
     var p = new URLSearchParams;
     if (state.view.q) p.set("q", state.view.q);
     if (state.view.tier !== "all") p.set("tier", state.view.tier);
-    if (state.view.sort !== "value-desc") p.set("sort", state.view.sort);
+    if (state.view.sort !== "rank") p.set("sort", state.view.sort);
     if (state.view.status !== "all") p.set("status", state.view.status);
     if (state.view.holo) p.set("holo", "1");
     if (state.view.page > 1) p.set("page", String(state.view.page));
@@ -698,21 +763,20 @@
     var params = new URLSearchParams(location.hash.replace(/^#/, ""));
     var q = params.get("q") || "";
     var tier = params.get("tier") || "all";
-    var sort = params.get("sort") || "value-desc";
+    var sort = params.get("sort") || "rank";
     var status = params.get("status") || "all";
     var size = clamp(Number(params.get("size")) || 100, 100, 1e3);
     var page = Math.max(1, Number(params.get("page")) || 1);
-    var validSorts = [ "value-desc", "value-asc", "rank", "demand-desc", "name", "updated" ];
+    var validSorts = [ "rank", "rank-asc", "rank-desc", "name-asc", "name-desc", "tier-asc", "tier-desc", "demand-asc", "demand-desc", "value-asc", "value-desc", "holo-asc", "holo-desc", "updated-asc", "updated-desc" ];
     var validStatus = [ "all", "priced", "pending", "override" ];
     state.view.q = q;
     state.view.tier = tier;
-    state.view.sort = validSorts.indexOf(sort) !== -1 ? sort : "value-desc";
+    state.view.sort = validSorts.indexOf(sort) !== -1 ? sort : "rank";
     state.view.status = validStatus.indexOf(status) !== -1 ? status : "all";
     state.view.holo = params.get("holo") === "1";
     state.view.size = [ 100, 250, 500, 1e3 ].indexOf(size) !== -1 ? size : 100;
     state.view.page = page;
     $("#search").value = q;
-    $("#sort").value = state.view.sort;
     $("#status").value = state.view.status;
     $("#holo").checked = state.view.holo;
     $("#pageSize").value = String(state.view.size);
@@ -756,6 +820,9 @@
     }), card.twoPlayer ? h("span", {
       class: "tag",
       text: "2 Player"
+    }) : null, card.priceStatus ? h("span", {
+      class: "price-tag " + card.priceStatus,
+      text: priceLabel(card.priceStatus)
     }) : null, card.confirmed === false ? h("span", {
       class: "pending-pill",
       text: "pending"
@@ -887,6 +954,20 @@
     }
     demandSel.value = card.demand == null ? "" : String(Math.round(num(card.demand)));
     holoDemandSel.value = card.holoDemand == null ? "" : String(Math.round(num(card.holoDemand)));
+    var priceSel = h("select", null, h("option", {
+      value: "",
+      text: "none"
+    }), h("option", {
+      value: "over",
+      text: "overpriced"
+    }), h("option", {
+      value: "under",
+      text: "underpriced"
+    }), h("option", {
+      value: "fair",
+      text: "fair"
+    }));
+    priceSel.value = card.priceStatus || "";
     var noteInput = h("textarea", {
       maxlength: "500",
       placeholder: "optional"
@@ -894,7 +975,7 @@
     noteInput.value = card.note || "";
     form.append(h("div", {
       class: "form-grid"
-    }, field("Value", valueInput, null), field("Holo", holoInput, null), field("Demand", demandSel, null), field("Holo demand", holoDemandSel, null), h("div", {
+    }, field("Value", valueInput, null), field("Holo", holoInput, null), field("Demand", demandSel, null), field("Holo demand", holoDemandSel, null), field("Price", priceSel, null), h("div", {
       class: "form-field full"
     }, h("label", {
       text: "Note"
@@ -913,6 +994,7 @@
             holoOverride: holoInput.value.trim() === "" ? null : Number(holoInput.value),
             demand: demandSel.value === "" ? null : Number(demandSel.value),
             holoDemand: holoDemandSel.value === "" ? null : Number(holoDemandSel.value),
+            priceStatus: priceSel.value === "" ? null : priceSel.value,
             note: noteInput.value.trim()
           };
           if (patch.valueOverride != null && (!Number.isFinite(patch.valueOverride) || patch.valueOverride < 0)) return toast("Value must be positive.", "error");
@@ -923,7 +1005,7 @@
         }
       }
     }));
-    if (card.valueOverride != null || card.holoOverride != null || card.demandSource === "manual" || card.holoDemand != null) {
+    if (card.valueOverride != null || card.holoOverride != null || card.demandSource === "manual" || card.holoDemand != null || card.priceStatus != null) {
       actions.append(h("button", {
         class: "btn btn-danger",
         type: "button",
@@ -935,6 +1017,7 @@
               holoOverride: null,
               demand: null,
               holoDemand: null,
+              priceStatus: null,
               note: ""
             }, ev.currentTarget, "Reset " + card.name);
           }
@@ -977,6 +1060,7 @@
     if (patch.holoDemand !== card.holoDemand) card.holoDemandSource = patch.holoDemand != null ? "manual" : null;
     card.demand = patch.demand;
     card.holoDemand = patch.holoDemand;
+    card.priceStatus = patch.priceStatus || null;
     card.note = patch.note || "";
     card.confirmed = true;
     card.updatedAt = Date.now();
@@ -997,6 +1081,7 @@
         holoOverride: patch.holoOverride,
         demand: patch.demand,
         holoDemand: patch.holoDemand,
+        priceStatus: patch.priceStatus,
         note: patch.note
       } ],
       message: message || "Update " + card.name
@@ -1108,7 +1193,7 @@
         }));
       }
     });
-    [ [ "bulkValueOn", "bulkValue" ], [ "bulkHoloOn", "bulkHolo" ], [ "bulkDemandOn", "bulkDemand" ], [ "bulkHoloDemandOn", "bulkHoloDemand" ], [ "bulkNoteOn", "bulkNote" ] ].forEach(function(pair) {
+    [ [ "bulkValueOn", "bulkValue" ], [ "bulkHoloOn", "bulkHolo" ], [ "bulkDemandOn", "bulkDemand" ], [ "bulkHoloDemandOn", "bulkHoloDemand" ], [ "bulkPriceOn", "bulkPrice" ], [ "bulkNoteOn", "bulkNote" ] ].forEach(function(pair) {
       var on = $("#" + pair[0]), input = $("#" + pair[1]);
       if (!on || !input) return;
       input.disabled = !on.checked;
@@ -1145,8 +1230,8 @@
     $("#bulkRevert").addEventListener("click", revertSelected);
   }
   function buildBulkItems() {
-    var valueOn = $("#bulkValueOn").checked, holoOn = $("#bulkHoloOn").checked, demandOn = $("#bulkDemandOn").checked, holoDemandOn = $("#bulkHoloDemandOn").checked, noteOn = $("#bulkNoteOn").checked;
-    if (!valueOn && !holoOn && !demandOn && !holoDemandOn && !noteOn) {
+    var valueOn = $("#bulkValueOn").checked, holoOn = $("#bulkHoloOn").checked, demandOn = $("#bulkDemandOn").checked, holoDemandOn = $("#bulkHoloDemandOn").checked, priceOn = $("#bulkPriceOn").checked, noteOn = $("#bulkNoteOn").checked;
+    if (!valueOn && !holoOn && !demandOn && !holoDemandOn && !priceOn && !noteOn) {
       toast("Pick a field.", "error");
       return null;
     }
@@ -1162,6 +1247,7 @@
     }
     var demand = demandOn ? $("#bulkDemand").value === "" ? null : Number($("#bulkDemand").value) : null;
     var holoDemand = holoDemandOn ? $("#bulkHoloDemand").value === "" ? null : Number($("#bulkHoloDemand").value) : null;
+    var priceStatus = priceOn ? $("#bulkPrice").value === "" ? null : $("#bulkPrice").value : null;
     var note = noteOn ? $("#bulkNote").value.trim() : null;
     var items = [];
     state.selected.forEach(function(id) {
@@ -1176,6 +1262,7 @@
           holoOverride: holoOn ? holo : card.holoOverride == null ? null : card.holoOverride,
           demand: demandOn ? demand : card.demand == null ? null : card.demand,
           holoDemand: holoDemandOn ? holoDemand : card.holoDemand == null ? null : card.holoDemand,
+          priceStatus: priceOn ? priceStatus : card.priceStatus || null,
           note: noteOn ? note : card.note || ""
         }
       });
@@ -1220,6 +1307,7 @@
           holoOverride: it.patch.holoOverride,
           demand: it.patch.demand,
           holoDemand: it.patch.holoDemand,
+          priceStatus: it.patch.priceStatus,
           note: it.patch.note
         };
       });
@@ -1268,6 +1356,7 @@
           holoOverride: b.holoOverride == null ? null : b.holoOverride,
           demand: b.demand == null ? null : b.demand,
           holoDemand: b.holoDemand == null ? null : b.holoDemand,
+          priceStatus: b.priceStatus == null ? null : b.priceStatus,
           note: b.note || ""
         }
       });
@@ -1730,8 +1819,10 @@
         renderAll();
       });
     });
-    $("#sort").addEventListener("change", function(e) {
-      state.view.sort = e.target.value;
+    $("#vtable thead").addEventListener("click", function(e) {
+      var th = e.target.closest("th[data-sort]");
+      if (!th) return;
+      cycleSort(th.dataset.sort);
       state.view.page = 1;
       renderAll();
     });
@@ -1766,14 +1857,13 @@
       state.view = {
         q: "",
         tier: "all",
-        sort: "value-desc",
+      sort: "rank",
         status: "all",
         holo: false,
         page: 1,
         size: 100
       };
       $("#search").value = "";
-      $("#sort").value = "value-desc";
       $("#status").value = "all";
       $("#holo").checked = false;
       $("#pageSize").value = "100";

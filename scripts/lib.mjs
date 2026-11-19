@@ -118,6 +118,7 @@ export function officialCard(card, now) {
     demandSource: "seed",
     holoDemand: null,
     holoDemandSource: null,
+    priceStatus: null,
     note: "",
     updatedAt: null,
     addedAt: now

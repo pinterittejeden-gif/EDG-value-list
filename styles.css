@@ -154,6 +154,10 @@ textarea { width: 100%; resize: vertical; min-height: 70px; }
 }
 .vtable { width: 100%; border-collapse: collapse; font-size: 14px; }
 .vtable thead { position: sticky; top: 65px; z-index: 5; }
+.vtable thead th[data-sort] { cursor: pointer; user-select: none; }
+.vtable thead th[data-sort]:hover { color: var(--text); }
+.vtable thead th[aria-sort="ascending"]::after { content: " ↑"; color: var(--accent-2); }
+.vtable thead th[aria-sort="descending"]::after { content: " ↓"; color: var(--accent-2); }
 .vtable thead th {
   background: #0f1219; text-align: left; font-size: 11px; letter-spacing: .1em;
   text-transform: uppercase; color: var(--muted-2); font-weight: 700;
@@ -215,6 +219,10 @@ textarea { width: 100%; resize: vertical; min-height: 70px; }
 .tier.uncommon { color: var(--tier-uncommon); background: rgba(34, 197, 94, .1); border-color: rgba(34, 197, 94, .28); }
 .tier.common { color: var(--tier-common); background: rgba(148, 163, 184, .1); border-color: rgba(148, 163, 184, .24); }
 .tier.limited { color: #e879f9; background: rgba(232, 121, 249, .1); border-color: rgba(232, 121, 249, .3); }
+.price-tag { font-weight: 600; }
+.price-tag.over { color: var(--bad); }
+.price-tag.under { color: var(--good); }
+.price-tag.fair { color: #eab308; }
 
 .demand-wrap { display: flex; align-items: center; gap: 8px; }
 .demand {
