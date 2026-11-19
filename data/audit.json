@@ -2,6 +2,23 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
+      "name": "Green Bullet",
+      "changes": {
+        "note": true
+      },
+      "before": {
+        "valueOverride": 3.2,
+        "holoOverride": 9,
+        "demand": 6,
+        "holoDemand": 8,
+        "priceStatus": "under",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "034634f7-f216-4f34-82dd-003eebd2897e",
       "name": "Artemis 13",
       "changes": {
