@@ -5,6 +5,30 @@
       "id": "72bf2c18-1299-408b-bca2-3da986956632",
       "name": "KOSETSU",
       "changes": {
+        "value": {
+          "from": null,
+          "to": 0.703
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 6,
+        "holoDemand": 5,
+        "priceStatus": null,
+        "note": "An epic card used to trade legendaries. also used in alot of trading for holos",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
+      "id": "72bf2c18-1299-408b-bca2-3da986956632",
+      "name": "KOSETSU",
+      "changes": {
         "demand": {
           "from": 7,
           "to": 6
