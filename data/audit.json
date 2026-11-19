@@ -2,6 +2,16 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795109908787,
+      "by": "vxef",
+      "byId": "1172223881122152540",
+      "action": "roles",
+      "owner": 0,
+      "admins": 1,
+      "mods": 4,
+      "helpers": 1
+    },
+    {
       "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
       "name": "Green Bullet",
       "changes": {
