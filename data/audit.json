@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9484f345-fbfb-4d82-bb6b-faa642aa3d80",
+      "name": "Sinister Silence",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.246
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 7,
+        "priceStatus": "fair",
+        "note": "only wanted for %100 holo",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "034634f7-f216-4f34-82dd-003eebd2897e",
       "name": "Artemis 13",
       "changes": {
