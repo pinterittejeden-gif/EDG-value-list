@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "68de8323-1894-46b9-9d39-cda105d81155",
+      "name": "Maniacal Chains",
+      "changes": {
+        "value": {
+          "from": 0.419,
+          "to": 0.672
+        },
+        "demand": {
+          "from": 8,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.419,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "458bbbdb-a121-4a8f-a7a4-5ea68be04484",
       "name": "Every End",
       "changes": {
