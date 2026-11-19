@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
+      "name": "GRIEF",
+      "changes": {
+        "demand": {
+          "from": 10,
+          "to": 9
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 10
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 23.226,
+        "holoOverride": 70.968,
+        "demand": 10,
+        "holoDemand": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "78d2148c-d0eb-468e-979a-aee250514f02",
       "name": "ANNIHILATED",
       "changes": {
