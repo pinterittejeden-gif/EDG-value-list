@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "01746dbe-64c3-486a-ba55-e2008bedaed1",
+      "name": "Pinnacle of Life",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.641
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 5
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "f79695b9-ddb2-46ab-bef6-a231917db6d5",
       "name": "Apocalyptic Trilogy",
       "changes": {
