@@ -2,6 +2,34 @@
   "schema": 1,
   "entries": [
     {
+      "id": "78d2148c-d0eb-468e-979a-aee250514f02",
+      "name": "ANNIHILATED",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 165.22
+        },
+        "demand": {
+          "from": null,
+          "to": 10
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 10
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": null,
+        "holoDemand": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795102817919,
       "by": "vxef",
       "byId": "1172223881122152540",
