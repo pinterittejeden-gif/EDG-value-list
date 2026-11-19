@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "ca07a223-dd23-437a-8aed-03a5df95f863",
+      "name": "zorin",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.61
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "under"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "d6f7ba38-9787-42a2-acf2-4585e69cbb91",
       "name": "Silent clubstep",
       "changes": {
