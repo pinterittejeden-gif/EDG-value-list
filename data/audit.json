@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c9227a33-a5d4-47d3-a025-a07781f228e1",
+      "name": "Abyss of Darkness",
+      "changes": {
+        "value": {
+          "from": 0.774,
+          "to": 0.8
+        },
+        "holo": {
+          "from": 3.097,
+          "to": 3.1
+        },
+        "demand": {
+          "from": 8,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 9
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.774,
+        "holoOverride": 3.097,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795109908787,
       "by": "vxef",
       "byId": "1172223881122152540",
