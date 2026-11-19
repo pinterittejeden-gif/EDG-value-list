@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "b0b509de-4eed-4415-b419-a02abdc481c1",
+      "name": "Tidal Wave",
+      "changes": {
+        "value": {
+          "from": 5.484,
+          "to": 4
+        },
+        "holo": {
+          "from": 15.484,
+          "to": 12
+        },
+        "demand": {
+          "from": 10,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 6
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 5.484,
+        "holoOverride": 15.484,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "67708587-274e-4de8-9be9-55385bbcbc9f",
       "name": "Slaughterhouse ",
       "changes": {
