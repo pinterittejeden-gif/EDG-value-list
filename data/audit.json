@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "3d351b86-3762-4eee-95aa-8dbd16189531",
+      "name": "Menace",
+      "changes": {
+        "value": {
+          "from": 0.8,
+          "to": 0.806
+        },
+        "holo": {
+          "from": 3.2,
+          "to": 3.226
+        },
+        "demand": {
+          "from": 6,
+          "to": 10
+        },
+        "holoDemand": {
+          "from": 9,
+          "to": 10
+        },
+        "priceStatus": {
+          "from": "fair",
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 0.8,
+        "holoOverride": 3.2,
+        "demand": 6,
+        "holoDemand": 9,
+        "priceStatus": "fair",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "4ae11fe6-fd93-4a4b-8481-3048d3edf736",
       "name": "Acheron",
       "changes": {
