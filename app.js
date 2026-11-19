@@ -485,7 +485,7 @@
       return num(c.rank) === unitRank;
     });
     $("#statUnit").textContent = unitCard ? unitCard.name : "rank " + unitRank;
-    $("#listNote").textContent = "1.00 = " + (unitCard ? unitCard.name : "rank " + unitRank);
+
   }
   function renderChips() {
     var box = $("#tierChips");
@@ -1592,7 +1592,6 @@
         if (justSignedIn) toast(err.message || "Discord session expired. Sign in again.", "error");
       });
     }).catch(function(err) {
-      $("#listNote").textContent = "Could not load values: " + err.message;
       toast("Could not load values: " + err.message, "error");
     });
   }
