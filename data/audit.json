@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "034634f7-f216-4f34-82dd-003eebd2897e",
+      "name": "Artemis 13",
+      "changes": {
+        "demand": {
+          "from": 9,
+          "to": 10
+        },
+        "holoDemand": {
+          "from": 9,
+          "to": 10
+        }
+      },
+      "before": {
+        "valueOverride": 7,
+        "holoOverride": 24,
+        "demand": 9,
+        "holoDemand": 9,
+        "priceStatus": "over",
+        "note": "Wanted for index preety much\nless wanted then grief for sure\n8.9/10 imo\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "3d351b86-3762-4eee-95aa-8dbd16189531",
       "name": "Menace",
       "changes": {
