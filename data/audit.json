@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "70810896-8147-445f-82d0-028cce2297da",
+      "name": "Master of Puppets",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.663
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "45036980-77db-4bb5-9720-59ef3001a12e",
       "name": "andromeda",
       "changes": {
