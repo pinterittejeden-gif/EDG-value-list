@@ -816,6 +816,7 @@
   function close(id) {
     var n = $("#" + id);
     if (n) n.hidden = true;
+    if (id === "drawer") document.body.classList.remove("no-scroll");
   }
   function closeAllModals() {
     [ "modal", "drawer", "loginModal" ].forEach(close);
@@ -1735,7 +1736,7 @@
   }
   function renderProposalsEditor() {
     var box = h("div", {
-      class: "panel-box"
+      class: "panel-box panel-wide"
     });
     var title = canApprove() ? "Pending suggestions" : "My proposals";
     if (state.proposals) title += " (" + state.proposals.length + ")";
@@ -1972,6 +1973,9 @@
   function openDrawer() {
     renderDrawer();
     open("drawer");
+    document.body.classList.add("no-scroll");
+    var panel = $(".drawer-panel");
+    if (panel) panel.scrollTop = 0;
     if (state.auth.token) {
       loadSession().then(function() {
         renderAuthButton();
@@ -2062,7 +2066,7 @@
   }
   function renderAnchorsEditor() {
     var box = h("div", {
-      class: "panel-box"
+      class: "panel-box panel-wide"
     });
     box.append(h("h3", {
       text: "Anchors"
@@ -2196,7 +2200,7 @@
   }
   function renderRolesEditor() {
     var box = h("div", {
-      class: "panel-box"
+      class: "panel-box panel-wide"
     });
     box.append(h("h3", {
       text: "Access"
@@ -2434,6 +2438,9 @@
     $("#adminLink").addEventListener("click", function(e) {
       e.preventDefault();
       openDrawer();
+    });
+    $("#drawerBack").addEventListener("click", function() {
+      close("drawer");
     });
     $("#vtable thead").addEventListener("click", function(e) {
       var th = e.target.closest("th[data-sort]");
