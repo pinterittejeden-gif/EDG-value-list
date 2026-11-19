@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9e4fe89f-e634-41f6-a1d7-c388d426856b",
+      "name": "Decks Dark",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.255
+        },
+        "demand": {
+          "from": 7,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "64f09701-c651-41ef-ab1b-96a1c4913bd3",
       "name": "Nullscapes",
       "changes": {
