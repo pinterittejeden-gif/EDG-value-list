@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "ca07a223-dd23-437a-8aed-03a5df95f863",
+      "name": "zorin",
+      "changes": {
+        "demand": {
+          "from": 5,
+          "to": 6
+        }
+      },
+      "before": {
+        "valueOverride": 0.61,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 6,
+        "priceStatus": "under",
+        "note": "unknown and niche level",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "21bb5019-d59c-4f9b-94de-281cf4b0ced7",
       "name": "LIMBO",
       "changes": {
