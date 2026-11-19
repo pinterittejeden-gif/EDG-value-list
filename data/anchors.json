@@ -13,26 +13,22 @@
     {
       "rank": 1,
       "value": 23.226,
-      "label": "GRIEF (sheet)",
-      "provisional": false
+      "label": "GRIEF (sheet)"
     },
     {
       "rank": 25,
       "value": 1,
-      "label": "rank 25",
-      "provisional": false
+      "label": "rank 25"
     },
     {
       "rank": 101,
-      "value": 0.161,
-      "label": "Trickshot (sheet)",
-      "provisional": false
+      "value": 0.08,
+      "label": "Trickshot (sheet)"
     },
     {
       "rank": 1626,
       "value": 0.0091,
-      "label": "bottom (site ratio)",
-      "provisional": true
+      "label": "bottom (site ratio)"
     }
   ],
   "demand": {
