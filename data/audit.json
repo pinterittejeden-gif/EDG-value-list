@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
+      "name": "GRIEF",
+      "changes": {
+        "priceStatus": {
+          "from": "under",
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 20,
+        "holoOverride": 70,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": "under",
+        "note": "Mostly used for trading, or completing index's\nHolo: just hypergamy bro..",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "78d2148c-d0eb-468e-979a-aee250514f02",
       "name": "ANNIHILATED",
       "changes": {
