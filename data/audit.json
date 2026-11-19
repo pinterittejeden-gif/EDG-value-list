@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "61ade6ee-e274-45b9-9537-3362259f8625",
+      "name": "The Salt Factory",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.666,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 4,
+        "priceStatus": null,
+        "note": "preety niche level, i didnt know if this level existed or nah",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "b380be19-8f0a-4d65-9259-3107e338f895",
       "name": "P a P a P",
       "changes": {
