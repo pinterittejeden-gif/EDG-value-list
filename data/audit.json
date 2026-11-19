@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795124191033,
+      "id": "56d52163-e3e2-4357-9843-29002b100e07",
+      "name": "NOMAD",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795124153425,
       "id": "7b90f819-624d-461a-9987-f1b6a0a54ef2",
       "name": "Ashley Wave Trials",
