@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "note": "Only these GitHub logins may edit values. The repo owner is always an owner. Granting edit access also requires GitHub write access to the repository.",
+  "owner": [],
+  "admins": [],
+  "mods": []
+}

@@ -1,0 +1,16 @@
+{
+  "name": "demongacha-value",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Community value list and demand tracker for demongacha.com. Static site for GitHub Pages, edited through GitHub with role-gated access.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "seed": "node scripts/seed.mjs",
+    "sync": "node scripts/sync-cards.mjs",
+    "import-sheet": "node scripts/import-sheet.mjs",
+    "serve": "node scripts/serve.mjs"
+  }
+}

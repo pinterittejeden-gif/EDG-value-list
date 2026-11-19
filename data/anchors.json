@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "unit": {
+    "rank": 25,
+    "note": "1.00 is the card sitting at rank 25 (Avernus). Top-tier values and demand follow the community sheet."
+  },
+  "curve": {
+    "interpolation": "log-log",
+    "min": 0.001,
+    "decimals": 2
+  },
+  "anchors": [
+    {
+      "rank": 1,
+      "value": 23.226,
+      "label": "GRIEF (sheet)",
+      "provisional": false
+    },
+    {
+      "rank": 25,
+      "value": 1,
+      "label": "rank 25",
+      "provisional": false
+    },
+    {
+      "rank": 101,
+      "value": 0.161,
+      "label": "Trickshot (sheet)",
+      "provisional": false
+    },
+    {
+      "rank": 1626,
+      "value": 0.0091,
+      "label": "bottom (site ratio)",
+      "provisional": true
+    }
+  ],
+  "demand": {
+    "scaleMax": 10,
+    "labels": {
+      "0": "E",
+      "1": "D",
+      "2": "D",
+      "3": "C",
+      "4": "C",
+      "5": "B",
+      "6": "B",
+      "7": "A",
+      "8": "A",
+      "9": "S",
+      "10": "S"
+    },
+    "note": "Demand is trade interest, not value. Seeded by tier, then edited by hand."
+  }
+}
