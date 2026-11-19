@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "cfb5fb27-a0d8-48bc-8ed9-bae291e24f1a",
+      "name": "Eyes in the Water",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.9
+        },
+        "demand": {
+          "from": 7,
+          "to": 8
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "7274331e-37b4-4e90-8711-dec7a5d0f00f",
       "name": "KILLSTEALER",
       "changes": {
