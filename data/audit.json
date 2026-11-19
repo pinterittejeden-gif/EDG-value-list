@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
+      "name": "BLAZEIT",
+      "changes": {
+        "demand": {
+          "from": 7,
+          "to": 8
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 9
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "99bfbecd-4821-4914-85fd-dd0bb613510e",
       "name": "Silentlocked",
       "changes": {
