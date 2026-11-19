@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
+      "name": "GRIEF",
+      "changes": {
+        "priceStatus": {
+          "from": "over",
+          "to": "under"
+        }
+      },
+      "before": {
+        "valueOverride": 20,
+        "holoOverride": 70,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "Mostly used for trading, or completing index's\nHolo: just hypergamy bro..",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "b986f5e6-2368-40df-9082-060d509d14f1",
       "name": "The Bloop",
       "changes": {
