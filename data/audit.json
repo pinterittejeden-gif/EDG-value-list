@@ -2,6 +2,15 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795105515346,
+      "by": "vxef",
+      "byId": "1172223881122152540",
+      "action": "roles",
+      "owner": 0,
+      "admins": 1,
+      "mods": 4
+    },
+    {
       "id": "92b9d057-f34a-4358-820e-f8bb0af88a43",
       "name": "Deimos (ItsHybrid)",
       "changes": {
