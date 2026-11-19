@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9484f345-fbfb-4d82-bb6b-faa642aa3d80",
+      "name": "Sinister Silence",
+      "changes": {
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
       "name": "GRIEF",
       "changes": {
