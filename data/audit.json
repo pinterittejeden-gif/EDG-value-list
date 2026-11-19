@@ -2,6 +2,34 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
+      "name": "Coalescence",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.23
+        },
+        "demand": {
+          "from": 7,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
       "name": "Green Bullet",
       "changes": {
