@@ -246,10 +246,12 @@ function normalizeRoles(data) {
   const owner = list(data && data.owner);
   const admins = list(data && data.admins).filter(id => !owner.includes(id));
   const mods = list(data && data.mods).filter(id => !owner.includes(id) && !admins.includes(id));
+  const helpers = list(data && data.helpers).filter(id => !owner.includes(id) && !admins.includes(id) && !mods.includes(id));
   return {
     owner,
     admins,
-    mods
+    mods,
+    helpers
   };
 }
 
@@ -259,7 +261,8 @@ async function readRoles(env, force = false) {
   const data = await readJson(env, "data/roles.json").catch(() => ({
     owner: [],
     admins: [],
-    mods: []
+    mods: [],
+    helpers: []
   }));
   rolesCache = {
     at: now,
@@ -277,6 +280,7 @@ async function resolveRole(user, env) {
   if (id && roles.owner.includes(id)) return "owner";
   if (id && roles.admins.includes(id)) return "admin";
   if (id && roles.mods.includes(id)) return "mod";
+  if (id && roles.helpers.includes(id)) return "helper";
   return "viewer";
 }
 
@@ -301,10 +305,12 @@ function validateRoles(body) {
   const owner = clean(body.owner, "owner");
   const admins = clean(body.admins, "admins").filter(id => !owner.includes(id));
   const mods = clean(body.mods, "mods").filter(id => !owner.includes(id) && !admins.includes(id));
+  const helpers = clean(body.helpers, "helpers").filter(id => !owner.includes(id) && !admins.includes(id) && !mods.includes(id));
   return {
     owner,
     admins,
-    mods
+    mods,
+    helpers
   };
 }
 
@@ -543,7 +549,8 @@ async function putRoles(req, env) {
     action: "roles",
     owner: roles.owner.length,
     admins: roles.admins.length,
-    mods: roles.mods.length
+    mods: roles.mods.length,
+    helpers: roles.helpers.length
   });
   audit.entries = audit.entries.slice(0, MAX_AUDIT);
   const files = {
@@ -552,7 +559,8 @@ async function putRoles(req, env) {
       note: "Discord user IDs only. The owner is always recognised by the Worker OWNER_USERNAMES / OWNER_DISCORD_IDS too.",
       owner: roles.owner,
       admins: roles.admins,
-      mods: roles.mods
+      mods: roles.mods,
+      helpers: roles.helpers
     }),
     "data/audit.json": serializePretty(audit)
   };
@@ -564,38 +572,17 @@ async function putRoles(req, env) {
   });
 }
 
-async function commit(req, env) {
-  const user = await requireUser(req, env);
-  if (user.role === "viewer") return json({
-    error: "Your Discord account is not on the editor list."
-  }, 403);
-  const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") return json({
-    error: "Invalid body."
-  }, 400);
-  const changes = Array.isArray(body.changes) ? body.changes : [];
-  if (changes.length > MAX_CHANGES) return json({
-    error: "Too many changes in one commit."
-  }, 400);
-  if (changes.length === 0 && !body.anchors) return json({
-    error: "Nothing to commit."
-  }, 400);
+async function applyAndCommit(env, user, changes, anchors, message, extraFiles, extraAudit) {
   const now = Date.now();
   const cardsDoc = await readJson(env, "data/cards.json");
-  if (!cardsDoc || !Array.isArray(cardsDoc.cards)) return json({
-    error: "cards.json is malformed."
-  }, 500);
+  if (!cardsDoc || !Array.isArray(cardsDoc.cards)) throw fail("cards.json is malformed.", 500);
   const byId = new Map(cardsDoc.cards.map(c => [ c.id, c ]));
   const auditEntries = [];
   let applied = 0;
   for (const patch of changes) {
-    if (!patch || typeof patch.id !== "string") return json({
-      error: "A card change is missing an id."
-    }, 400);
+    if (!patch || typeof patch.id !== "string") throw fail("A card change is missing an id.", 400);
     const card = byId.get(patch.id);
-    if (!card) return json({
-      error: "Unknown card id: " + patch.id
-    }, 400);
+    if (!card) throw fail("Unknown card id: " + patch.id, 400);
     auditEntries.push(applyCardPatch(card, patch, now, user.username));
     applied++;
   }
@@ -604,20 +591,15 @@ async function commit(req, env) {
     entries: []
   }));
   audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
-  if (body.anchors) {
-    if (user.role !== "admin" && user.role !== "owner") {
-      return json({
-        error: "Only admins and owners can change the curve."
-      }, 403);
-    }
-    const anchors = validateAnchors(body.anchors);
-    files["data/anchors.json"] = serializePretty(anchors);
+  if (anchors) {
+    const clean = validateAnchors(anchors);
+    files["data/anchors.json"] = serializePretty(clean);
     auditEntries.push({
       at: now,
       by: user.username,
       byId: user.id,
       action: "anchors",
-      ranks: anchors.anchors.map(a => a.rank)
+      ranks: clean.anchors.map(a => a.rank)
     });
   }
   if (applied > 0) {
@@ -637,15 +619,232 @@ async function commit(req, env) {
     revision: (Number((await readJson(env, "data/meta.json").catch(() => ({}))).revision) || 0) + 1
   };
   files["data/meta.json"] = serializePretty(meta);
+  const extra = Array.isArray(extraAudit) ? extraAudit : [];
   audit.entries = auditEntries.map(e => ({
     ...e,
     by: user.username
-  })).concat(audit.entries).slice(0, MAX_AUDIT);
+  })).concat(extra).concat(audit.entries).slice(0, MAX_AUDIT);
   files["data/audit.json"] = serializePretty(audit);
-  const sha = await commitFiles(env, files, String(body.message || "Update values").slice(0, 120));
-  return json({
+  if (extraFiles) Object.assign(files, extraFiles);
+  const sha = await commitFiles(env, files, String(message || "Update values").slice(0, 120));
+  return {
     sha,
     applied
+  };
+}
+async function commit(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role === "viewer" || user.role === "helper") return json({
+    error: "Not allowed to publish directly."
+  }, 403);
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") return json({
+    error: "Invalid body."
+  }, 400);
+  const changes = Array.isArray(body.changes) ? body.changes : [];
+  if (changes.length > MAX_CHANGES) return json({
+    error: "Too many changes in one commit."
+  }, 400);
+  if (changes.length === 0 && !body.anchors) return json({
+    error: "Nothing to commit."
+  }, 400);
+  if (body.anchors && user.role !== "admin" && user.role !== "owner") return json({
+    error: "Only admins and owners can change the curve."
+  }, 403);
+  return json(await applyAndCommit(env, user, changes, body.anchors, body.message, null, null));
+}
+function proposalSanitize(card, patch, now, username) {
+  const clone = {
+    ...card
+  };
+  applyCardPatch(clone, patch, now, username);
+  return {
+    id: card.id,
+    valueOverride: clone.valueOverride,
+    holoOverride: clone.holoOverride,
+    demand: clone.demand,
+    holoDemand: clone.holoDemand,
+    priceStatus: clone.priceStatus,
+    note: clone.note
+  };
+}
+async function propose(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role !== "helper") return json({
+    error: "Only helpers submit proposals."
+  }, 403);
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") return json({
+    error: "Invalid body."
+  }, 400);
+  if (body.anchors) return json({
+    error: "Helpers cannot propose curve changes."
+  }, 403);
+  const changes = Array.isArray(body.changes) ? body.changes : [];
+  if (changes.length === 0) return json({
+    error: "Nothing to propose."
+  }, 400);
+  if (changes.length > MAX_CHANGES) return json({
+    error: "Too many changes in one proposal."
+  }, 400);
+  const cardsDoc = await readJson(env, "data/cards.json");
+  if (!cardsDoc || !Array.isArray(cardsDoc.cards)) return json({
+    error: "cards.json is malformed."
+  }, 500);
+  const byId = new Map(cardsDoc.cards.map(c => [ c.id, c ]));
+  const now = Date.now();
+  const clean = [];
+  for (const patch of changes) {
+    if (!patch || typeof patch.id !== "string") return json({
+      error: "A card change is missing an id."
+    }, 400);
+    const card = byId.get(patch.id);
+    if (!card) return json({
+      error: "Unknown card id: " + patch.id
+    }, 400);
+    clean.push(proposalSanitize(card, patch, now, user.username));
+  }
+  const pending = await readJson(env, "data/pending.json").catch(() => ({
+    proposals: []
+  }));
+  pending.proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
+  if (pending.proposals.filter(p => p.byId === user.id).length >= 20) return json({
+    error: "Too many pending proposals."
+  }, 429);
+  if (pending.proposals.length >= 200) return json({
+    error: "Proposal queue is full."
+  }, 429);
+  const proposal = {
+    id: crypto.randomUUID(),
+    at: now,
+    by: user.username,
+    byId: user.id,
+    message: String(body.message || "").slice(0, 120),
+    changes: clean
+  };
+  pending.proposals.unshift(proposal);
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
+  audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
+  audit.entries.unshift({
+    at: now,
+    by: user.username,
+    byId: user.id,
+    action: "propose",
+    proposal: proposal.id,
+    count: clean.length
+  });
+  audit.entries = audit.entries.slice(0, MAX_AUDIT);
+  const sha = await commitFiles(env, {
+    "data/pending.json": serializePretty({
+      schema: 1,
+      proposals: pending.proposals
+    }),
+    "data/audit.json": serializePretty(audit)
+  }, "Proposal from " + user.username);
+  return json({
+    id: proposal.id,
+    sha,
+    count: clean.length
+  });
+}
+async function listProposals(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role !== "owner" && user.role !== "admin" && user.role !== "helper") return json({
+    error: "Not allowed."
+  }, 403);
+  const pending = await readJson(env, "data/pending.json").catch(() => ({
+    proposals: []
+  }));
+  let proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
+  if (user.role === "helper") proposals = proposals.filter(p => p.byId === user.id);
+  return json({
+    proposals
+  });
+}
+async function approveProposal(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role !== "owner" && user.role !== "admin") return json({
+    error: "Only owners and admins can approve."
+  }, 403);
+  const body = await req.json().catch(() => null);
+  const id = body && typeof body.id === "string" ? body.id : "";
+  if (!id) return json({
+    error: "Missing proposal id."
+  }, 400);
+  const pending = await readJson(env, "data/pending.json").catch(() => ({
+    proposals: []
+  }));
+  pending.proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
+  const index = pending.proposals.findIndex(p => p.id === id);
+  if (index === -1) return json({
+    error: "Proposal not found."
+  }, 404);
+  const proposal = pending.proposals[index];
+  pending.proposals.splice(index, 1);
+  const extraAudit = [ {
+    at: Date.now(),
+    by: user.username,
+    byId: user.id,
+    action: "approve",
+    proposal: proposal.id,
+    proposalBy: proposal.by,
+    proposalById: proposal.byId,
+    count: proposal.changes.length
+  } ];
+  const result = await applyAndCommit(env, user, proposal.changes, null, "Approve " + proposal.by + (proposal.message ? ": " + proposal.message : ""), {
+    "data/pending.json": serializePretty({
+      schema: 1,
+      proposals: pending.proposals
+    })
+  }, extraAudit);
+  return json(result);
+}
+async function rejectProposal(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role !== "owner" && user.role !== "admin") return json({
+    error: "Only owners and admins can reject."
+  }, 403);
+  const body = await req.json().catch(() => null);
+  const id = body && typeof body.id === "string" ? body.id : "";
+  if (!id) return json({
+    error: "Missing proposal id."
+  }, 400);
+  const pending = await readJson(env, "data/pending.json").catch(() => ({
+    proposals: []
+  }));
+  pending.proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
+  const index = pending.proposals.findIndex(p => p.id === id);
+  if (index === -1) return json({
+    error: "Proposal not found."
+  }, 404);
+  const proposal = pending.proposals.splice(index, 1)[0];
+  const now = Date.now();
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
+  audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
+  audit.entries.unshift({
+    at: now,
+    by: user.username,
+    byId: user.id,
+    action: "reject",
+    proposal: proposal.id,
+    proposalBy: proposal.by,
+    proposalById: proposal.byId,
+    count: (proposal.changes || []).length
+  });
+  audit.entries = audit.entries.slice(0, MAX_AUDIT);
+  const sha = await commitFiles(env, {
+    "data/pending.json": serializePretty({
+      schema: 1,
+      proposals: pending.proposals
+    }),
+    "data/audit.json": serializePretty(audit)
+  }, "Reject " + proposal.by + "'s proposal");
+  return json({
+    sha
   });
 }
 
@@ -683,6 +882,10 @@ export async function handle(req, env) {
     if (url.pathname === "/api/roles" && req.method === "GET") return withCors(await getRoles(req, env), env, origin);
     if (url.pathname === "/api/roles" && req.method === "PUT") return withCors(await putRoles(req, env), env, origin);
     if (url.pathname === "/api/commit" && req.method === "POST") return withCors(await commit(req, env), env, origin);
+    if (url.pathname === "/api/propose" && req.method === "POST") return withCors(await propose(req, env), env, origin);
+    if (url.pathname === "/api/proposals" && req.method === "GET") return withCors(await listProposals(req, env), env, origin);
+    if (url.pathname === "/api/proposals/approve" && req.method === "POST") return withCors(await approveProposal(req, env), env, origin);
+    if (url.pathname === "/api/proposals/reject" && req.method === "POST") return withCors(await rejectProposal(req, env), env, origin);
     if (url.pathname === "/api/audit" && req.method === "GET") return withCors(await auditList(req, env), env, origin);
     return withCors(json({
       error: "Not found."

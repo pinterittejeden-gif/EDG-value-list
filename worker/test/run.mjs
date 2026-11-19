@@ -101,11 +101,13 @@ function ok(name) {
   const roles = validateRoles({
     owner: [ "111111111111111111" ],
     admins: [ "222222222222222222", "222222222222222222", "111111111111111111" ],
-    mods: [ "333333333333333333", "222222222222222222" ]
+    mods: [ "333333333333333333", "222222222222222222" ],
+    helpers: [ "444444444444444444", "333333333333333333" ]
   });
   assert.deepEqual(roles.owner, [ "111111111111111111" ]);
   assert.deepEqual(roles.admins, [ "222222222222222222" ]);
   assert.deepEqual(roles.mods, [ "333333333333333333" ]);
+  assert.deepEqual(roles.helpers, [ "444444444444444444" ]);
   assert.throws(() => validateRoles({
     owner: [ "not-an-id" ]
   }), /Invalid Discord ID/);
@@ -154,6 +156,7 @@ function ok(name) {
     holoOverride: 70.968,
     demand: 10,
     holoDemand: null,
+    priceStatus: null,
     note: "",
     valueSource: "sheet",
     demandSource: "sheet"
@@ -165,17 +168,24 @@ function ok(name) {
     holoOverride: 72,
     demand: 9,
     holoDemand: 10,
+    priceStatus: "over",
     note: "test"
   }, now, "vxef");
   assert.equal(card.valueOverride, 24);
   assert.equal(card.holoOverride, 72);
   assert.equal(card.demand, 9);
   assert.equal(card.holoDemand, 10);
+  assert.equal(card.priceStatus, "over");
   assert.equal(card.note, "test");
   assert.equal(card.valueSource, "manual");
   assert.equal(card.updatedAt, now);
   assert.ok(audit.changes.value);
   assert.ok(audit.changes.holoDemand);
+  assert.ok(audit.changes.priceStatus);
+  assert.throws(() => applyCardPatch(card, {
+    id: card.id,
+    priceStatus: "wat"
+  }, now, "vxef"), /price/);
   assert.throws(() => applyCardPatch(card, {
     id: card.id,
     demand: 11

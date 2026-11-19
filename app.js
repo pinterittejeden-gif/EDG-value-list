@@ -39,6 +39,8 @@
     rolesRemote: null,
     rolesLoading: false,
     rolesYou: null,
+    proposals: null,
+    proposalsLoading: false,
     anchorsDraft: null,
     rolesDraft: null,
     selected: new Set(),
@@ -322,7 +324,8 @@
     return {
       owner: list(r.owner),
       admins: list(r.admins),
-      mods: list(r.mods)
+      mods: list(r.mods),
+      helpers: list(r.helpers)
     };
   }
   function canEdit() {
@@ -333,6 +336,12 @@
   }
   function canManageRoles() {
     return !!state.auth.token && state.auth.role === "owner";
+  }
+  function canApprove() {
+    return !!state.auth.token && (state.auth.role === "owner" || state.auth.role === "admin");
+  }
+  function canPropose() {
+    return !!state.auth.token && state.auth.role === "helper";
   }
   function apiFetch(path, opts) {
     opts = opts || {};
@@ -368,8 +377,10 @@
       state.auth.id = data.user.id;
       state.auth.username = data.user.username;
       state.auth.globalName = data.user.global_name || data.user.username;
+      var previousRole = state.auth.role;
       state.auth.role = data.role;
       state.rolesRemote = null;
+      if (previousRole !== data.role) state.proposals = null;
       if (state.auth.role !== "viewer") {
         return refreshAudit();
       }
@@ -395,6 +406,8 @@
     state.anchorsDraft = null;
     state.rolesDraft = null;
     state.rolesRemote = null;
+    state.proposals = null;
+    state.proposalsLoading = false;
     state.selected.clear();
     close("drawer");
     toast("Signed out.");
@@ -989,7 +1002,7 @@
     actions.append(h("button", {
       class: "btn btn-primary",
       type: "button",
-      text: "Save",
+      text: state.auth.role === "helper" ? "Submit" : "Save",
       on: {
         click: function(ev) {
           var patch = {
@@ -1070,6 +1083,18 @@
   }
   function publishCardChange(card, patch, btn, message) {
     if (!canEdit()) return toast("Sign in with Discord.", "error");
+    if (canPropose()) {
+      submitProposal([ {
+        id: card.id,
+        valueOverride: patch.valueOverride,
+        holoOverride: patch.holoOverride,
+        demand: patch.demand,
+        holoDemand: patch.holoDemand,
+        priceStatus: patch.priceStatus,
+        note: patch.note
+      } ], message || "Propose " + card.name, btn);
+      return;
+    }
     if (state.busy) return;
     var label = btn ? btn.textContent : "Save";
     state.busy = true;
@@ -1174,6 +1199,8 @@
     bar.hidden = !show;
     if (!show) return;
     $("#bulkCount").textContent = state.selected.size + " selected";
+    $("#bulkApply").textContent = state.auth.role === "helper" ? "Submit" : "Apply";
+    $("#bulkRevert").hidden = state.auth.role === "helper";
     var any = false;
     state.selected.forEach(function(id) {
       if (latestCardEdit(id)) any = true;
@@ -1278,6 +1305,20 @@
   }
   function publishBulkItems(items, message, btn) {
     if (!canEdit()) return toast("Sign in with Discord.", "error");
+    if (canPropose()) {
+      submitProposal(items.map(function(it) {
+        return {
+          id: it.card.id,
+          valueOverride: it.patch.valueOverride,
+          holoOverride: it.patch.holoOverride,
+          demand: it.patch.demand,
+          holoDemand: it.patch.holoDemand,
+          priceStatus: it.patch.priceStatus,
+          note: it.patch.note
+        };
+      }), message, btn);
+      return;
+    }
     if (state.busy) return;
     var label = btn ? btn.textContent : "Apply";
     state.busy = true;
@@ -1367,6 +1408,217 @@
     if (!items.length) return toast("No prior edits.", "error");
     publishBulkItems(items, "Revert selected", $("#bulkRevert"));
   }
+  function loadProposals(force) {
+    if (!(canApprove() || canPropose())) return Promise.resolve();
+    if (!force && (state.proposals || state.proposalsLoading)) return Promise.resolve();
+    state.proposalsLoading = true;
+    return apiFetch("/api/proposals").then(function(data) {
+      state.proposals = Array.isArray(data.proposals) ? data.proposals : [];
+      state.proposalsLoading = false;
+      if (!$("#drawer").hidden) renderDrawer();
+    }).catch(function(err) {
+      state.proposalsLoading = false;
+      toast(err.message || "Could not load proposals.", "error");
+    });
+  }
+  function proposalSummary(change) {
+    var card = state.cards.find(function(x) {
+      return x.id === change.id;
+    });
+    if (!card) return change.id;
+    var parts = [];
+    if (change.valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) parts.push("value " + fmtValue(change.valueOverride));
+    if (change.holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) parts.push("holo " + fmtValue(change.holoOverride));
+    if (change.demand !== (card.demand == null ? null : card.demand)) parts.push("demand " + (change.demand == null ? "N/A" : demandLabel(change.demand) + " " + change.demand + "/10"));
+    if (change.holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) parts.push("holo demand " + (change.holoDemand == null ? "N/A" : demandLabel(change.holoDemand) + " " + change.holoDemand + "/10"));
+    if ((change.priceStatus || null) !== (card.priceStatus == null ? null : card.priceStatus)) parts.push("price " + (change.priceStatus ? priceLabel(change.priceStatus) : "none"));
+    if ((change.note || "") !== (card.note || "")) parts.push("note");
+    return card.name + (parts.length ? ": " + parts.join(", ") : "");
+  }
+  function renderProposalsEditor() {
+    var box = h("div", {
+      class: "panel-box"
+    });
+    box.append(h("h3", {
+      text: "Proposals"
+    }));
+    if (!state.proposals) {
+      if (!state.proposalsLoading) loadProposals();
+      box.append(h("p", {
+        class: "muted",
+        text: "Loading..."
+      }));
+      return box;
+    }
+    if (!state.proposals.length) {
+      box.append(h("p", {
+        class: "muted",
+        text: "No pending proposals."
+      }));
+      return box;
+    }
+    state.proposals.forEach(function(p) {
+      var lines = (p.changes || []).map(proposalSummary);
+      var summary = lines.slice(0, 4).join(" · ") + (lines.length > 4 ? " · +" + (lines.length - 4) + " more" : "");
+      box.append(h("div", {
+        class: "proposal"
+      }, h("div", {
+        class: "proposal-head"
+      }, h("strong", {
+        text: "@" + (p.by || "unknown")
+      }), h("span", {
+        text: timeAgo(p.at)
+      })), h("div", {
+        class: "proposal-cards",
+        text: summary
+      }), p.message ? h("div", {
+        class: "muted",
+        text: p.message
+      }) : null, canApprove() ? h("div", {
+        class: "form-actions"
+      }, h("button", {
+        class: "btn btn-primary",
+        type: "button",
+        text: "Approve",
+        on: {
+          click: function(ev) {
+            approveProposal(p.id, ev.currentTarget);
+          }
+        }
+      }), h("button", {
+        class: "btn btn-danger",
+        type: "button",
+        text: "Reject",
+        on: {
+          click: function(ev) {
+            rejectProposal(p.id, ev.currentTarget);
+          }
+        }
+      })) : h("div", {
+        class: "muted",
+        text: "pending"
+      })));
+    });
+    return box;
+  }
+  function submitProposal(changes, message, btn) {
+    if (!canPropose()) return toast("Helpers only.", "error");
+    if (state.busy) return;
+    var label = btn ? btn.textContent : "Submit";
+    state.busy = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+    }
+    var chunks = [];
+    for (var i = 0; i < changes.length; i += 200) chunks.push(changes.slice(i, i + 200));
+    function next() {
+      if (!chunks.length) {
+        state.busy = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = label;
+        }
+        toast("Submitted for approval.", "ok");
+        close("modal");
+        state.selected.clear();
+        state.proposals = null;
+        renderAll();
+        return loadProposals(true);
+      }
+      var chunk = chunks.shift();
+      return apiFetch("/api/propose", {
+        method: "POST",
+        body: {
+          changes: chunk,
+          message: String(message || "Proposal").slice(0, 120)
+        }
+      }).then(next);
+    }
+    next().catch(function(err) {
+      state.busy = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+      if (err.status === 401) {
+        clearAuth();
+        renderAll();
+        toast("Session expired.", "error");
+      } else {
+        toast(err.message || "Submit failed.", "error");
+      }
+    });
+  }
+  function approveProposal(id, btn) {
+    if (!canApprove() || state.busy) return;
+    var label = btn ? btn.textContent : "Approve";
+    state.busy = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Approving...";
+    }
+    var proposal = (state.proposals || []).find(function(p) {
+      return p.id === id;
+    });
+    apiFetch("/api/proposals/approve", {
+      method: "POST",
+      body: {
+        id: id
+      }
+    }).then(function() {
+      if (proposal && Array.isArray(proposal.changes)) {
+        proposal.changes.forEach(function(c) {
+          var card = state.cards.find(function(x) {
+            return x.id === c.id;
+          });
+          if (card) applyLocalCardPatch(card, c);
+        });
+      }
+      state.proposals = null;
+      if (state.meta) state.meta.generatedAt = Date.now();
+      toast("Approved.", "ok");
+      renderAll();
+      return refreshAudit().then(function() {
+        return loadProposals(true);
+      });
+    }).catch(function(err) {
+      toast(err.message || "Approve failed.", "error");
+    }).then(function() {
+      state.busy = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    });
+  }
+  function rejectProposal(id, btn) {
+    if (!canApprove() || state.busy) return;
+    var label = btn ? btn.textContent : "Reject";
+    state.busy = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Rejecting...";
+    }
+    apiFetch("/api/proposals/reject", {
+      method: "POST",
+      body: {
+        id: id
+      }
+    }).then(function() {
+      state.proposals = null;
+      toast("Rejected.", "ok");
+      return loadProposals(true);
+    }).catch(function(err) {
+      toast(err.message || "Reject failed.", "error");
+    }).then(function() {
+      state.busy = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    });
+  }
   function openDrawer() {
     renderDrawer();
     open("drawer");
@@ -1383,7 +1635,7 @@
   function renderDrawer() {
     var body = $("#drawerBody");
     body.textContent = "";
-    $("#drawerTitle").textContent = state.auth.role === "owner" ? "Admin panel" : "Editor panel";
+    $("#drawerTitle").textContent = state.auth.role === "owner" || state.auth.role === "admin" ? "Admin panel" : state.auth.role === "helper" ? "Helper panel" : "Editor panel";
     body.append(h("div", {
       class: "panel-box"
     }, h("h3", {
@@ -1407,6 +1659,9 @@
     }) : null)));
     if (canManageRoles()) {
       body.append(renderRolesEditor());
+    }
+    if (canApprove() || canPropose()) {
+      body.append(renderProposalsEditor());
     }
     if (!canEdit()) {
       var locked = state.auth.username ? "Your ID " + state.auth.id + ". Ask vxef." : "Sign in with Discord.";
@@ -1441,7 +1696,7 @@
           class: "audit-item"
         }, h("strong", {
           text: e.by || "unknown"
-        }), " · ", e.action === "roles" ? "roles" : e.action === "anchors" ? "anchors" : e.name || e.id, " · " + timeAgo(e.at));
+        }), " · ", e.action === "propose" ? "proposal" : e.action === "approve" ? "approval" : e.action === "reject" ? "rejection" : e.action === "roles" ? "roles" : e.action === "anchors" ? "anchors" : e.name || e.id, " · " + timeAgo(e.at));
         auditBox.append(line);
       });
     }
@@ -1606,7 +1861,8 @@
           state.rolesDraft = {
             owner: data.roles.owner.slice(),
             admins: data.roles.admins.slice(),
-            mods: data.roles.mods.slice()
+            mods: data.roles.mods.slice(),
+            helpers: (data.roles.helpers || []).slice()
           };
           state.rolesLoading = false;
           renderDrawer();
@@ -1654,16 +1910,19 @@
     }), h("option", {
       value: "owner",
       text: "Owner (everything)"
+    }), h("option", {
+      value: "helper",
+      text: "Helper (submit only)"
     }));
     function addId() {
       var id = idInput.value.trim();
       if (!/^\d{16,20}$/.test(id)) return toast("That is not a Discord user ID. Right-click a name in Discord and Copy User ID.", "error");
-      [ "owner", "admins", "mods" ].forEach(function(k) {
+      [ "owner", "admins", "mods", "helpers" ].forEach(function(k) {
         draft[k] = draft[k].filter(function(x) {
           return x !== id;
         });
       });
-      draft[roleSel.value === "owner" ? "owner" : roleSel.value === "admin" ? "admins" : "mods"].push(id);
+      draft[roleSel.value === "owner" ? "owner" : roleSel.value === "admin" ? "admins" : roleSel.value === "helper" ? "helpers" : "mods"].push(id);
       renderDrawer();
     }
     box.append(h("div", {
@@ -1708,7 +1967,7 @@
       });
       return wrap;
     }
-    box.append(listBlock("Owners", "owner"), listBlock("Admins", "admins"), listBlock("Mods", "mods"));
+    box.append(listBlock("Owners", "owner"), listBlock("Admins", "admins"), listBlock("Mods", "mods"), listBlock("Helpers", "helpers"));
     box.append(h("div", {
       class: "form-actions"
     }, h("button", {
