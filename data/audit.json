@@ -2,6 +2,21 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
+      "name": "Coalescence",
+      "changes": {},
+      "before": {
+        "valueOverride": 0.23,
+        "holoOverride": null,
+        "demand": 4,
+        "holoDemand": 6,
+        "priceStatus": null,
+        "note": "about to fall from #100, will prolly lose its Epic'ness\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "3237ed55-fa08-43ae-a93e-bd485ffe8d55",
       "name": "THE JET ENGINE",
       "changes": {
