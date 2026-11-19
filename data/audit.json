@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795124153425,
+      "id": "7b90f819-624d-461a-9987-f1b6a0a54ef2",
+      "name": "Ashley Wave Trials",
+      "changes": {
+        "holo": {
+          "from": 6,
+          "to": 6.4
+        }
+      },
+      "before": {
+        "valueOverride": 1.6,
+        "holoOverride": 6,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "this card is the son of a devil\noverpriced as hell",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795124139302,
       "id": "d6f7ba38-9787-42a2-acf2-4585e69cbb91",
       "name": "Silent clubstep",
