@@ -2013,6 +2013,16 @@
     if (changes.note) lines.push("Updated Note for " + name);
     return lines;
   }
+  function fmtDateTime(ms) {
+    var n = num(ms);
+    if (!n) return "";
+    var d = new Date(n);
+    if (isNaN(d.getTime())) return "";
+    var pad = function(x) {
+      return String(x).length < 2 ? "0" + x : String(x);
+    };
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()) + " " + pad(d.getUTCHours()) + ":" + pad(d.getUTCMinutes()) + " UTC";
+  }
   function renderChangelog() {
     var body = $("#changelogBody");
     body.textContent = "";
@@ -2033,6 +2043,7 @@
       var name = e.name || (card && card.name) || "Card";
       var lines = changeLines(name, e.changes);
       if (!lines.length) return;
+      var at = e.at || (card && card.updatedAt) || null;
       body.append(h("div", {
         class: "changelog-item"
       }, h("div", null, lines.map(function(line) {
@@ -2042,7 +2053,7 @@
         });
       })), h("div", {
         class: "changelog-meta",
-        text: byText(e.by) + (e.at ? " · " + timeAgo(e.at) : "")
+        text: byText(e.by) + (at ? " · " + timeAgo(at) + " · " + fmtDateTime(at) : " · time unknown")
       })));
     });
   }
