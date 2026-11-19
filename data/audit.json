@@ -5,6 +5,27 @@
       "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
       "name": "Green Bullet",
       "changes": {
+        "holoDemand": {
+          "from": 8,
+          "to": 6
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 3.2,
+        "holoOverride": 9,
+        "demand": 6,
+        "holoDemand": 8,
+        "priceStatus": "under",
+        "note": "who wants this",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
+      "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
+      "name": "Green Bullet",
+      "changes": {
         "note": true
       },
       "before": {
