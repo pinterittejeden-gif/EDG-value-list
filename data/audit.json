@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "4ece95db-18aa-4dd2-9fba-9991e1cce1bc",
+      "name": "Amethyst",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 5,
+        "holoOverride": 15,
+        "demand": 8,
+        "holoDemand": 9,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "f9158d5d-ecda-414c-a507-b8eb99d4d99f",
       "name": "Thinking Space II",
       "changes": {
