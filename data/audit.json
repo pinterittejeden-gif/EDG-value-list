@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
+      "name": "BLAZEIT",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.87
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 9,
+        "priceStatus": "over",
+        "note": "Overpriced like all the new cards",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "72bf2c18-1299-408b-bca2-3da986956632",
       "name": "KOSETSU",
       "changes": {
