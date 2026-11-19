@@ -347,6 +347,9 @@
   function canSuggest() {
     return !!state.auth.token && state.auth.role === "viewer";
   }
+  function canPanel() {
+    return !!state.auth.token && [ "helper", "mod", "admin", "owner" ].indexOf(state.auth.role) !== -1;
+  }
   function apiFetch(path, opts) {
     opts = opts || {};
     if (!API) return Promise.reject(new Error("Sign in is not configured."));
@@ -763,6 +766,11 @@
       btn.onclick = function() {
         openLogin();
       };
+    }
+    var link = $("#adminLink");
+    if (link) {
+      link.hidden = !canPanel();
+      link.textContent = state.auth.role === "helper" ? "Helper panel" : state.auth.role === "mod" ? "Editor panel" : "Admin panel";
     }
   }
   function syncUrl() {
@@ -1678,7 +1686,7 @@
     publishBulkItems(items, "Revert selected", $("#bulkRevert"));
   }
   function loadProposals(force) {
-    if (!(canApprove() || canPropose() || canSuggest())) return Promise.resolve();
+    if (!(canApprove() || canPropose())) return Promise.resolve();
     if (!force && (state.proposals || state.proposalsLoading)) return Promise.resolve();
     state.proposalsLoading = true;
     return apiFetch("/api/proposals").then(function(data) {
@@ -1699,21 +1707,40 @@
     var has = function(f) {
       return !fields || fields.indexOf(f) !== -1;
     };
+    var valueText = function(v) {
+      return v == null ? "curve" : fmtValue(v);
+    };
+    var holoText = function(v) {
+      return v == null ? "3x" : fmtValue(v);
+    };
+    var demandText = function(d) {
+      return d == null ? "N/A" : demandLabel(d) + " " + Math.round(d) + "/10";
+    };
+    var priceText = function(s) {
+      return s ? priceLabel(s) : "none";
+    };
+    var curValue = card.valueOverride == null ? null : card.valueOverride;
+    var curHolo = card.holoOverride == null ? null : card.holoOverride;
+    var curDemand = card.demand == null ? null : card.demand;
+    var curHoloDemand = card.holoDemand == null ? null : card.holoDemand;
+    var curPrice = card.priceStatus == null ? null : card.priceStatus;
     var parts = [];
-    if (has("valueOverride") && change.valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) parts.push("value " + fmtValue(change.valueOverride));
-    if (has("holoOverride") && change.holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) parts.push("holo " + fmtValue(change.holoOverride));
-    if (has("demand") && change.demand !== (card.demand == null ? null : card.demand)) parts.push("demand " + (change.demand == null ? "N/A" : demandLabel(change.demand) + " " + change.demand + "/10"));
-    if (has("holoDemand") && change.holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) parts.push("holo demand " + (change.holoDemand == null ? "N/A" : demandLabel(change.holoDemand) + " " + change.holoDemand + "/10"));
-    if (has("priceStatus") && (change.priceStatus || null) !== (card.priceStatus == null ? null : card.priceStatus)) parts.push("price " + (change.priceStatus ? priceLabel(change.priceStatus) : "none"));
-    if (has("note") && (change.note || "") !== (card.note || "")) parts.push("note");
+    if (has("valueOverride") && change.valueOverride !== curValue) parts.push("value " + valueText(curValue) + " -> " + valueText(change.valueOverride));
+    if (has("holoOverride") && change.holoOverride !== curHolo) parts.push("holo " + holoText(curHolo) + " -> " + holoText(change.holoOverride));
+    if (has("demand") && change.demand !== curDemand) parts.push("demand " + demandText(curDemand) + " -> " + demandText(change.demand));
+    if (has("holoDemand") && change.holoDemand !== curHoloDemand) parts.push("holo demand " + demandText(curHoloDemand) + " -> " + demandText(change.holoDemand));
+    if (has("priceStatus") && (change.priceStatus || null) !== curPrice) parts.push("price " + priceText(curPrice) + " -> " + priceText(change.priceStatus));
+    if (has("note") && (change.note || "") !== (card.note || "")) parts.push("note updated");
     return card.name + (parts.length ? ": " + parts.join(", ") : "");
   }
   function renderProposalsEditor() {
     var box = h("div", {
       class: "panel-box"
     });
+    var title = canApprove() ? "Pending suggestions" : "My proposals";
+    if (state.proposals) title += " (" + state.proposals.length + ")";
     box.append(h("h3", {
-      text: canApprove() || canPropose() ? "Proposals" : "Suggestions"
+      text: title
     }));
     if (!state.proposals) {
       if (!state.proposalsLoading) loadProposals();
@@ -1726,7 +1753,7 @@
     if (!state.proposals.length) {
       box.append(h("p", {
         class: "muted",
-        text: "No pending proposals."
+        text: canApprove() ? "No pending suggestions." : "No pending proposals."
       }));
       return box;
     }
@@ -1955,11 +1982,8 @@
       });
     }
   }
-  function renderDrawer() {
-    var body = $("#drawerBody");
-    body.textContent = "";
-    $("#drawerTitle").textContent = state.auth.role === "owner" || state.auth.role === "admin" ? "Admin panel" : state.auth.role === "helper" ? "Helper panel" : state.auth.username ? "My panel" : "Editor panel";
-    body.append(h("div", {
+  function renderSessionBox() {
+    return h("div", {
       class: "panel-box"
     }, h("h3", {
       text: "Session"
@@ -1979,51 +2003,53 @@
       on: {
         click: signOut
       }
-    }) : null)));
-    if (canManageRoles()) {
-      body.append(renderRolesEditor());
-    }
-    if (canApprove() || canPropose() || canSuggest()) {
-      body.append(renderProposalsEditor());
-    }
-    if (!canEdit()) {
-      var locked = state.auth.role === "blocked" ? "You are blocked from suggesting." : canSuggest() ? "View only. Use Suggest on a card." : state.auth.username ? "Your ID " + state.auth.id + ". Ask vxef." : "Sign in with Discord.";
-      body.append(h("div", {
-        class: "panel-box"
-      }, h("h3", {
-        text: "Locked"
-      }), h("p", {
-        class: "muted",
-        text: locked
-      })));
-      return;
-    }
-    if (canEditAnchors()) {
-      body.append(renderAnchorsEditor());
-    }
-    var auditBox = h("div", {
+    }) : null));
+  }
+  function renderAuditEditor() {
+    var box = h("div", {
       class: "panel-box"
     });
-    auditBox.append(h("h3", {
+    box.append(h("h3", {
       text: "Edits"
     }));
     var entries = (state.audit.entries || []).slice(0, 60);
     if (!entries.length) {
-      auditBox.append(h("p", {
+      box.append(h("p", {
         class: "muted",
         text: "No edits yet."
       }));
     } else {
       entries.forEach(function(e) {
-        var line = h("div", {
+        box.append(h("div", {
           class: "audit-item"
         }, h("strong", {
           text: e.by || "unknown"
-        }), " · ", e.action === "propose" ? "proposal" : e.action === "approve" ? "approval" : e.action === "reject" ? "rejection" : e.action === "roles" ? "roles" : e.action === "anchors" ? "anchors" : e.name || e.id, " · " + timeAgo(e.at));
-        auditBox.append(line);
+        }), " · ", e.action === "propose" ? "proposal" : e.action === "suggest" ? "suggestion" : e.action === "approve" ? "approval" : e.action === "reject" ? "rejection" : e.action === "block" ? "block" : e.action === "roles" ? "roles" : e.action === "anchors" ? "anchors" : e.name || e.id, " · " + timeAgo(e.at)));
       });
     }
-    body.append(auditBox);
+    return box;
+  }
+  function renderDrawer() {
+    var body = $("#drawerBody");
+    body.textContent = "";
+    var role = state.auth.role;
+    $("#drawerTitle").textContent = role === "owner" || role === "admin" ? "Admin panel" : role === "helper" ? "Helper panel" : role === "mod" ? "Editor panel" : state.auth.username ? "Account" : "Sign in";
+    if (canManageRoles()) body.append(renderRolesEditor());
+    if (canApprove() || canPropose()) body.append(renderProposalsEditor());
+    if (canEditAnchors()) body.append(renderAnchorsEditor());
+    if (canApprove() || role === "mod") body.append(renderAuditEditor());
+    if (!canEdit()) {
+      var note = role === "blocked" ? "You are blocked from suggesting." : state.auth.username ? "View only. Use Suggest on a card." : "Sign in with Discord.";
+      body.append(h("div", {
+        class: "panel-box"
+      }, h("h3", {
+        text: "View only"
+      }), h("p", {
+        class: "muted",
+        text: note
+      })));
+    }
+    body.append(renderSessionBox());
   }
   function kv(k, v) {
     return h("div", {
@@ -2404,6 +2430,10 @@
         state.view.page = 1;
         renderAll();
       });
+    });
+    $("#adminLink").addEventListener("click", function(e) {
+      e.preventDefault();
+      openDrawer();
     });
     $("#vtable thead").addEventListener("click", function(e) {
       var th = e.target.closest("th[data-sort]");
