@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
+      "name": "Green Bullet",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "under"
+        }
+      },
+      "before": {
+        "valueOverride": 3.2,
+        "holoOverride": 9,
+        "demand": 6,
+        "holoDemand": 8,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "d7373b5b-fa60-4b67-9683-cf3c1f088a8d",
       "name": "Climax",
       "changes": {
