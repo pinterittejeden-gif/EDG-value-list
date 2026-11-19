@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "d7373b5b-fa60-4b67-9683-cf3c1f088a8d",
+      "name": "Climax",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.249
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "4ece95db-18aa-4dd2-9fba-9991e1cce1bc",
       "name": "Amethyst",
       "changes": {
