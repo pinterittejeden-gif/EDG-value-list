@@ -2,6 +2,25 @@
   "schema": 1,
   "entries": [
     {
+      "id": "78d2148c-d0eb-468e-979a-aee250514f02",
+      "name": "ANNIHILATED",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 67
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": null,
+        "holoDemand": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "lilysquared_"
+    },
+    {
       "at": 1795101015856,
       "by": "vxef",
       "byId": "1172223881122152540",
