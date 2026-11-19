@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c586d155-f78c-43f6-933c-3c11c4aa6600",
+      "name": "poocubed",
+      "changes": {
+        "holoDemand": {
+          "from": null,
+          "to": 8
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.258,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "ca07a223-dd23-437a-8aed-03a5df95f863",
       "name": "zorin",
       "changes": {
