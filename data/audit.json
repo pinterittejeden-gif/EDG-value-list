@@ -2,6 +2,29 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
+      "name": "GRIEF",
+      "changes": {
+        "value": {
+          "from": 23.226,
+          "to": 20
+        },
+        "holo": {
+          "from": 70.968,
+          "to": 70
+        }
+      },
+      "before": {
+        "valueOverride": 23.226,
+        "holoOverride": 70.968,
+        "demand": 9,
+        "holoDemand": 10,
+        "note": "Mostly used for trading, or completing index's\nHolo: just hypergamy bro..",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
       "name": "Society",
       "changes": {
