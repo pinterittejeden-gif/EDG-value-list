@@ -4,6 +4,21 @@
     {
       "id": "b0b509de-4eed-4415-b419-a02abdc481c1",
       "name": "Tidal Wave",
+      "changes": {},
+      "before": {
+        "valueOverride": 4,
+        "holoOverride": 12,
+        "demand": 7,
+        "holoDemand": 10,
+        "priceStatus": "fair",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
+      "id": "b0b509de-4eed-4415-b419-a02abdc481c1",
+      "name": "Tidal Wave",
       "changes": {
         "demand": {
           "from": 6,
