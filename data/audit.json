@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "3d351b86-3762-4eee-95aa-8dbd16189531",
+      "name": "Menace",
+      "changes": {
+        "demand": {
+          "from": 10,
+          "to": 6
+        }
+      },
+      "before": {
+        "valueOverride": 0.806,
+        "holoOverride": 3.226,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "4ae11fe6-fd93-4a4b-8481-3048d3edf736",
       "name": "Acheron",
       "changes": {
