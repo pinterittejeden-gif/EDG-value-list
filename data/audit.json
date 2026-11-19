@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "213ff25e-eac6-47fb-baee-6180b436ec8d",
+      "name": "Through The Gates",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.64
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 5
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "007000f3-c6b4-440a-a4b3-af7e86e132e9",
       "name": "Firework",
       "changes": {
