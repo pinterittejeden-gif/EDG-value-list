@@ -41,6 +41,8 @@
     rolesYou: null,
     anchorsDraft: null,
     rolesDraft: null,
+    selected: new Set(),
+    bulkInit: false,
     busy: false
   };
   function $(sel, root) {
@@ -390,6 +392,7 @@
     state.anchorsDraft = null;
     state.rolesDraft = null;
     state.rolesRemote = null;
+    state.selected.clear();
     close("drawer");
     toast("Signed out.");
     renderAll();
@@ -469,6 +472,7 @@
     renderPager();
     renderAuthButton();
     renderUpdated();
+    renderBulkBar();
     syncUrl();
   }
   function renderStats() {
@@ -528,6 +532,7 @@
     var frag = document.createDocumentFragment();
     var table = $("#vtable");
     if (table) table.classList.toggle("holo-mode", !!state.view.holo);
+    if (table) table.classList.toggle("editing", canEdit());
     slice.forEach(function(card) {
       var value = shownValue(card);
       var holo = holoOf(card);
@@ -537,6 +542,22 @@
           id: card.id
         }
       });
+      var selectCell = h("td", {
+        class: "col-select"
+      });
+      if (canEdit()) {
+        var rowSelect = h("input", {
+          type: "checkbox",
+          class: "row-select",
+          attrs: {
+            "aria-label": "Select " + card.name
+          }
+        });
+        rowSelect.dataset.id = card.id;
+        rowSelect.checked = state.selected.has(card.id);
+        selectCell.append(rowSelect);
+      }
+      tr.append(selectCell);
       tr.append(h("td", {
         class: "col-rank",
         text: String(card.rank)
@@ -632,6 +653,7 @@
     body.append(frag);
     $("#empty").hidden = state.filtered.length !== 0;
     $("#vbody").hidden = state.filtered.length === 0;
+    updateSelectPage();
   }
   function renderPager() {
     var total = state.filtered.length;
@@ -1042,6 +1064,216 @@
         btn.textContent = label;
       }
     });
+  }
+  function pageIds() {
+    var start = (state.view.page - 1) * state.view.size;
+    return state.filtered.slice(start, start + state.view.size).map(function(c) {
+      return c.id;
+    });
+  }
+  function updateSelectPage() {
+    var el = $("#selectPage");
+    if (!el) return;
+    var ids = pageIds();
+    el.checked = ids.length > 0 && ids.every(function(id) {
+      return state.selected.has(id);
+    });
+  }
+  function renderBulkBar() {
+    var bar = $("#bulkBar");
+    if (!bar) return;
+    var show = canEdit() && state.selected.size > 0;
+    bar.hidden = !show;
+    if (!show) return;
+    $("#bulkCount").textContent = state.selected.size + " selected";
+    var any = false;
+    state.selected.forEach(function(id) {
+      if (latestCardEdit(id)) any = true;
+    });
+    $("#bulkRevert").disabled = !any;
+  }
+  function initBulk() {
+    if (state.bulkInit) return;
+    state.bulkInit = true;
+    [ $("#bulkDemand"), $("#bulkHoloDemand") ].forEach(function(sel) {
+      if (!sel) return;
+      sel.append(h("option", {
+        value: "",
+        text: "N/A"
+      }));
+      for (var d = 0; d <= 10; d++) {
+        sel.append(h("option", {
+          value: String(d),
+          text: d + " " + demandLabel(d)
+        }));
+      }
+    });
+    [ [ "bulkValueOn", "bulkValue" ], [ "bulkHoloOn", "bulkHolo" ], [ "bulkDemandOn", "bulkDemand" ], [ "bulkHoloDemandOn", "bulkHoloDemand" ], [ "bulkNoteOn", "bulkNote" ] ].forEach(function(pair) {
+      var on = $("#" + pair[0]), input = $("#" + pair[1]);
+      if (!on || !input) return;
+      input.disabled = !on.checked;
+      on.addEventListener("change", function() {
+        input.disabled = !on.checked;
+      });
+    });
+    $("#selectPage").addEventListener("change", function(e) {
+      var ids = pageIds();
+      if (e.target.checked) ids.forEach(function(id) {
+        state.selected.add(id);
+      }); else ids.forEach(function(id) {
+        state.selected.delete(id);
+      });
+      renderRows();
+      renderBulkBar();
+    });
+    $("#vbody").addEventListener("change", function(e) {
+      if (!e.target.classList.contains("row-select")) return;
+      var id = e.target.dataset.id;
+      if (e.target.checked) state.selected.add(id); else state.selected.delete(id);
+      updateSelectPage();
+      renderBulkBar();
+    });
+    $("#bulkClear").addEventListener("click", function() {
+      state.selected.clear();
+      renderRows();
+      renderBulkBar();
+    });
+    $("#bulkApply").addEventListener("click", function(e) {
+      var items = buildBulkItems();
+      if (items) publishBulkItems(items, "Bulk update " + items.length + " cards", e.currentTarget);
+    });
+    $("#bulkRevert").addEventListener("click", revertSelected);
+  }
+  function buildBulkItems() {
+    var valueOn = $("#bulkValueOn").checked, holoOn = $("#bulkHoloOn").checked, demandOn = $("#bulkDemandOn").checked, holoDemandOn = $("#bulkHoloDemandOn").checked, noteOn = $("#bulkNoteOn").checked;
+    if (!valueOn && !holoOn && !demandOn && !holoDemandOn && !noteOn) {
+      toast("Pick a field.", "error");
+      return null;
+    }
+    var value = valueOn ? $("#bulkValue").value.trim() === "" ? null : Number($("#bulkValue").value) : null;
+    if (valueOn && value != null && (!Number.isFinite(value) || value < 0)) {
+      toast("Value must be positive.", "error");
+      return null;
+    }
+    var holo = holoOn ? $("#bulkHolo").value.trim() === "" ? null : Number($("#bulkHolo").value) : null;
+    if (holoOn && holo != null && (!Number.isFinite(holo) || holo < 0)) {
+      toast("Holo must be positive.", "error");
+      return null;
+    }
+    var demand = demandOn ? $("#bulkDemand").value === "" ? null : Number($("#bulkDemand").value) : null;
+    var holoDemand = holoDemandOn ? $("#bulkHoloDemand").value === "" ? null : Number($("#bulkHoloDemand").value) : null;
+    var note = noteOn ? $("#bulkNote").value.trim() : null;
+    var items = [];
+    state.selected.forEach(function(id) {
+      var card = state.cards.find(function(c) {
+        return c.id === id;
+      });
+      if (!card) return;
+      items.push({
+        card: card,
+        patch: {
+          valueOverride: valueOn ? value : card.valueOverride == null ? null : card.valueOverride,
+          holoOverride: holoOn ? holo : card.holoOverride == null ? null : card.holoOverride,
+          demand: demandOn ? demand : card.demand == null ? null : card.demand,
+          holoDemand: holoDemandOn ? holoDemand : card.holoDemand == null ? null : card.holoDemand,
+          note: noteOn ? note : card.note || ""
+        }
+      });
+    });
+    if (!items.length) {
+      toast("Nothing selected.", "error");
+      return null;
+    }
+    return items;
+  }
+  function publishBulkItems(items, message, btn) {
+    if (!canEdit()) return toast("Sign in with Discord.", "error");
+    if (state.busy) return;
+    var label = btn ? btn.textContent : "Apply";
+    state.busy = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+    }
+    var chunks = [];
+    for (var i = 0; i < items.length; i += 200) chunks.push(items.slice(i, i + 200));
+    function next() {
+      if (!chunks.length) {
+        state.busy = false;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = label;
+        }
+        if (state.meta) state.meta.generatedAt = Date.now();
+        state.selected.clear();
+        toast("Saved.", "ok");
+        renderAll();
+        return refreshAudit().then(function() {
+          if (!$("#drawer").hidden) renderDrawer();
+        });
+      }
+      var chunk = chunks.shift();
+      var changes = chunk.map(function(it) {
+        return {
+          id: it.card.id,
+          valueOverride: it.patch.valueOverride,
+          holoOverride: it.patch.holoOverride,
+          demand: it.patch.demand,
+          holoDemand: it.patch.holoDemand,
+          note: it.patch.note
+        };
+      });
+      return apiFetch("/api/commit", {
+        method: "POST",
+        body: {
+          changes: changes,
+          message: message
+        }
+      }).then(function() {
+        chunk.forEach(function(it) {
+          applyLocalCardPatch(it.card, it.patch);
+        });
+        return next();
+      });
+    }
+    next().catch(function(err) {
+      state.busy = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+      if (err.status === 401) {
+        clearAuth();
+        renderAll();
+        toast("Session expired.", "error");
+      } else {
+        toast(err.message || "Save failed.", "error");
+      }
+    });
+  }
+  function revertSelected() {
+    var items = [];
+    state.selected.forEach(function(id) {
+      var entry = latestCardEdit(id);
+      if (!entry) return;
+      var card = state.cards.find(function(c) {
+        return c.id === id;
+      });
+      if (!card) return;
+      var b = entry.before;
+      items.push({
+        card: card,
+        patch: {
+          valueOverride: b.valueOverride == null ? null : b.valueOverride,
+          holoOverride: b.holoOverride == null ? null : b.holoOverride,
+          demand: b.demand == null ? null : b.demand,
+          holoDemand: b.holoDemand == null ? null : b.holoDemand,
+          note: b.note || ""
+        }
+      });
+    });
+    if (!items.length) return toast("No prior edits.", "error");
+    publishBulkItems(items, "Revert selected", $("#bulkRevert"));
   }
   function openDrawer() {
     renderDrawer();
@@ -1548,6 +1780,7 @@
       renderAll();
     });
     $("#vbody").addEventListener("click", function(e) {
+      if (e.target.closest(".col-select")) return;
       var tr = e.target.closest("tr[data-id]");
       if (!tr) return;
       if (e.target.closest(".row-edit")) {
@@ -1563,6 +1796,7 @@
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape") closeAllModals();
     });
+    initBulk();
   }
   function boot() {
     bind();

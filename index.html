@@ -83,10 +83,23 @@
 
       <div class="chips" id="tierChips" role="group" aria-label="Tier"></div>
 
+      <div class="bulk" id="bulkBar" hidden>
+        <span class="bulk-count" id="bulkCount">0 selected</span>
+        <label class="bulk-field"><input type="checkbox" id="bulkValueOn"> Value <input type="number" id="bulkValue" step="0.001" min="0" placeholder="clear" disabled></label>
+        <label class="bulk-field"><input type="checkbox" id="bulkHoloOn"> Holo <input type="number" id="bulkHolo" step="0.001" min="0" placeholder="clear" disabled></label>
+        <label class="bulk-field"><input type="checkbox" id="bulkDemandOn"> Demand <select id="bulkDemand" disabled></select></label>
+        <label class="bulk-field"><input type="checkbox" id="bulkHoloDemandOn"> Holo demand <select id="bulkHoloDemand" disabled></select></label>
+        <label class="bulk-field"><input type="checkbox" id="bulkNoteOn"> Note <input type="text" id="bulkNote" maxlength="500" disabled></label>
+        <button class="btn btn-primary" id="bulkApply" type="button">Apply</button>
+        <button class="btn btn-danger" id="bulkRevert" type="button">Revert selected</button>
+        <button class="btn btn-ghost" id="bulkClear" type="button">Clear</button>
+      </div>
+
       <div class="table-shell">
         <table class="vtable" id="vtable">
           <thead>
             <tr>
+              <th class="col-select" scope="col"><input type="checkbox" id="selectPage" aria-label="Select page"></th>
               <th class="col-rank" scope="col">#</th>
               <th class="col-card" scope="col">Card</th>
               <th class="col-tier" scope="col">Tier</th>
