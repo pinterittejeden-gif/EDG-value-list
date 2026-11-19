@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795124071983,
+      "id": "64f09701-c651-41ef-ab1b-96a1c4913bd3",
+      "name": "Nullscapes",
+      "changes": {
+        "holo": {
+          "from": 8.4,
+          "to": 6.6
+        }
+      },
+      "before": {
+        "valueOverride": 2.2,
+        "holoOverride": 8.4,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "Often used as a filler for higher trades",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795124043269,
       "id": "e7d15483-bd3b-48b5-ae5a-1a1538d9d7bf",
       "name": "Quanteuse processing",
