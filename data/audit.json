@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "b0c5c3a8-02a4-4a64-ad6f-46253ff77c9a",
+      "name": "KOCMOC",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.92
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 9
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "d79120ff-015e-457f-a164-52e98b40f411",
       "name": "Subterminal Point",
       "changes": {
