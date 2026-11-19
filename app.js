@@ -667,6 +667,9 @@
           class: "demand " + demandLabel(d).toLowerCase(),
           text: demandLabel(d)
         }), h("span", {
+          class: "demand-num",
+          text: d + "/10"
+        }), h("span", {
           class: "demand-bar d" + d,
           attrs: {
             "aria-hidden": "true"
@@ -834,7 +837,7 @@
     var holoDemand = holoDemandOf(card);
     body.append(h("div", {
       class: "cd-grid"
-    }, statBox("Value", fmtValue(value)), statBox("Holo", fmtValue(holo)), statBox("Demand", normalDemand == null ? "N/A" : demandLabel(normalDemand)), statBox("Holo demand", holoDemand == null ? "N/A" : demandLabel(holoDemand))));
+    }, statBox("Value", fmtValue(value)), statBox("Holo", fmtValue(holo)), statBox("Demand", normalDemand == null ? "N/A" : demandLabel(normalDemand) + " " + Math.round(normalDemand) + "/10"), statBox("Holo demand", holoDemand == null ? "N/A" : demandLabel(holoDemand) + " " + Math.round(holoDemand) + "/10")));
     if (card.description) body.append(h("p", {
       class: "cd-desc",
       text: card.description

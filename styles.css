@@ -225,6 +225,8 @@ textarea { width: 100%; resize: vertical; min-height: 70px; }
 .price-tag.fair { color: #eab308; }
 
 .demand-wrap { display: flex; align-items: center; gap: 8px; }
+.demand-num { font-size: 12px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.col-demand { width: 132px; }
 .demand {
   display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px;
   font-weight: 800; font-size: 13px; color: #0b0d12; flex: none;
