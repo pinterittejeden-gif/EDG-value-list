@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "id": "72bf2c18-1299-408b-bca2-3da986956632",
+      "name": "KOSETSU",
+      "changes": {
+        "demand": {
+          "from": 7,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 5
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "01746dbe-64c3-486a-ba55-e2008bedaed1",
       "name": "Pinnacle of Life",
       "changes": {
