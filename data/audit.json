@@ -2,6 +2,43 @@
   "schema": 1,
   "entries": [
     {
+      "id": "596c8672-afa6-43c3-83f2-2078756a0554",
+      "name": "Subsuming Vortex",
+      "changes": {
+        "value": {
+          "from": 1.161,
+          "to": 1
+        },
+        "holo": {
+          "from": 4.516,
+          "to": 4.4
+        },
+        "demand": {
+          "from": 8,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "under"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 1.161,
+        "holoOverride": 4.516,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "cfb5fb27-a0d8-48bc-8ed9-bae291e24f1a",
       "name": "Eyes in the Water",
       "changes": {
