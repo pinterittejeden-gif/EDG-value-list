@@ -2,6 +2,38 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c8971515-f6fb-42cf-8d73-af3761643f3d",
+      "name": "Renevant",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.36
+        },
+        "holo": {
+          "from": null,
+          "to": 0.23
+        },
+        "demand": {
+          "from": 5,
+          "to": 7
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
       "name": "GRIEF",
       "changes": {
