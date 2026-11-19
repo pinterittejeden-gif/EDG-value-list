@@ -69,7 +69,7 @@ a:hover { text-decoration: underline; }
 .topbar-inner { display: flex; align-items: center; gap: 18px; height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--text); }
 .brand:hover { text-decoration: none; }
-.brand-mark { display: block; }
+
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; }
 .brand-name { font-weight: 800; letter-spacing: .2px; }
 
@@ -101,20 +101,20 @@ a:hover { text-decoration: underline; }
 
 
 .hero { padding: 24px 0 16px; }
-.hero .wrap { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, .8fr); gap: 32px; align-items: start; }
+.hero .wrap { display: block; }
 .eyebrow { margin: 0 0 10px; color: var(--accent-2); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
 .hero h1 { margin: 0; font-size: clamp(28px, 3.6vw, 42px); line-height: 1.04; letter-spacing: -.02em; }
 
 
 
-.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 0; }
 .stat {
   background: var(--panel);
   border: 1px solid var(--border);
-  padding: 14px 16px;
+  padding: 10px 14px;
 }
 .stat dt { color: var(--muted-2); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
-.stat dd { margin: 6px 0 0; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+.stat dd { margin: 4px 0 0; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
 
 
 .list-section { padding: 22px 0 10px; }
@@ -353,14 +353,11 @@ tr:hover .row-edit, .row-edit:focus { opacity: 1; }
 .toast-out { opacity: 0; transition: opacity .2s ease; }
 @keyframes toast-in { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
 
-@media (max-width: 980px) {
-  .hero .wrap { grid-template-columns: 1fr; align-items: start; }
-  .stats { grid-template-columns: repeat(4, 1fr); }
-}
 @media (max-width: 760px) {
   .wrap { width: calc(100% - 24px); }
   .topnav { display: none; }
   .updated { display: none; }
+  .stats { grid-template-columns: 1fr 1fr; }
   .col-updated, .col-holo { display: none; }
   .col-rank { width: 44px; }
   .col-card { min-width: 200px; }
