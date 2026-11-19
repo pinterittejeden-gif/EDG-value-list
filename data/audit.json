@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "fe68a17e-503f-4d9c-bec0-fde6bd847a69",
+      "name": "Make Paul Dance",
+      "changes": {
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "b2252317-dcf2-432d-ba36-59642218803c",
       "name": "Saul Goodman",
       "changes": {
