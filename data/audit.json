@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "cfad0fb6-7ff9-4c8d-841b-d9cf2221443d",
+      "name": "SARYYX NEVER CLEAR",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.25
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "b55de8a2-94d8-41c1-a933-17124e4461e9",
       "name": "Antarctic Lights",
       "changes": {
