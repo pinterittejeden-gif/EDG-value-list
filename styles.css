@@ -329,6 +329,19 @@ tr:hover .row-edit, .row-edit:focus { opacity: 1; }
 .change-row button { border: 0; background: transparent; color: var(--muted-2); cursor: pointer; }
 .change-row button:hover { color: var(--bad); }
 
+.role-block { margin: 10px 0; }
+.role-label { font-size: 11px; color: var(--muted-2); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
+.role-chip {
+  display: inline-flex; align-items: center; gap: 6px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 999px; padding: 4px 6px 4px 10px;
+  font-size: 12px; margin: 0 6px 6px 0; font-variant-numeric: tabular-nums;
+}
+.role-chip button {
+  border: 0; background: transparent; color: var(--muted-2); cursor: pointer;
+  font-size: 14px; line-height: 1; padding: 2px 4px; border-radius: 6px;
+}
+.role-chip button:hover { color: var(--bad); background: rgba(239, 68, 68, .1); }
+.form-actions select, .form-actions input[type="text"] { min-height: 38px; }
 .anchor-row { display: grid; grid-template-columns: 90px 110px 1fr 34px; gap: 8px; align-items: center; margin-bottom: 6px; }
 .anchor-row input { width: 100%; }
 .anchor-row .del { border: 1px solid var(--border); background: var(--panel); color: var(--muted); border-radius: 8px; height: 34px; cursor: pointer; }
@@ -337,7 +350,7 @@ tr:hover .row-edit, .row-edit:focus { opacity: 1; }
 .audit-item:last-child { border-bottom: 0; }
 .audit-item strong { color: var(--text); }
 
-.toasts { position: fixed; z-index: 120; right: 16px; bottom: 16px; display: grid; gap: 8px; width: min(360px, calc(100% - 32px)); }
+.toasts { position: fixed; z-index: 120; left: 16px; bottom: 16px; display: grid; gap: 8px; width: min(360px, calc(100% - 32px)); }
 .toast {
   background: var(--panel-2); border: 1px solid var(--border); border-left: 3px solid var(--accent);
   border-radius: 10px; padding: 11px 14px; font-size: 13px; box-shadow: var(--shadow);

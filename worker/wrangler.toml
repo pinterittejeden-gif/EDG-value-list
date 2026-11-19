@@ -1,0 +1,22 @@
+name = "edg-value-api"
+main = "worker.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+# Public, non-secret settings. Secrets are set with `wrangler secret put`.
+[vars]
+REPO_OWNER = "pinterittejeden-gif"
+REPO_NAME = "EDG-value-list"
+BRANCH = "main"
+SITE_URL = "https://pinterittejeden-gif.github.io/EDG-value-list/"
+OWNER_USERNAMES = "vxef"
+ALLOWED_ORIGINS = "https://pinterittejeden-gif.github.io,http://127.0.0.1:8090"
+
+# Required secrets:
+#   DISCORD_CLIENT_ID
+#   DISCORD_CLIENT_SECRET
+#   SESSION_SECRET
+#   GITHUB_TOKEN
+# Optional:
+#   DISCORD_REDIRECT_URI   (defaults to https://<worker>/auth/discord/callback)
+#   OWNER_DISCORD_IDS      (comma separated, stable owner IDs)

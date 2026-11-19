@@ -1,6 +1,6 @@
 {
-  "schema": 1,
-  "note": "Only these GitHub logins may edit values. The repo owner is always an owner. Granting edit access also requires GitHub write access to the repository.",
+  "schema": 2,
+  "note": "Discord user IDs only. The owner is also recognised by the Worker OWNER_USERNAMES / OWNER_DISCORD_IDS settings, so vxef always has the admin panel.",
   "owner": [],
   "admins": [],
   "mods": []

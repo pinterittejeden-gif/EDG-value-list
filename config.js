@@ -6,6 +6,11 @@ window.DG_CONFIG = {
     tagline: "Community value list and demand tracker",
     updatedLabel: "Values are edited by hand and synced from demongacha.com"
   },
+  // Cloudflare Worker that handles Discord OAuth and publishes edits.
+  // Deploy worker/ and paste its URL here, for example:
+  //   apiBase: "https://edg-value-api.your-subdomain.workers.dev"
+  // Leave empty to keep the site read-only.
+  apiBase: "",
   repo: {
     owner: "pinterittejeden-gif",
     name: "EDG-value-list",
@@ -16,13 +21,6 @@ window.DG_CONFIG = {
     meta: "data/meta.json",
     roles: "data/roles.json",
     audit: "data/audit.json"
-  },
-  // Optional convenience login. Create a GitHub OAuth App with "Enable Device Flow"
-  // turned on, then paste its client id here. Fine-grained personal access tokens
-  // still work and are the recommended method.
-  oauth: {
-    clientId: "",
-    scope: "public_repo"
   },
   limits: {
     maxAuditEntries: 500,

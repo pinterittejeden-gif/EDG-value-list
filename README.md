@@ -7,68 +7,75 @@ A community value list and demand tracker for [demongacha.com](https://demongach
 - Holo values come from the community sheet where known, and otherwise default to **3x** value.
 - Top-tier values, holo values and demand are based on the community value spreadsheet credited below.
 - New cards are added automatically by a scheduled GitHub Action as **pending**, with value and demand shown as **N/A** until a moderator confirms them.
-- Only GitHub accounts you choose can edit. Sign-in is a GitHub token; authorization is a roles allowlist plus repo write access. There are no passwords stored anywhere.
+- **Only people you choose can edit.** Everyone signs in with **Discord**. You add editors by **Discord ID** in the admin panel. Only **vxef** gets the admin panel. No one needs a GitHub token.
 
 ## Deploy to GitHub Pages
 
-1. Create a new repository and push this folder to it.
-2. Edit `config.js` and set:
+1. Push this folder to your repository (`pinterittejeden-gif/EDG-value-list`).
+2. In the repo: **Settings -> Pages -> Build and deployment -> Source: Deploy from a branch**, branch `main`, folder `/ (root)`. The included `.nojekyll` keeps GitHub from processing the files.
+3. Deploy the Discord login Worker (next section) and put its URL in `config.js`:
    ```js
-   repo: { owner: "your-github-username", name: "demongacha-value", branch: "main" }
+   apiBase: "https://edg-value-api.your-subdomain.workers.dev"
    ```
-3. In the repo: **Settings -> Pages -> Build and deployment -> Source: Deploy from a branch**, branch `main`, folder `/ (root)`. The included `.nojekyll` keeps GitHub from processing the files.
-4. The site appears at `https://<owner>.github.io/<repo>/`.
+4. Open the site. Sign in with Discord as **vxef**, then use the **Admin panel** to add editors by Discord ID.
 
 All paths are relative, so it works from a project subpath. No build step is needed.
 
+## Discord login Worker (required for editing)
+
+Discord OAuth needs a server to hold the client secret, and publishing needs a server-side GitHub token. The static site cannot hold either. `worker/` is a small Cloudflare Worker that does both.
+
+Full setup: [`worker/README.md`](worker/README.md). Short version:
+
+1. Create a Discord application, add the redirect `https://<worker>.workers.dev/auth/discord/callback`, and copy the client id and secret.
+2. Create a fine-grained GitHub token for this repo with **Contents: Read and write**.
+3. Deploy and set secrets:
+   ```powershell
+   cd worker
+   wrangler deploy
+   wrangler secret put DISCORD_CLIENT_ID
+   wrangler secret put DISCORD_CLIENT_SECRET
+   wrangler secret put SESSION_SECRET
+   wrangler secret put GITHUB_TOKEN
+   ```
+4. Set `apiBase` in `config.js` to the Worker URL.
+
+The Worker identifies the owner as **vxef** by Discord username. Add your Discord ID to `OWNER_DISCORD_IDS` as a stable backup.
+
 ## Who can edit (admins and mods)
 
-Editing uses GitHub as the identity provider. There is no password database to leak.
-
-A person can edit only if **both** are true:
-
-1. Their GitHub account has **write access** to the repository (collaborator, or part of a team with write).
-2. Their GitHub login is listed in `data/roles.json` under `owner`, `admins`, or `mods`.
-
-Roles:
+Sign-in is Discord OAuth. The Worker resolves each person's role from `data/roles.json`, which stores **Discord user IDs**. There are no passwords or personal tokens to manage.
 
 | Role   | Can do |
 |--------|--------|
-| owner  | everything, including editing `data/roles.json` |
+| owner  | everything, including the **admin panel** and changing the access list |
 | admin  | edit card values and the **curve anchors** |
 | mod    | edit card values, holo values, demand and notes |
 | viewer | read only |
 
-`config.js` `repo.owner` is always treated as an owner.
+`vxef` is always the owner, by username or by `OWNER_DISCORD_IDS`.
 
 ### Giving someone access
 
-1. Add them as a repository collaborator with **Write** (or add them via a team).
-2. Add their login to `data/roles.json`, e.g. `"mods": ["theirlogin"]`.
-3. They open the site, click **Sign in**, and paste a GitHub token.
+1. Sign in as **vxef**.
+2. Open the **Admin panel**.
+3. Paste the person's **Discord ID** (right-click their name in Discord -> Copy User ID), pick **mod**, **admin** or **owner**, click **Add**, then **Save access list**.
+4. They sign in with Discord. No token, no GitHub account needed.
 
-Remove either one and they lose edit access.
+Removing their ID from the list removes their access immediately on their next request.
 
-### Sign-in methods
+### How sign-in works
 
-**Fine-grained personal access token (recommended).** Each editor makes their own token at
-`github.com/settings/tokens?type=beta`, scoped to this repository only, with **Contents: Read and write**. Least privilege, independently revocable.
-
-**Device flow (optional).** Create a GitHub OAuth App, turn on **Enable Device Flow**, and put its client id in `config.js`:
-
-```js
-oauth: { clientId: "Iv1.xxxxxxxx", scope: "public_repo" }
-```
-
-The device flow endpoint can be blocked by some browsers because of CORS. The token method always works.
-
-The token is kept in `sessionStorage` for the current tab and sent only to `api.github.com`.
+- The browser is sent to Discord, then back to the Worker.
+- The Worker exchanges the code using the client secret, reads the Discord user, resolves the role, and issues a signed 12 hour session.
+- The site stores that session in `sessionStorage` and sends it to the Worker as a Bearer token.
+- API auth does not use cookies, so there is no CSRF surface. The OAuth handshake uses a short-lived `HttpOnly` state cookie.
 
 ### Recommended repo hardening
 
-- Protect `main`: require pull requests for changes to `data/roles.json`, or restrict who can push to it.
-- Keep write access to a small trusted group. The roles file gates the UI; GitHub write access is the real boundary.
-- Consider requiring review before merging changes to `data/anchors.json`.
+- The Worker is the only thing holding a GitHub write token. Keep that fine-grained token scoped to this one repo and to **Contents: Read and write**.
+- Protect `main` if you want a review step for `data/roles.json` or `data/anchors.json`.
+- Rotate `SESSION_SECRET` and the `GITHUB_TOKEN` if either is ever exposed; existing sessions are invalidated by a new `SESSION_SECRET`.
 
 ## Value model
 
@@ -135,19 +142,27 @@ npm run seed
 npm run serve
 ```
 
-Open `http://127.0.0.1:8090/`. It serves the exact static files, so what you see matches Pages.
+Open `http://127.0.0.1:8090/`. It serves the exact static files, so what you see matches Pages. Without `apiBase` set, the site is read-only; that is expected.
+
+To test Discord login locally, run `wrangler dev` in `worker/`, add
+`http://127.0.0.1:8787/auth/discord/callback` as a Discord redirect URI, set
+`DISCORD_REDIRECT_URI` in `worker/.dev.vars`, and point `apiBase` at
+`http://127.0.0.1:8787`. Add `http://127.0.0.1:8090` to `ALLOWED_ORIGINS`.
 
 ## Files
 
 ```
 index.html            page shell and CSP
 styles.css            theme
-app.js                rendering, curve math, editor panel, GitHub auth and commits
-config.js             public config: repo, paths, optional OAuth client id
+app.js                rendering, curve math, editor panel, Discord session
+config.js             public config: apiBase, paths
 logo.svg              icon
+worker/worker.js      Discord OAuth + GitHub publishing API (Cloudflare Worker)
+worker/wrangler.toml  Worker vars and deploy settings
+worker/README.md      Worker deployment, secrets and endpoints
 data/cards.json       one card per line for clean diffs
 data/anchors.json     curve anchors + unit definition + demand labels
-data/roles.json       allowlist of owner/admin/mod GitHub logins
+data/roles.json       allowlist of owner/admin/mod Discord IDs
 data/audit.json       most recent edits
 data/meta.json        sync counters and timestamps
 data/sheet-source.csv last community sheet snapshot used by the importer
@@ -161,10 +176,10 @@ scripts/serve.mjs     local static server
 
 ## Security notes
 
-- Strict Content-Security-Policy via meta tag (`self` only, plus GitHub API for editors and `i.ytimg.com` for thumbnails). No third-party scripts, no CDN, no inline script.
+- Strict Content-Security-Policy via meta tag (`self` only, the Worker on `*.workers.dev`, and `i.ytimg.com` for thumbnails). No third-party scripts, no CDN, no inline script.
 - All card data is rendered with `textContent`, never `innerHTML`. Thumbnail and outbound links are validated against host allowlists.
-- Tokens are never placed in URLs or logged. Signing out clears them.
+- The Discord client secret and the GitHub write token exist only as Worker secrets. Browsers never receive them.
+- Session tokens are HMAC-signed JWTs kept in `sessionStorage`, sent only to the Worker as a Bearer token. API auth does not use cookies, so there is no CSRF surface; the OAuth handshake uses a short-lived `HttpOnly` state cookie.
+- The Worker validates every card field, role ID and anchor before committing, and records each change in `data/audit.json`.
 - Commits are atomic multi-file commits through the Git Data API and use a non-forced ref update, so a concurrent edit is rejected instead of overwritten.
-- No secrets are committed. The only client-side credential is the editor's own token, entered at runtime.
-
-If you later want server-side accounts or private data, add a small backend; the static site can keep reading the same JSON.
+- No secrets are committed. `data/roles.json` holds Discord IDs, which are public identifiers.

@@ -2,7 +2,7 @@
   "use strict";
 
   var CFG = window.DG_CONFIG || {};
-  var REPO = CFG.repo || {};
+  var API = String(CFG.apiBase || "").replace(/\/+$/, "");
   var PATHS = CFG.paths || {};
   var LIMITS = CFG.limits || {};
   var TIER_ORDER = ["Apex", "Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common", "Limited"];
@@ -17,7 +17,10 @@
     audit: { entries: [] },
     filtered: [],
     view: { q: "", tier: "all", sort: "value-desc", status: "all", holo: false, page: 1, size: 100 },
-    auth: { token: null, login: null, role: "viewer", canPush: false },
+    auth: { token: null, id: null, username: null, globalName: null, role: "viewer" },
+    rolesRemote: null,
+    rolesLoading: false,
+    rolesYou: null,
     patches: new Map(),
     anchorsDraft: null,
     rolesDraft: null,
@@ -264,34 +267,19 @@
     return { owner: list(r.owner), admins: list(r.admins), mods: list(r.mods) };
   }
 
-  // ---------- role / auth ----------
+  // ---------- auth (Discord via the Worker) ----------
 
-  function resolveRole(login) {
-    if (!login) return "viewer";
-    var lo = login.toLowerCase();
-    if (REPO.owner && lo === String(REPO.owner).toLowerCase()) return "owner";
-    if (state.roles.owner.some(function (x) { return x.toLowerCase() === lo; })) return "owner";
-    if (state.roles.admins.some(function (x) { return x.toLowerCase() === lo; })) return "admin";
-    if (state.roles.mods.some(function (x) { return x.toLowerCase() === lo; })) return "mod";
-    return "viewer";
-  }
+  function canEdit() { return !!state.auth.token && state.auth.role !== "viewer"; }
+  function canEditAnchors() { return !!state.auth.token && (state.auth.role === "owner" || state.auth.role === "admin"); }
+  function canManageRoles() { return !!state.auth.token && state.auth.role === "owner"; }
 
-  function canEdit() { return state.auth.canPush && state.auth.role !== "viewer"; }
-  function canEditAnchors() { return state.auth.canPush && (state.auth.role === "owner" || state.auth.role === "admin"); }
-  function canManageRoles() { return state.auth.canPush && state.auth.role === "owner"; }
-
-  function ghFetch(path, opts) {
+  function apiFetch(path, opts) {
     opts = opts || {};
-    var token = opts.token != null ? opts.token : state.auth.token;
-    if (!token) return Promise.reject(new Error("Sign in first."));
-    var url = /^https?:/.test(path) ? path : "https://api.github.com" + path;
-    var headers = {
-      "Accept": opts.accept || "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-      "Authorization": "Bearer " + token
-    };
+    if (!API) return Promise.reject(new Error("Discord sign-in is not configured yet. Set apiBase in config.js."));
+    var headers = { "Accept": "application/json" };
+    if (state.auth.token) headers["Authorization"] = "Bearer " + state.auth.token;
     if (opts.body) headers["Content-Type"] = "application/json";
-    return fetch(url, {
+    return fetch(API + path, {
       method: opts.method || "GET",
       headers: headers,
       body: opts.body ? JSON.stringify(opts.body) : undefined,
@@ -299,11 +287,10 @@
     }).then(function (res) {
       return res.text().then(function (text) {
         var data = null;
-        try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+        try { data = text ? JSON.parse(text) : null; } catch (e) {}
         if (!res.ok) {
-          var err = new Error((data && (data.message || data.error)) || ("GitHub HTTP " + res.status));
+          var err = new Error((data && data.error) || ("Request failed (" + res.status + ")."));
           err.status = res.status;
-          err.data = data;
           throw err;
         }
         return data;
@@ -311,82 +298,53 @@
     });
   }
 
-  function verifyToken(token) {
-    return ghFetch("/user", { token: token }).then(function (user) {
-      return ghFetch("/repos/" + encRepo(), { token: token }).then(function (repo) {
-        var push = !!(repo.permissions && repo.permissions.push);
-        return { login: user.login, canPush: push, repo: repo };
-      });
+  function loadSession() {
+    if (!state.auth.token) return Promise.resolve();
+    return apiFetch("/api/session").then(function (data) {
+      state.auth.id = data.user.id;
+      state.auth.username = data.user.username;
+      state.auth.globalName = data.user.global_name || data.user.username;
+      state.auth.role = data.role;
+      state.rolesRemote = null;
+    }).catch(function (err) {
+      if (err.status === 401) clearAuth();
+      throw err;
     });
   }
 
-  function signInWithToken(token) {
-    return verifyToken(token).then(function (info) {
-      state.auth.token = token;
-      state.auth.login = info.login;
-      state.auth.canPush = info.canPush;
-      state.auth.role = resolveRole(info.login);
-      try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
-      if (!info.canPush) {
-        toast("Signed in as " + info.login + ", but you do not have write access to this repo.", "error");
-      } else if (state.auth.role === "viewer") {
-        toast("Signed in as " + info.login + ", but you are not on the editor roles list.", "error");
-      } else {
-        toast("Signed in as " + info.login + " (" + state.auth.role + ").", "ok");
-      }
-      return refreshFromRepo().then(renderAll);
-    });
+  function clearAuth() {
+    state.auth = { token: null, id: null, username: null, globalName: null, role: "viewer" };
+    try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
   }
 
   function signOut() {
-    state.auth = { token: null, login: null, role: "viewer", canPush: false };
+    clearAuth();
     state.patches.clear();
     state.anchorsDraft = null;
     state.rolesDraft = null;
-    try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
+    state.rolesRemote = null;
     close("drawer");
     toast("Signed out.");
-    loadLocal().then(renderAll);
+    renderAll();
   }
 
-  function encRepo() { return encodeURIComponent(REPO.owner) + "/" + encodeURIComponent(REPO.name); }
-
-  function refPath() {
-    return String(REPO.branch || "main").split("/").map(encodeURIComponent).join("/");
+  function startDiscordLogin() {
+    if (!API) return toast("Discord sign-in is not configured. Set apiBase in config.js.", "error");
+    location.href = API + "/auth/discord";
   }
 
-  function fetchRepoText(path) {
-    var url = "https://api.github.com/repos/" + encRepo() + "/contents/" +
-      String(path).split("/").map(encodeURIComponent).join("/") +
-      "?ref=" + encodeURIComponent(REPO.branch || "main");
-    return fetch(url, {
-      headers: {
-        "Authorization": "Bearer " + state.auth.token,
-        "Accept": "application/vnd.github.raw",
-        "X-GitHub-Api-Version": "2022-11-28"
-      },
-      signal: AbortSignal.timeout(30000)
-    }).then(function (res) {
-      if (!res.ok) throw new Error("Could not read " + path + " (HTTP " + res.status + ").");
-      return res.text();
-    });
-  }
-
-  function refreshFromRepo() {
-    if (!state.auth.token) return Promise.resolve();
-    var files = [PATHS.anchors, PATHS.cards, PATHS.roles, PATHS.audit, PATHS.meta];
-    return Promise.all(files.map(function (p) {
-      return fetchRepoText(p).then(function (t) { return JSON.parse(t); }).catch(function () { return null; });
-    })).then(function (res) {
-      if (res[0]) state.anchors = res[0];
-      if (res[1]) state.cards = res[1].cards || [];
-      if (res[2]) state.roles = normalizeRoles(res[2]);
-      if (res[3]) state.audit = Array.isArray(res[3].entries) ? res[3] : { entries: [] };
-      if (res[4]) state.meta = res[4];
-      var role = resolveRole(state.auth.login);
-      state.auth.role = role;
-      // roles may have changed; keep token, re-resolve permissions
-    });
+  function handleAuthFragment() {
+    var hash = location.hash || "";
+    if (hash.indexOf("auth=") === -1) return false;
+    var params = new URLSearchParams(hash.replace(/^#/, ""));
+    var token = params.get("auth");
+    if (!token) return false;
+    state.auth.token = token;
+    try { sessionStorage.setItem(TOKEN_KEY, token); } catch (e) {}
+    params.delete("auth");
+    var rest = params.toString();
+    try { history.replaceState(null, "", location.pathname + location.search + (rest ? "#" + rest : "")); } catch (e) {}
+    return true;
   }
 
   // ---------- filtering / rendering ----------
@@ -571,8 +529,8 @@
 
   function renderAuthButton() {
     var btn = $("#authBtn");
-    if (state.auth.login) {
-      btn.textContent = "Editor: " + state.auth.login + " (" + state.auth.role + ")";
+    if (state.auth.username) {
+      btn.textContent = state.auth.username + " (" + state.auth.role + ")";
       btn.onclick = function () { openDrawer(); };
     } else {
       btn.textContent = "Sign in";
@@ -838,24 +796,31 @@
   function renderDrawer() {
     var body = $("#drawerBody");
     body.textContent = "";
+    $("#drawerTitle").textContent = state.auth.role === "owner" ? "Admin panel" : "Editor panel";
 
     body.append(h("div", { class: "panel-box" },
       h("h3", { text: "Session" }),
-      kv("Signed in as", state.auth.login || "not signed in"),
+      kv("Signed in as", state.auth.username || "not signed in"),
+      kv("Discord ID", state.auth.id || "—"),
       kv("Role", state.auth.role),
-      kv("Push access", state.auth.canPush ? "yes" : "no"),
       h("div", { class: "form-actions" },
-        !state.auth.login ? h("button", { class: "btn btn-primary", type: "button", text: "Sign in", on: { click: openLogin } }) : null,
-        state.auth.login ? h("button", { class: "btn btn-danger", type: "button", text: "Sign out", on: { click: signOut } }) : null
+        !state.auth.username ? h("button", { class: "btn btn-primary", type: "button", text: "Sign in with Discord", on: { click: startDiscordLogin } }) : null,
+        state.auth.username ? h("button", { class: "btn btn-danger", type: "button", text: "Sign out", on: { click: signOut } }) : null
       )
     ));
 
+    // Owner-only access control (the /api/roles endpoint enforces this too).
+    if (canManageRoles()) {
+      body.append(renderRolesEditor());
+    }
+
     if (!canEdit()) {
+      var locked = state.auth.username
+        ? "Your Discord ID is " + state.auth.id + ". Send it to vxef and ask to be added as a mod. Only vxef can change access."
+        : "Sign in with Discord first. Only vxef can add editors, by Discord ID.";
       body.append(h("div", { class: "panel-box" },
         h("h3", { text: "Editing is locked" }),
-        h("p", { class: "muted", text: state.auth.login
-          ? "This GitHub account either has no write access to the repository or is not on the roles list. Ask the owner to add you to data/roles.json and grant repo write access."
-          : "Sign in with a GitHub account that has write access to this repository and is listed in data/roles.json." })
+        h("p", { class: "muted", text: locked })
       ));
       return;
     }
@@ -886,11 +851,6 @@
     // anchors (admin/owner)
     if (canEditAnchors()) {
       body.append(renderAnchorsEditor());
-    }
-
-    // roles (owner)
-    if (canManageRoles()) {
-      body.append(renderRolesEditor());
     }
 
     // audit
@@ -1011,181 +971,151 @@
 
   function renderRolesEditor() {
     var box = h("div", { class: "panel-box" });
-    box.append(h("h3", { text: "Roles (owner only)" }));
-    box.append(h("p", { class: "muted", text: "GitHub logins, comma or newline separated. Owners can manage roles, admins can edit anchors, mods can edit cards. Everyone also needs repo write access." }));
+    box.append(h("h3", { text: "Admin panel: access control" }));
 
-    var draft = state.rolesDraft || { owner: state.roles.owner.slice(), admins: state.roles.admins.slice(), mods: state.roles.mods.slice() };
-    var ownerTa = h("textarea", { placeholder: "owner logins" });
-    ownerTa.value = draft.owner.join(", ");
-    var adminTa = h("textarea", { placeholder: "admin logins" });
-    adminTa.value = draft.admins.join(", ");
-    var modTa = h("textarea", { placeholder: "mod logins" });
-    modTa.value = draft.mods.join(", ");
-
-    function parse(v) {
-      return v.split(/[\s,]+/).map(function (s) { return s.trim(); }).filter(Boolean).filter(function (s, i, arr) { return arr.indexOf(s) === i; });
+    if (!state.rolesDraft) {
+      if (!state.rolesLoading) {
+        state.rolesLoading = true;
+        apiFetch("/api/roles").then(function (data) {
+          state.rolesRemote = data.roles;
+          state.rolesYou = data.you;
+          state.rolesDraft = { owner: data.roles.owner.slice(), admins: data.roles.admins.slice(), mods: data.roles.mods.slice() };
+          state.rolesLoading = false;
+          renderDrawer();
+        }).catch(function (err) {
+          state.rolesLoading = false;
+          if (err.status === 401) {
+            clearAuth();
+            renderAll();
+            toast("Session expired. Sign in with Discord again.", "error");
+          } else {
+            toast(err.message || "Could not load the access list.", "error");
+          }
+        });
+      }
+      box.append(h("p", { class: "muted", text: "Loading access list..." }));
+      return box;
     }
 
-    box.append(field("Owners", ownerTa), field("Admins", adminTa), field("Mods", modTa));
+    var draft = state.rolesDraft;
+    box.append(h("p", { class: "muted", text: "Only you can see this. Paste a person's Discord ID, pick a role, then add. Save writes data/roles.json." }));
+    if (state.rolesYou) {
+      box.append(h("p", { class: "muted", text: "You: @" + state.rolesYou.username + " (" + state.rolesYou.id + "), owner." }));
+    }
+
+    var idInput = h("input", { type: "text", placeholder: "Discord ID", maxlength: "20", autocomplete: "off", spellcheck: "false" });
+    var roleSel = h("select", null,
+      h("option", { value: "mod", text: "Mod (edit values)" }),
+      h("option", { value: "admin", text: "Admin (values + curve)" }),
+      h("option", { value: "owner", text: "Owner (everything)" })
+    );
+
+    function addId() {
+      var id = idInput.value.trim();
+      if (!/^\d{16,20}$/.test(id)) return toast("That is not a Discord user ID. Right-click a name in Discord and Copy User ID.", "error");
+      ["owner", "admins", "mods"].forEach(function (k) {
+        draft[k] = draft[k].filter(function (x) { return x !== id; });
+      });
+      draft[roleSel.value === "owner" ? "owner" : roleSel.value === "admin" ? "admins" : "mods"].push(id);
+      renderDrawer();
+    }
+
     box.append(h("div", { class: "form-actions" },
-      h("button", { class: "btn btn-primary", type: "button", text: "Stage roles", on: { click: function () {
-        var re = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
-        var all = parse(ownerTa.value).concat(parse(adminTa.value)).concat(parse(modTa.value));
-        for (var i = 0; i < all.length; i++) if (!re.test(all[i])) return toast("Invalid GitHub login: " + all[i], "error");
-        state.rolesDraft = { owner: parse(ownerTa.value), admins: parse(adminTa.value), mods: parse(modTa.value) };
-        toast("Roles staged. Commit to apply.", "ok");
-        renderDrawer();
+      idInput,
+      roleSel,
+      h("button", { class: "btn btn-primary", type: "button", text: "Add", on: { click: addId } })
+    ));
+
+    function listBlock(label, key) {
+      var wrap = h("div", { class: "role-block" }, h("div", { class: "role-label", text: label }));
+      if (!draft[key].length) wrap.append(h("span", { class: "muted", text: "none" }));
+      draft[key].forEach(function (id) {
+        wrap.append(h("span", { class: "role-chip" },
+          h("span", { text: id }),
+          h("button", { type: "button", title: "Remove", text: "x", on: { click: function () {
+            draft[key] = draft[key].filter(function (x) { return x !== id; });
+            renderDrawer();
+          } } })
+        ));
+      });
+      return wrap;
+    }
+
+    box.append(listBlock("Owners", "owner"), listBlock("Admins", "admins"), listBlock("Mods", "mods"));
+    box.append(h("div", { class: "form-actions" },
+      h("button", { class: "btn btn-primary", type: "button", text: "Save access list", on: { click: function (ev) {
+        var btn = ev.currentTarget;
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+        apiFetch("/api/roles", { method: "PUT", body: draft }).then(function (data) {
+          state.rolesRemote = data.roles;
+          state.rolesDraft = null;
+          state.roles = normalizeRoles(data.roles);
+          toast("Access list saved.", "ok");
+          renderDrawer();
+        }).catch(function (err) {
+          toast(err.message || "Could not save the access list.", "error");
+          btn.disabled = false;
+          btn.textContent = "Save access list";
+        });
       } } }),
-      state.rolesDraft ? h("button", { class: "btn btn-danger", type: "button", text: "Discard", on: { click: function () { state.rolesDraft = null; renderDrawer(); } } }) : null
+      h("button", { class: "btn btn-ghost", type: "button", text: "Reload", on: { click: function () {
+        state.rolesDraft = null;
+        state.rolesRemote = null;
+        renderDrawer();
+      } } })
     ));
     return box;
   }
 
-  // ---------- serialization (must match scripts/lib.mjs) ----------
-
-  function serializeCards(doc) {
-    var rest = {};
-    Object.keys(doc).forEach(function (k) { if (k !== "cards") rest[k] = doc[k]; });
-    var head = JSON.stringify(rest, null, 2).replace(/\n}$/, "");
-    var out = "{\n" + head.slice(2) + ",\n  \"cards\": [\n";
-    out += doc.cards.map(function (c) { return "    " + JSON.stringify(c); }).join(",\n");
-    out += "\n  ]\n}\n";
-    return out;
-  }
-
-  function serializePretty(obj) { return JSON.stringify(obj, null, 2) + "\n"; }
-
   // ---------- commit ----------
 
   function commitChanges(message, btn) {
-    if (state.patches.size === 0 && !state.anchorsDraft && !state.rolesDraft) {
+    if (state.patches.size === 0 && !state.anchorsDraft) {
       return toast("Nothing staged.", "error");
     }
-    if (!canEdit()) return toast("Not allowed.", "error");
-    if (state.rolesDraft && !canManageRoles()) return toast("Only owners can change roles.", "error");
-    if (state.anchorsDraft && !canEditAnchors()) return toast("Only admins and owners can change anchors.", "error");
+    if (!canEdit()) return toast("Sign in with Discord first.", "error");
+    if (state.anchorsDraft && !canEditAnchors()) return toast("Only admins and owners can change the curve.", "error");
     if (state.busy) return;
     state.busy = true;
-    if (btn) { btn.disabled = true; btn.textContent = "Committing..."; }
+    if (btn) { btn.disabled = true; btn.textContent = "Publishing..."; }
 
-    var by = state.auth.login;
-    var now = Date.now();
-    var patches = Array.from(state.patches.values());
+    var changes = Array.from(state.patches.values()).map(function (p) {
+      return {
+        id: p.id,
+        valueOverride: p.valueOverride,
+        holoOverride: p.holoOverride,
+        demand: p.demand,
+        holoDemand: p.holoDemand,
+        note: p.note
+      };
+    });
+    var body = { changes: changes, message: String(message || "Update values").slice(0, 120) };
+    if (state.anchorsDraft) body.anchors = state.anchorsDraft;
 
-    fetchRepoText(PATHS.cards).then(function (text) {
-      var doc = JSON.parse(text);
-      var cards = doc.cards || [];
-      var byId = new Map(cards.map(function (c) { return [c.id, c]; }));
-      var auditEntries = [];
-
-      patches.forEach(function (p) {
-        var card = byId.get(p.id);
-        if (!card) return;
-        var changes = {};
-        if (p.valueOverride !== card.valueOverride) changes.value = { from: card.valueOverride, to: p.valueOverride };
-        if (p.holoOverride !== card.holoOverride) changes.holo = { from: card.holoOverride, to: p.holoOverride };
-        if (p.demand !== card.demand) changes.demand = { from: card.demand, to: p.demand };
-        if (p.holoDemand !== card.holoDemand) changes.holoDemand = { from: card.holoDemand, to: p.holoDemand };
-        if (p.note !== card.note) changes.note = true;
-        if (card.confirmed === false) changes.confirmed = true;
-
-        card.valueOverride = p.valueOverride;
-        card.holoOverride = p.holoOverride;
-        if (changes.value || changes.holo) card.valueSource = p.valueOverride != null ? "manual" : null;
-        if (changes.demand) card.demandSource = p.demand == null ? null : "manual";
-        if (changes.holoDemand) card.holoDemandSource = p.holoDemand == null ? null : "manual";
-        card.demand = p.demand;
-        card.holoDemand = p.holoDemand;
-        card.note = p.note;
-        card.confirmed = true;
-        card.updatedAt = now;
-
-        auditEntries.push({ at: now, by: by, action: "card", id: p.id, name: card.name, changes: changes });
-      });
-
-      doc.cards = cards;
-      doc.syncedAt = doc.syncedAt || now;
-
-      var files = {};
-      files[PATHS.cards] = serializeCards(doc);
-
-      // append audit from the freshest copy
-      return fetchRepoText(PATHS.audit).then(function (t) {
-        var audit = { schema: 1, entries: [] };
-        try { var parsed = JSON.parse(t); if (parsed && Array.isArray(parsed.entries)) audit = parsed; } catch (e) {}
-        if (state.anchorsDraft) {
-          audit.entries.unshift({ at: now, by: by, action: "anchors", ranks: state.anchorsDraft.anchors.map(function (a) { return a.rank; }) });
-          files[PATHS.anchors] = serializePretty(state.anchorsDraft);
-        }
-        if (state.rolesDraft) {
-          audit.entries.unshift({ at: now, by: by, action: "roles", owner: state.rolesDraft.owner.length, admins: state.rolesDraft.admins.length, mods: state.rolesDraft.mods.length });
-          files[PATHS.roles] = serializePretty({
-            schema: 1,
-            note: "Only these GitHub logins may edit values. The repo owner is always an owner. Granting edit access also requires GitHub write access to the repository.",
-            owner: state.rolesDraft.owner,
-            admins: state.rolesDraft.admins,
-            mods: state.rolesDraft.mods
-          });
-        }
-        audit.entries = audit.entries.slice(0, MAX_AUDIT);
-        files[PATHS.audit] = serializePretty(audit);
-
-        // meta
-        var confirmed = cards.filter(function (c) { return c.confirmed !== false; }).length;
-        var meta = {
-          schema: 1,
-          syncedAt: doc.syncedAt,
-          generatedAt: now,
-          total: cards.length,
-          confirmed: confirmed,
-          pending: cards.length - confirmed,
-          valued: cards.filter(function (c) { return c.valueOverride != null; }).length,
-          demandSet: cards.filter(function (c) { return c.demand != null; }).length,
-          revision: (Number(state.meta && state.meta.revision) || 0) + 1
-        };
-        files[PATHS.meta] = serializePretty(meta);
-
-        return gitCommit(files, String(message || "Update values").slice(0, 120)).then(function (sha) {
-          state.meta = meta;
-          state.audit = audit;
-          if (state.anchorsDraft) { state.anchors = state.anchorsDraft; state.anchorsDraft = null; }
-          if (state.rolesDraft) { state.roles = normalizeRoles(state.rolesDraft); state.rolesDraft = null; }
-          state.patches.clear();
-          toast("Committed " + sha.slice(0, 7) + ". Pages will refresh in about a minute.", "ok");
-          renderAll();
-          renderDrawer();
-        });
-      });
+    apiFetch("/api/commit", { method: "POST", body: body }).then(function (data) {
+      state.patches.clear();
+      if (state.anchorsDraft) {
+        state.anchors = state.anchorsDraft;
+        state.anchorsDraft = null;
+      }
+      if (state.meta) state.meta.generatedAt = Date.now();
+      toast(data.sha ? "Published " + data.sha.slice(0, 7) + ". Pages refresh in about a minute." : "Published.", "ok");
+      renderAll();
+      return apiFetch("/api/audit").then(function (audit) {
+        if (audit && Array.isArray(audit.entries)) state.audit = audit;
+      }).catch(function () {}).then(function () { renderDrawer(); });
     }).catch(function (err) {
-      toast(err.message || "Commit failed.", "error");
+      if (err.status === 401) {
+        clearAuth();
+        renderAll();
+        toast("Session expired. Sign in with Discord again.", "error");
+      } else {
+        toast(err.message || "Publish failed.", "error");
+      }
     }).then(function () {
       state.busy = false;
       if (btn) { btn.disabled = false; btn.textContent = "Commit"; }
-    });
-  }
-
-  function gitCommit(files, message) {
-    var base = "/repos/" + encRepo();
-    var paths = Object.keys(files);
-    return ghFetch(base + "/git/ref/heads/" + refPath()).then(function (ref) {
-      var parentSha = ref.object.sha;
-      return ghFetch(base + "/git/commits/" + parentSha).then(function (parent) {
-        var blobChain = Promise.resolve([]);
-        paths.forEach(function (path) {
-          blobChain = blobChain.then(function (entries) {
-            return ghFetch(base + "/git/blobs", { method: "POST", body: { content: files[path], encoding: "utf-8" } })
-              .then(function (blob) { entries.push({ path: path, mode: "100644", type: "blob", sha: blob.sha }); return entries; });
-          });
-        });
-        return blobChain.then(function (entries) {
-          return ghFetch(base + "/git/trees", { method: "POST", body: { base_tree: parent.tree.sha, tree: entries } });
-        }).then(function (tree) {
-          return ghFetch(base + "/git/commits", { method: "POST", body: { message: message, tree: tree.sha, parents: [parentSha] } });
-        }).then(function (commit) {
-          return ghFetch(base + "/git/refs/heads/" + refPath(), { method: "PATCH", body: { sha: commit.sha, force: false } })
-            .then(function () { return commit.sha; });
-        });
-      });
     });
   }
 
@@ -1194,88 +1124,27 @@
   function openLogin() {
     var body = $("#loginBody");
     body.textContent = "";
-    body.append(h("p", { class: "muted", text: "Editors sign in with GitHub. Your account must have write access to this repository and be listed in data/roles.json. The token stays in this tab and is only sent to GitHub." }));
+    body.append(h("p", { class: "muted", text: "Sign in with Discord. Only people vxef adds by Discord ID can edit. You never need a GitHub token." }));
 
-    var tokenInput = h("input", { type: "password", placeholder: "Fine-grained personal access token", autocomplete: "off", spellcheck: "false" });
+    if (!API) {
+      body.append(h("p", { class: "muted", text: "Discord sign-in is not configured yet. Set apiBase in config.js to the deployed Worker URL." }));
+      body.append(h("div", { class: "form-actions" },
+        h("button", { class: "btn btn-ghost", type: "button", text: "Close", on: { click: function () { close("loginModal"); } } })
+      ));
+      open("loginModal");
+      return;
+    }
+
     var status = h("p", { class: "muted", text: "" });
-
-    body.append(h("div", { class: "form-field" },
-      h("label", { text: "GitHub token (Contents: Read and write on this repo)" }),
-      tokenInput,
-      h("span", { class: "hint", text: "github.com/settings/tokens -> Fine-grained tokens -> this repository -> Contents: Read and write." })
-    ));
-
     body.append(h("div", { class: "form-actions" },
-      h("button", { class: "btn btn-primary", type: "button", text: "Sign in", on: { click: function () {
-        var token = tokenInput.value.trim();
-        if (!token) return toast("Paste a token first.", "error");
-        status.textContent = "Checking...";
-        signInWithToken(token).then(function () {
-          close("loginModal");
-        }).catch(function (err) {
-          status.textContent = err.message || "Sign in failed.";
-          toast(err.message || "Sign in failed.", "error");
-        });
+      h("button", { class: "btn btn-primary", type: "button", text: "Sign in with Discord", on: { click: function () {
+        status.textContent = "Redirecting to Discord...";
+        startDiscordLogin();
       } } }),
       h("button", { class: "btn btn-ghost", type: "button", text: "Cancel", on: { click: function () { close("loginModal"); } } })
     ));
-
-    if (CFG.oauth && CFG.oauth.clientId) {
-      body.append(h("div", { class: "form-actions" },
-        h("button", { class: "btn btn-ghost", type: "button", text: "Sign in with GitHub (device flow)", on: { click: function () { deviceFlow(status); } } })
-      ));
-    }
     body.append(status);
     open("loginModal");
-    setTimeout(function () { tokenInput.focus(); }, 40);
-  }
-
-  function deviceFlow(status) {
-    var clientId = CFG.oauth.clientId;
-    var scope = CFG.oauth.scope || "public_repo";
-    status.textContent = "Requesting device code...";
-    fetch("https://github.com/login/device/code", {
-      method: "POST",
-      headers: { "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ client_id: clientId, scope: scope })
-    }).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d.device_code) throw new Error(d.error_description || "Device flow unavailable.");
-      status.textContent = "Open https://github.com/login/device and enter " + d.user_code + ". Waiting...";
-      var link = h("a", { href: "https://github.com/login/device", target: "_blank", rel: "noopener noreferrer", text: "Open github.com/login/device" });
-      status.append(" ", link);
-      var interval = Math.max(5, Number(d.interval) || 5) * 1000;
-      var deadline = Date.now() + (Number(d.expires_in) || 900) * 1000;
-      function poll() {
-        if (Date.now() > deadline) { status.textContent = "Code expired. Try again."; return; }
-        fetch("https://github.com/login/oauth/access_token", {
-          method: "POST",
-          headers: { "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({
-            client_id: clientId,
-            device_code: d.device_code,
-            grant_type: "urn:ietf:params:oauth:grant-type:device_code"
-          })
-        }).then(function (r) { return r.json(); }).then(function (t) {
-          if (t.access_token) {
-            status.textContent = "Authorized. Signing in...";
-            signInWithToken(t.access_token).then(function () { close("loginModal"); }).catch(function (err) {
-              status.textContent = err.message || "Sign in failed.";
-            });
-            return;
-          }
-          if (t.error === "authorization_pending") { setTimeout(poll, interval); return; }
-          if (t.error === "slow_down") { interval += 5000; setTimeout(poll, interval); return; }
-          if (t.error === "expired_token") { status.textContent = "Code expired. Try again."; return; }
-          if (t.error === "access_denied") { status.textContent = "Access denied."; return; }
-          status.textContent = t.error_description || t.error || "Device flow failed.";
-        }).catch(function () {
-          status.textContent = "Device flow is blocked by the browser (CORS). Use a personal access token instead.";
-        });
-      }
-      setTimeout(poll, interval);
-    }).catch(function (err) {
-      status.textContent = err.message || "Device flow unavailable. Use a personal access token.";
-    });
   }
 
   // ---------- events ----------
@@ -1326,22 +1195,30 @@
 
   function boot() {
     bind();
+    var justSignedIn = handleAuthFragment();
     readUrl();
     loadLocal().then(function () {
       renderAll();
       var saved = null;
       try { saved = sessionStorage.getItem(TOKEN_KEY); } catch (e) {}
-      if (saved) {
-        verifyToken(saved).then(function (info) {
-          state.auth.token = saved;
-          state.auth.login = info.login;
-          state.auth.canPush = info.canPush;
-          state.auth.role = resolveRole(info.login);
-          return refreshFromRepo();
-        }).then(renderAll).catch(function () {
-          try { sessionStorage.removeItem(TOKEN_KEY); } catch (e) {}
-        });
-      }
+      if (!state.auth.token && saved) state.auth.token = saved;
+      if (!state.auth.token) return;
+
+      loadSession().then(function () {
+        renderAll();
+        if (justSignedIn) {
+          if (state.auth.role === "viewer") {
+            toast("Signed in as " + state.auth.username + ", but you are not on the editor list. Send your Discord ID to vxef.", "error");
+          } else {
+            toast("Signed in as " + state.auth.username + " (" + state.auth.role + ").", "ok");
+          }
+          openDrawer();
+        }
+      }).catch(function (err) {
+        clearAuth();
+        renderAll();
+        if (justSignedIn) toast(err.message || "Discord session expired. Sign in again.", "error");
+      });
     }).catch(function (err) {
       $("#listNote").textContent = "Could not load values: " + err.message;
       toast("Could not load values: " + err.message, "error");
