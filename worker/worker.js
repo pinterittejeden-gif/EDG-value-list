@@ -490,6 +490,7 @@ function applyCardPatch(card, patch, now, by, onlyFields) {
   card.confirmed = true;
   card.updatedAt = now;
   return {
+    at: now,
     id: card.id,
     name: card.name,
     changes,

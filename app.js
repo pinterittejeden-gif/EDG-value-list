@@ -2042,7 +2042,7 @@
         });
       })), h("div", {
         class: "changelog-meta",
-        text: byText(e.by) + " · " + timeAgo(e.at)
+        text: byText(e.by) + (e.at ? " · " + timeAgo(e.at) : "")
       })));
     });
   }
