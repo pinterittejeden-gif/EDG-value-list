@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "8d117c28-8955-4cf9-9b72-4ca2e211534a",
+      "name": "Spectre",
+      "changes": {
+        "value": {
+          "from": 0.839,
+          "to": 0.8
+        },
+        "holo": {
+          "from": 3.484,
+          "to": 3.5
+        },
+        "demand": {
+          "from": 8,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.839,
+        "holoOverride": 3.484,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "4ae11fe6-fd93-4a4b-8481-3048d3edf736",
       "name": "Acheron",
       "changes": {
