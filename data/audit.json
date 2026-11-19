@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795124139302,
+      "id": "d6f7ba38-9787-42a2-acf2-4585e69cbb91",
+      "name": "Silent clubstep",
+      "changes": {
+        "holo": {
+          "from": 6.6,
+          "to": 6.4
+        }
+      },
+      "before": {
+        "valueOverride": 1.7,
+        "holoOverride": 6.6,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "scs is extremely overpaid for, added very often in trades",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795124105930,
       "id": "e7d15483-bd3b-48b5-ae5a-1a1538d9d7bf",
       "name": "Quanteuse processing",
