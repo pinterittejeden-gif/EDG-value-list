@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "b55de8a2-94d8-41c1-a933-17124e4461e9",
+      "name": "Antarctic Lights",
+      "changes": {
+        "demand": {
+          "from": 5,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 5,
+          "to": 8
+        }
+      },
+      "before": {
+        "valueOverride": 2.4,
+        "holoOverride": 7,
+        "demand": 5,
+        "holoDemand": 5,
+        "priceStatus": "under",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "84080532-a440-4069-882c-88a286aabee1",
       "name": "ORBIT",
       "changes": {
