@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "3d351b86-3762-4eee-95aa-8dbd16189531",
+      "name": "Menace",
+      "changes": {
+        "value": {
+          "from": 0.806,
+          "to": 0.8
+        },
+        "holo": {
+          "from": 3.226,
+          "to": 3.2
+        },
+        "demand": {
+          "from": 10,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 9
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.806,
+        "holoOverride": 3.226,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "9ca78081-b7f1-4cd4-b5f8-c87ec4279a3c",
       "name": "Penumbral",
       "changes": {
