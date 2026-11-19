@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "1178244d-6482-4ef5-a299-c022eb193757",
+      "name": "CONVULSION",
+      "changes": {
+        "value": {
+          "from": 0.323,
+          "to": 0.65
+        },
+        "demand": {
+          "from": 7,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 3
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.323,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "e564dff8-304b-401d-9376-63528b7ba279",
       "name": "Tunnel of Despair",
       "changes": {
