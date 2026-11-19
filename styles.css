@@ -130,9 +130,7 @@ a:hover { text-decoration: underline; }
 .hero .wrap { display: block; }
 .eyebrow { margin: 0 0 10px; color: var(--accent-2); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; }
 .hero h1 { margin: 0; font-size: clamp(28px, 3.6vw, 42px); line-height: 1.04; letter-spacing: -.02em; }
-
-
-
+.lede { margin: 10px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; max-width: 62ch; }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 0; }
 .stat {
   background: var(--panel);
