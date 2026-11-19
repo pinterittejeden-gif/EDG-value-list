@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
+      "name": "Green Bullet",
+      "changes": {
+        "demand": {
+          "from": 5,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 6,
+          "to": 7
+        }
+      },
+      "before": {
+        "valueOverride": 3.2,
+        "holoOverride": 9,
+        "demand": 5,
+        "holoDemand": 6,
+        "priceStatus": "under",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "b55de8a2-94d8-41c1-a933-17124e4461e9",
       "name": "Antarctic Lights",
       "changes": {
