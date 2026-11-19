@@ -5,6 +5,23 @@
       "id": "52df535a-4674-4af7-8004-bcd5453883a9",
       "name": "The Yangire",
       "changes": {
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.266,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "A popular level built and verified by Dorami (on of the most popular Korean GD C.C)",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
+      "id": "52df535a-4674-4af7-8004-bcd5453883a9",
+      "name": "The Yangire",
+      "changes": {
         "value": {
           "from": null,
           "to": 0.266
