@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "92b9d057-f34a-4358-820e-f8bb0af88a43",
+      "name": "Deimos (ItsHybrid)",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.7
+        },
+        "demand": {
+          "from": 6,
+          "to": 7
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 6,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "8bc567c3-7110-499a-b4bf-d0c5a2d5ac7c",
       "name": "BEING HOME",
       "changes": {
