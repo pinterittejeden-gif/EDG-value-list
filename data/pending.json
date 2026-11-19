@@ -1,35 +1,4 @@
 {
   "schema": 1,
-  "proposals": [
-    {
-      "id": "cb444b4f-beb2-497d-9764-aaf08c24dbd3",
-      "at": 1795121203575,
-      "by": "talkswithvenom",
-      "byId": "1407440985205641309",
-      "kind": "suggestion",
-      "reason": "test test test",
-      "message": "test test test",
-      "changes": [
-        {
-          "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
-          "fields": [
-            "valueOverride"
-          ],
-          "valueOverride": 21,
-          "holoOverride": 70,
-          "demand": 10,
-          "holoDemand": 10,
-          "priceStatus": "over",
-          "note": "Mostly used for trading, or completing index's\nHolo: just hypergamy bro.."
-        }
-      ],
-      "images": [
-        {
-          "path": "data/suggestions/cb444b4f-beb2-497d-9764-aaf08c24dbd3/0.png",
-          "type": "image/png",
-          "name": "vendor-funfair-with-wooden-bar_1308-32843.png"
-        }
-      ]
-    }
-  ]
+  "proposals": []
 }

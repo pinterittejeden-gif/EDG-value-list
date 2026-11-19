@@ -2,6 +2,16 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795121277995,
+      "by": "vxef",
+      "byId": "1172223881122152540",
+      "action": "reject",
+      "proposal": "cb444b4f-beb2-497d-9764-aaf08c24dbd3",
+      "proposalBy": "talkswithvenom",
+      "proposalById": "1407440985205641309",
+      "count": 1
+    },
+    {
       "at": 1795121203575,
       "by": "talkswithvenom",
       "byId": "1407440985205641309",
