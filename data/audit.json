@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "298bb7f4-38e4-4376-b8b6-8659cf2d2c00",
+      "name": "Anathema",
+      "changes": {
+        "value": {
+          "from": 1.097,
+          "to": 1.1
+        },
+        "holo": {
+          "from": 4.258,
+          "to": 4.3
+        },
+        "demand": {
+          "from": 8,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 1.097,
+        "holoOverride": 4.258,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "596c8672-afa6-43c3-83f2-2078756a0554",
       "name": "Subsuming Vortex",
       "changes": {
