@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "dbafbb7d-f925-406c-95e1-7298733def71",
+      "name": "Avernus",
+      "changes": {
+        "demand": {
+          "from": 8,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 1,
+        "holoOverride": 3.871,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
       "name": "GRIEF",
       "changes": {
