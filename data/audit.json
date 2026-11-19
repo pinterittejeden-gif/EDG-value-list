@@ -2,6 +2,37 @@
   "schema": 1,
   "entries": [
     {
+      "id": "b55de8a2-94d8-41c1-a933-17124e4461e9",
+      "name": "Antarctic Lights",
+      "changes": {
+        "value": {
+          "from": 3.871,
+          "to": 2.4
+        },
+        "holo": {
+          "from": 12.903,
+          "to": 7
+        },
+        "demand": {
+          "from": 8,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 5
+        }
+      },
+      "before": {
+        "valueOverride": 3.871,
+        "holoOverride": 12.903,
+        "demand": 8,
+        "holoDemand": 10,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
       "name": "Coalescence",
       "changes": {
