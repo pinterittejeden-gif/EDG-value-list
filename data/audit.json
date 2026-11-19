@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
+      "name": "Society",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 6,
+        "holoOverride": 20,
+        "demand": 9,
+        "holoDemand": 9,
+        "priceStatus": null,
+        "note": "Only popular because former top 1\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "9484f345-fbfb-4d82-bb6b-faa642aa3d80",
       "name": "Sinister Silence",
       "changes": {
