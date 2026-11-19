@@ -1,30 +1,4 @@
 {
   "schema": 1,
-  "proposals": [
-    {
-      "id": "80196136-6c50-4968-8be0-22dcaf18659f",
-      "at": 1795122783753,
-      "by": "sillypersoniguess",
-      "byId": "1533018753112215634",
-      "kind": "suggestion",
-      "reason": "cuz when i had a lot of these people would offer a shitton for sevvends",
-      "message": "cuz when i had a lot of these people would offer a shitton for sevvends",
-      "changes": [
-        {
-          "id": "0e3577a5-b567-4ea0-b39b-43920d3b7caf",
-          "fields": [
-            "valueOverride",
-            "demand"
-          ],
-          "valueOverride": 0.5,
-          "holoOverride": null,
-          "demand": 8,
-          "holoDemand": 8,
-          "priceStatus": "fair",
-          "note": "Really all of the mid tier epics are the exact same, price is set by the curve"
-        }
-      ],
-      "images": []
-    }
-  ]
+  "proposals": []
 }
