@@ -1,25 +1,22 @@
-// Full initial import. Existing hand edits are preserved when this is re-run.
 import { existsSync } from "node:fs";
+
 import path from "node:path";
-import {
-  ROOT,
-  fetchAllCards,
-  officialCard,
-  readJson,
-  writeJson,
-  writeJsonLines
-} from "./lib.mjs";
+
+import { ROOT, fetchAllCards, officialCard, readJson, writeJson, writeJsonLines } from "./lib.mjs";
 
 const now = Date.now();
-const { items, lastSync, total, pages } = await fetchAllCards();
+
+const {items, lastSync, total, pages} = await fetchAllCards();
 
 const existing = await readJson("data/cards.json", null);
-const prevById = new Map();
+
+const prevById = new Map;
+
 if (existing && Array.isArray(existing.cards)) {
   for (const c of existing.cards) prevById.set(c.id, c);
 }
 
-const cards = items.map((live) => {
+const cards = items.map(live => {
   const base = officialCard(live, now);
   const prev = prevById.get(live.id);
   if (prev) {
@@ -44,7 +41,7 @@ const cards = items.map((live) => {
 cards.sort((a, b) => a.rank - b.rank);
 
 await writeJsonLines("data/cards.json", {
-  ...(existing || {}),
+  ...existing || {},
   schema: 1,
   source: "https://demongacha.com/api/levels",
   syncedAt: lastSync || now,
@@ -52,7 +49,8 @@ await writeJsonLines("data/cards.json", {
   cards
 }, "cards");
 
-const confirmed = cards.filter((c) => c.confirmed).length;
+const confirmed = cards.filter(c => c.confirmed).length;
+
 await writeJson("data/meta.json", {
   schema: 1,
   syncedAt: lastSync || now,
@@ -60,13 +58,16 @@ await writeJson("data/meta.json", {
   total: cards.length,
   confirmed,
   pending: cards.length - confirmed,
-  valued: cards.filter((c) => c.valueOverride != null).length,
-  demandSet: cards.filter((c) => c.demand != null).length,
+  valued: cards.filter(c => c.valueOverride != null).length,
+  demandSet: cards.filter(c => c.demand != null).length,
   pages
 });
 
 if (!existsSync(path.join(ROOT, "data/audit.json"))) {
-  await writeJson("data/audit.json", { schema: 1, entries: [] });
+  await writeJson("data/audit.json", {
+    schema: 1,
+    entries: []
+  });
 }
 
 console.log(`Seeded ${cards.length} cards (${confirmed} confirmed, ${cards.length - confirmed} pending).`);

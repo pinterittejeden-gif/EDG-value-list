@@ -1,10 +1,13 @@
-// Minimal local static server for previewing the site exactly as GitHub Pages would.
 import http from "node:http";
+
 import { readFile } from "node:fs/promises";
+
 import path from "node:path";
+
 import { ROOT } from "./lib.mjs";
 
 const PORT = Number(process.env.PORT) || 8090;
+
 const TYPES = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -32,7 +35,9 @@ const server = http.createServer(async (req, res) => {
     });
     res.end(body);
   } catch {
-    res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }).end("Not found");
+    res.writeHead(404, {
+      "content-type": "text/plain; charset=utf-8"
+    }).end("Not found");
   }
 });
 

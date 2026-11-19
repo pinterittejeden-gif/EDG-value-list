@@ -1,15 +1,28 @@
 import { readFile, writeFile } from "node:fs/promises";
+
 import { existsSync } from "node:fs";
+
 import path from "node:path";
+
 import { fileURLToPath } from "node:url";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const BASE = "https://demongacha.com";
-export const UA =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
-export const TIER_ORDER = ["Apex", "Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common"];
-export const DEMAND_SEED = { Apex: 10, Mythic: 9, Legendary: 8, Epic: 7, Rare: 5, Uncommon: 3, Common: 1 };
+export const BASE = "https://demongacha.com";
+
+export const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+
+export const TIER_ORDER = [ "Apex", "Mythic", "Legendary", "Epic", "Rare", "Uncommon", "Common" ];
+
+export const DEMAND_SEED = {
+  Apex: 10,
+  Mythic: 9,
+  Legendary: 8,
+  Epic: 7,
+  Rare: 5,
+  Uncommon: 3,
+  Common: 1
+};
 
 export async function readJson(rel, fallback) {
   const p = path.join(ROOT, rel);
@@ -18,10 +31,9 @@ export async function readJson(rel, fallback) {
 }
 
 export async function writeJsonLines(rel, obj, arrayKey) {
-  // The array is written one element per line so GitHub diffs stay readable.
-  const { [arrayKey]: arr, ...rest } = obj;
+  const {[arrayKey]: arr, ...rest} = obj;
   const head = JSON.stringify(rest, null, 2).replace(/\n}$/, "");
-  const lines = ["{", head.slice(2) + ",", `  ${JSON.stringify(arrayKey)}: [`];
+  const lines = [ "{", head.slice(2) + ",", `  ${JSON.stringify(arrayKey)}: [` ];
   arr.forEach((item, i) => {
     lines.push(`    ${JSON.stringify(item)}${i === arr.length - 1 ? "" : ","}`);
   });
@@ -38,11 +50,14 @@ async function fetchPage(page, pageSize) {
   for (let attempt = 0; attempt < 4; attempt++) {
     try {
       const res = await fetch(url, {
-        headers: { "user-agent": UA, accept: "application/json" },
-        signal: AbortSignal.timeout(30000)
+        headers: {
+          "user-agent": UA,
+          accept: "application/json"
+        },
+        signal: AbortSignal.timeout(3e4)
       });
       if (res.status === 429 || res.status === 503) {
-        await new Promise((r) => setTimeout(r, 2500 * (attempt + 1)));
+        await new Promise(r => setTimeout(r, 2500 * (attempt + 1)));
         continue;
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -51,7 +66,7 @@ async function fetchPage(page, pageSize) {
       return json;
     } catch (err) {
       if (attempt === 3) throw err;
-      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+      await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
     }
   }
   throw new Error("Unreachable");
@@ -60,15 +75,20 @@ async function fetchPage(page, pageSize) {
 export async function fetchAllCards(pageSize = 200) {
   const first = await fetchPage(1, pageSize);
   const pages = Number(first.pages) || 1;
-  const items = [...first.items];
+  const items = [ ...first.items ];
   for (let page = 2; page <= pages; page++) {
     const next = await fetchPage(page, pageSize);
     items.push(...next.items);
     process.stdout.write(`\rFetched page ${page}/${pages}`);
-    await new Promise((r) => setTimeout(r, 350));
+    await new Promise(r => setTimeout(r, 350));
   }
   process.stdout.write("\n");
-  return { items, lastSync: first.lastSync, total: Number(first.total) || items.length, pages };
+  return {
+    items,
+    lastSync: first.lastSync,
+    total: Number(first.total) || items.length,
+    pages
+  };
 }
 
 export function officialCard(card, now) {

@@ -1,30 +1,29 @@
-// Discord OAuth + GitHub publishing API for the Demon Gacha value list.
-// Deploy on Cloudflare Workers. Only this Worker holds the Discord client secret
-// and the GitHub write token. Browsers never see either.
-//
-// Roles are stored in data/roles.json as Discord user IDs. The owner is also
-// recognised by OWNER_DISCORD_IDS / OWNER_USERNAMES, so "vxef" always has the
-// admin panel even before their ID is written into the repo.
-
 const DISCORD_API = "https://discord.com/api/v10";
+
 const GH = "https://api.github.com";
+
 const SESSION_TTL = 60 * 60 * 12;
+
 const MAX_CHANGES = 200;
+
 const MAX_AUDIT = 500;
+
 const MAX_IDS_PER_ROLE = 200;
-const ROLES_CACHE_MS = 30000;
 
-const enc = new TextEncoder();
+const ROLES_CACHE_MS = 3e4;
+
+const enc = new TextEncoder;
+
 let rolesCache = null;
-
-// ---------------------------------------------------------------------------
-// Small helpers
-// ---------------------------------------------------------------------------
 
 function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...extra }
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      ...extra
+    }
   });
 }
 
@@ -47,7 +46,7 @@ function b64urlJson(obj) {
 
 function fromB64url(value) {
   const s = String(value).replace(/-/g, "+").replace(/_/g, "/");
-  const pad = s.length % 4 ? "=".repeat(4 - (s.length % 4)) : "";
+  const pad = s.length % 4 ? "=".repeat(4 - s.length % 4) : "";
   const bin = atob(s + pad);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -55,11 +54,17 @@ function fromB64url(value) {
 }
 
 async function hmacKey(secret) {
-  return crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
+  return crypto.subtle.importKey("raw", enc.encode(secret), {
+    name: "HMAC",
+    hash: "SHA-256"
+  }, false, [ "sign", "verify" ]);
 }
 
 async function signJwt(payload, secret) {
-  const head = b64urlJson({ alg: "HS256", typ: "JWT" });
+  const head = b64urlJson({
+    alg: "HS256",
+    typ: "JWT"
+  });
   const body = b64urlJson(payload);
   const sig = await crypto.subtle.sign("HMAC", await hmacKey(secret), enc.encode(head + "." + body));
   return head + "." + body + "." + b64url(sig);
@@ -72,8 +77,8 @@ async function verifyJwt(token, secret) {
   try {
     const ok = await crypto.subtle.verify("HMAC", await hmacKey(secret), fromB64url(parts[2]), enc.encode(parts[0] + "." + parts[1]));
     if (!ok) return null;
-    const payload = JSON.parse(new TextDecoder().decode(fromB64url(parts[1])));
-    if (!payload || typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1000)) return null;
+    const payload = JSON.parse((new TextDecoder).decode(fromB64url(parts[1])));
+    if (!payload || typeof payload.exp !== "number" || payload.exp < Math.floor(Date.now() / 1e3)) return null;
     return payload;
   } catch {
     return null;
@@ -81,8 +86,7 @@ async function verifyJwt(token, secret) {
 }
 
 function origins(env) {
-  return String(env.ALLOWED_ORIGINS || env.SITE_URL || "")
-    .split(",").map((s) => s.trim()).filter(Boolean);
+  return String(env.ALLOWED_ORIGINS || env.SITE_URL || "").split(",").map(s => s.trim()).filter(Boolean);
 }
 
 function corsHeaders(env, origin) {
@@ -114,12 +118,8 @@ function redirectUri(req, env) {
 }
 
 function envList(env, name) {
-  return String(env[name] || "").split(",").map((s) => s.trim()).filter(Boolean);
+  return String(env[name] || "").split(",").map(s => s.trim()).filter(Boolean);
 }
-
-// ---------------------------------------------------------------------------
-// GitHub
-// ---------------------------------------------------------------------------
 
 function repoBase(env) {
   return `/repos/${encodeURIComponent(env.REPO_OWNER)}/${encodeURIComponent(env.REPO_NAME)}`;
@@ -137,15 +137,19 @@ async function gh(env, path, opts = {}) {
       accept: opts.accept || "application/vnd.github+json",
       "x-github-api-version": "2022-11-28",
       "user-agent": "edg-value-api",
-      ...(opts.body ? { "content-type": "application/json" } : {})
+      ...opts.body ? {
+        "content-type": "application/json"
+      } : {}
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined
   });
   const text = await res.text();
   let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch {}
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {}
   if (!res.ok) {
-    const e = new Error((data && (data.message || data.error)) || ("GitHub HTTP " + res.status));
+    const e = new Error(data && (data.message || data.error) || "GitHub HTTP " + res.status);
     e.status = res.status === 401 || res.status === 403 ? 502 : res.status;
     throw e;
   }
@@ -153,10 +157,14 @@ async function gh(env, path, opts = {}) {
 }
 
 async function readText(env, path) {
-  const res = await fetch(
-    GH + repoBase(env) + "/contents/" + encPath(path) + "?ref=" + encodeURIComponent(env.BRANCH || "main"),
-    { headers: { authorization: "Bearer " + env.GITHUB_TOKEN, accept: "application/vnd.github.raw", "x-github-api-version": "2022-11-28", "user-agent": "edg-value-api" } }
-  );
+  const res = await fetch(GH + repoBase(env) + "/contents/" + encPath(path) + "?ref=" + encodeURIComponent(env.BRANCH || "main"), {
+    headers: {
+      authorization: "Bearer " + env.GITHUB_TOKEN,
+      accept: "application/vnd.github.raw",
+      "x-github-api-version": "2022-11-28",
+      "user-agent": "edg-value-api"
+    }
+  });
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw fail("Could not read " + path + " (HTTP " + res.status + "): " + detail.slice(0, 200), 502);
@@ -176,22 +184,51 @@ async function commitFiles(env, files, message) {
   const parent = await gh(env, base + "/git/commits/" + parentSha);
   const tree = [];
   for (const [path, content] of Object.entries(files)) {
-    const blob = await gh(env, base + "/git/blobs", { method: "POST", body: { content, encoding: "utf-8" } });
-    tree.push({ path, mode: "100644", type: "blob", sha: blob.sha });
+    const blob = await gh(env, base + "/git/blobs", {
+      method: "POST",
+      body: {
+        content,
+        encoding: "utf-8"
+      }
+    });
+    tree.push({
+      path,
+      mode: "100644",
+      type: "blob",
+      sha: blob.sha
+    });
   }
-  const newTree = await gh(env, base + "/git/trees", { method: "POST", body: { base_tree: parent.tree.sha, tree } });
-  const commit = await gh(env, base + "/git/commits", { method: "POST", body: { message, tree: newTree.sha, parents: [parentSha] } });
-  await gh(env, base + "/git/refs/heads/" + branch, { method: "PATCH", body: { sha: commit.sha, force: false } });
+  const newTree = await gh(env, base + "/git/trees", {
+    method: "POST",
+    body: {
+      base_tree: parent.tree.sha,
+      tree
+    }
+  });
+  const commit = await gh(env, base + "/git/commits", {
+    method: "POST",
+    body: {
+      message,
+      tree: newTree.sha,
+      parents: [ parentSha ]
+    }
+  });
+  await gh(env, base + "/git/refs/heads/" + branch, {
+    method: "PATCH",
+    body: {
+      sha: commit.sha,
+      force: false
+    }
+  });
   return commit.sha;
 }
 
-// One card per line, matching scripts/lib.mjs so GitHub diffs stay clean.
 function serializeCards(doc) {
   const rest = {};
   for (const [k, v] of Object.entries(doc)) if (k !== "cards") rest[k] = v;
   const head = JSON.stringify(rest, null, 2).replace(/\n}$/, "");
-  let out = "{\n" + head.slice(2) + ",\n  \"cards\": [\n";
-  out += doc.cards.map((c) => "    " + JSON.stringify(c)).join(",\n");
+  let out = "{\n" + head.slice(2) + ',\n  "cards": [\n';
+  out += doc.cards.map(c => "    " + JSON.stringify(c)).join(",\n");
   out += "\n  ]\n}\n";
   return out;
 }
@@ -200,35 +237,42 @@ function serializePretty(obj) {
   return JSON.stringify(obj, null, 2) + "\n";
 }
 
-// ---------------------------------------------------------------------------
-// Roles
-// ---------------------------------------------------------------------------
-
 function normalizeRoles(data) {
-  const list = (v) => (Array.isArray(v) ? v.map((x) => {
+  const list = v => Array.isArray(v) ? v.map(x => {
     if (typeof x === "string") return x.trim();
     if (x && typeof x === "object" && x.id) return String(x.id);
     return "";
-  }).filter(Boolean) : []);
+  }).filter(Boolean) : [];
   const owner = list(data && data.owner);
-  const admins = list(data && data.admins).filter((id) => !owner.includes(id));
-  const mods = list(data && data.mods).filter((id) => !owner.includes(id) && !admins.includes(id));
-  return { owner, admins, mods };
+  const admins = list(data && data.admins).filter(id => !owner.includes(id));
+  const mods = list(data && data.mods).filter(id => !owner.includes(id) && !admins.includes(id));
+  return {
+    owner,
+    admins,
+    mods
+  };
 }
 
 async function readRoles(env, force = false) {
   const now = Date.now();
   if (!force && rolesCache && now - rolesCache.at < ROLES_CACHE_MS) return rolesCache.data;
-  const data = await readJson(env, "data/roles.json").catch(() => ({ owner: [], admins: [], mods: [] }));
-  rolesCache = { at: now, data: normalizeRoles(data) };
+  const data = await readJson(env, "data/roles.json").catch(() => ({
+    owner: [],
+    admins: [],
+    mods: []
+  }));
+  rolesCache = {
+    at: now,
+    data: normalizeRoles(data)
+  };
   return rolesCache.data;
 }
 
 async function resolveRole(user, env) {
-  const id = String((user && user.id) || "");
-  const username = String((user && user.username) || "").toLowerCase();
+  const id = String(user && user.id || "");
+  const username = String(user && user.username || "").toLowerCase();
   if (id && envList(env, "OWNER_DISCORD_IDS").includes(id)) return "owner";
-  if (username && envList(env, "OWNER_USERNAMES").map((s) => s.toLowerCase()).includes(username)) return "owner";
+  if (username && envList(env, "OWNER_USERNAMES").map(s => s.toLowerCase()).includes(username)) return "owner";
   const roles = await readRoles(env);
   if (id && roles.owner.includes(id)) return "owner";
   if (id && roles.admins.includes(id)) return "admin";
@@ -255,21 +299,25 @@ function validateRoles(body) {
     return out;
   };
   const owner = clean(body.owner, "owner");
-  const admins = clean(body.admins, "admins").filter((id) => !owner.includes(id));
-  const mods = clean(body.mods, "mods").filter((id) => !owner.includes(id) && !admins.includes(id));
-  return { owner, admins, mods };
+  const admins = clean(body.admins, "admins").filter(id => !owner.includes(id));
+  const mods = clean(body.mods, "mods").filter(id => !owner.includes(id) && !admins.includes(id));
+  return {
+    owner,
+    admins,
+    mods
+  };
 }
-
-// ---------------------------------------------------------------------------
-// Auth
-// ---------------------------------------------------------------------------
 
 async function requireUser(req, env) {
   const auth = req.headers.get("authorization") || "";
   const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
   const payload = await verifyJwt(token, env.SESSION_SECRET);
   if (!payload) throw fail("Sign in with Discord first.", 401);
-  const user = { id: String(payload.sub), username: String(payload.username || ""), global_name: String(payload.global_name || payload.username || "") };
+  const user = {
+    id: String(payload.sub),
+    username: String(payload.username || ""),
+    global_name: String(payload.global_name || payload.username || "")
+  };
   user.role = await resolveRole(user, env);
   return user;
 }
@@ -297,7 +345,6 @@ async function authCallback(req, env, url) {
   const state = url.searchParams.get("state") || "";
   const expected = cookie(req, "dg_state");
   if (!code || !state || state !== expected) throw fail("Invalid or expired OAuth state. Start again.", 400);
-
   const body = new URLSearchParams({
     client_id: env.DISCORD_CLIENT_ID,
     client_secret: env.DISCORD_CLIENT_SECRET,
@@ -307,20 +354,24 @@ async function authCallback(req, env, url) {
   });
   const tokenRes = await fetch(DISCORD_API + "/oauth2/token", {
     method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
+    headers: {
+      "content-type": "application/x-www-form-urlencoded"
+    },
     body
   });
   if (!tokenRes.ok) throw fail("Discord token exchange failed.", 502);
   const token = await tokenRes.json();
   if (!token.access_token) throw fail("Discord did not return an access token.", 502);
-
-  const userRes = await fetch(DISCORD_API + "/users/@me", { headers: { authorization: "Bearer " + token.access_token } });
+  const userRes = await fetch(DISCORD_API + "/users/@me", {
+    headers: {
+      authorization: "Bearer " + token.access_token
+    }
+  });
   if (!userRes.ok) throw fail("Discord user lookup failed.", 502);
   const user = await userRes.json();
   if (!user || !user.id) throw fail("Discord did not return a user.", 502);
-
   const role = await resolveRole(user, env);
-  const now = Math.floor(Date.now() / 1000);
+  const now = Math.floor(Date.now() / 1e3);
   const jwt = await signJwt({
     sub: String(user.id),
     username: user.username || "",
@@ -329,7 +380,6 @@ async function authCallback(req, env, url) {
     iat: now,
     exp: now + SESSION_TTL
   }, env.SESSION_SECRET);
-
   const site = env.SITE_URL || origins(env)[0];
   if (!site) throw fail("SITE_URL is not configured.", 500);
   const target = new URL(site);
@@ -342,10 +392,6 @@ async function authCallback(req, env, url) {
     }
   });
 }
-
-// ---------------------------------------------------------------------------
-// Card change validation
-// ---------------------------------------------------------------------------
 
 function asNumberOrNull(value, label, min, max) {
   if (value === null || value === undefined || value === "") return null;
@@ -364,7 +410,6 @@ function asDemand(value, label) {
 function applyCardPatch(card, patch, now, by) {
   if (!patch || typeof patch !== "object") throw fail("Invalid card change.", 400);
   if (typeof patch.id !== "string" || !patch.id) throw fail("Card change is missing an id.", 400);
-
   const before = {
     valueOverride: card.valueOverride == null ? null : card.valueOverride,
     holoOverride: card.holoOverride == null ? null : card.holoOverride,
@@ -373,25 +418,33 @@ function applyCardPatch(card, patch, now, by) {
     note: card.note || "",
     confirmed: card.confirmed !== false
   };
-
   const valueOverride = asNumberOrNull(patch.valueOverride, "Value", 0, 1e9);
   const holoOverride = asNumberOrNull(patch.holoOverride, "Holo value", 0, 1e9);
   const demand = asDemand(patch.demand, "Demand");
   const holoDemand = asDemand(patch.holoDemand, "Holo demand");
   const note = patch.note == null ? "" : String(patch.note).slice(0, 500);
-
   const changes = {};
-  if (valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) changes.value = { from: card.valueOverride, to: valueOverride };
-  if (holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) changes.holo = { from: card.holoOverride, to: holoOverride };
-  if (demand !== (card.demand == null ? null : card.demand)) changes.demand = { from: card.demand, to: demand };
-  if (holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) changes.holoDemand = { from: card.holoDemand, to: holoDemand };
+  if (valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) changes.value = {
+    from: card.valueOverride,
+    to: valueOverride
+  };
+  if (holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) changes.holo = {
+    from: card.holoOverride,
+    to: holoOverride
+  };
+  if (demand !== (card.demand == null ? null : card.demand)) changes.demand = {
+    from: card.demand,
+    to: demand
+  };
+  if (holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) changes.holoDemand = {
+    from: card.holoDemand,
+    to: holoDemand
+  };
   if (note !== (card.note || "")) changes.note = true;
   if (card.confirmed === false) changes.confirmed = true;
-
   if (changes.value || changes.holo) card.valueSource = valueOverride == null ? null : "manual";
   if (changes.demand) card.demandSource = demand == null ? null : "manual";
   if (changes.holoDemand) card.holoDemandSource = holoDemand == null ? null : "manual";
-
   card.valueOverride = valueOverride;
   card.holoOverride = holoOverride;
   card.demand = demand;
@@ -399,15 +452,19 @@ function applyCardPatch(card, patch, now, by) {
   card.note = note;
   card.confirmed = true;
   card.updatedAt = now;
-
-  return { id: card.id, name: card.name, changes, before };
+  return {
+    id: card.id,
+    name: card.name,
+    changes,
+    before
+  };
 }
 
 function validateAnchors(input) {
   if (!input || typeof input !== "object" || !Array.isArray(input.anchors)) throw fail("Invalid anchors body.", 400);
   if (input.anchors.length < 2) throw fail("Keep at least two anchors.", 400);
   if (input.anchors.length > 30) throw fail("Too many anchors.", 400);
-  const seen = new Set();
+  const seen = new Set;
   const out = [];
   for (const a of input.anchors) {
     const rank = Math.round(Number(a && a.rank));
@@ -416,49 +473,71 @@ function validateAnchors(input) {
     if (!Number.isFinite(value) || value <= 0) throw fail("Anchor value must be positive.", 400);
     if (seen.has(rank)) throw fail("Two anchors share rank " + rank + ".", 400);
     seen.add(rank);
-    out.push({ rank, value, label: String((a && a.label) || "").slice(0, 40) });
+    out.push({
+      rank,
+      value,
+      label: String(a && a.label || "").slice(0, 40)
+    });
   }
   out.sort((a, b) => a.rank - b.rank);
   return {
     schema: 1,
-    unit: input.unit || { rank: 25, note: "1.00 is the card sitting at rank 25." },
-    curve: input.curve || { interpolation: "log-log", min: 0.001, decimals: 2 },
+    unit: input.unit || {
+      rank: 25,
+      note: "1.00 is the card sitting at rank 25."
+    },
+    curve: input.curve || {
+      interpolation: "log-log",
+      min: .001,
+      decimals: 2
+    },
     anchors: out,
     demand: input.demand || {}
   };
 }
 
-// ---------------------------------------------------------------------------
-// Endpoints
-// ---------------------------------------------------------------------------
-
 async function session(req, env) {
   const user = await requireUser(req, env);
-  return json({ user, role: user.role });
+  return json({
+    user,
+    role: user.role
+  });
 }
 
 async function getRoles(req, env) {
   const user = await requireUser(req, env);
-  if (user.role !== "owner") return json({ error: "Only the owner can view access control." }, 403);
+  if (user.role !== "owner") return json({
+    error: "Only the owner can view access control."
+  }, 403);
   const roles = normalizeRoles(await readJson(env, "data/roles.json"));
-  return json({ roles, you: user });
+  return json({
+    roles,
+    you: user
+  });
 }
 
 async function putRoles(req, env) {
   const user = await requireUser(req, env);
-  if (user.role !== "owner") return json({ error: "Only the owner can change access." }, 403);
+  if (user.role !== "owner") return json({
+    error: "Only the owner can change access."
+  }, 403);
   const body = await req.json().catch(() => null);
   const roles = validateRoles(body);
-
   const now = Date.now();
-  const audit = await readJson(env, "data/audit.json").catch(() => ({ entries: [] }));
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
   audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
   audit.entries.unshift({
-    at: now, by: user.username, byId: user.id, action: "roles",
-    owner: roles.owner.length, admins: roles.admins.length, mods: roles.mods.length
+    at: now,
+    by: user.username,
+    byId: user.id,
+    action: "roles",
+    owner: roles.owner.length,
+    admins: roles.admins.length,
+    mods: roles.mods.length
   });
   audit.entries = audit.entries.slice(0, MAX_AUDIT);
-
   const files = {
     "data/roles.json": serializePretty({
       schema: 2,
@@ -471,53 +550,73 @@ async function putRoles(req, env) {
   };
   const sha = await commitFiles(env, files, "Update editor roles");
   rolesCache = null;
-  return json({ roles, sha });
+  return json({
+    roles,
+    sha
+  });
 }
 
 async function commit(req, env) {
   const user = await requireUser(req, env);
-  if (user.role === "viewer") return json({ error: "Your Discord account is not on the editor list." }, 403);
-
+  if (user.role === "viewer") return json({
+    error: "Your Discord account is not on the editor list."
+  }, 403);
   const body = await req.json().catch(() => null);
-  if (!body || typeof body !== "object") return json({ error: "Invalid body." }, 400);
+  if (!body || typeof body !== "object") return json({
+    error: "Invalid body."
+  }, 400);
   const changes = Array.isArray(body.changes) ? body.changes : [];
-  if (changes.length > MAX_CHANGES) return json({ error: "Too many changes in one commit." }, 400);
-  if (changes.length === 0 && !body.anchors) return json({ error: "Nothing to commit." }, 400);
-
+  if (changes.length > MAX_CHANGES) return json({
+    error: "Too many changes in one commit."
+  }, 400);
+  if (changes.length === 0 && !body.anchors) return json({
+    error: "Nothing to commit."
+  }, 400);
   const now = Date.now();
   const cardsDoc = await readJson(env, "data/cards.json");
-  if (!cardsDoc || !Array.isArray(cardsDoc.cards)) return json({ error: "cards.json is malformed." }, 500);
-  const byId = new Map(cardsDoc.cards.map((c) => [c.id, c]));
+  if (!cardsDoc || !Array.isArray(cardsDoc.cards)) return json({
+    error: "cards.json is malformed."
+  }, 500);
+  const byId = new Map(cardsDoc.cards.map(c => [ c.id, c ]));
   const auditEntries = [];
   let applied = 0;
-
   for (const patch of changes) {
-    if (!patch || typeof patch.id !== "string") return json({ error: "A card change is missing an id." }, 400);
+    if (!patch || typeof patch.id !== "string") return json({
+      error: "A card change is missing an id."
+    }, 400);
     const card = byId.get(patch.id);
-    if (!card) return json({ error: "Unknown card id: " + patch.id }, 400);
+    if (!card) return json({
+      error: "Unknown card id: " + patch.id
+    }, 400);
     auditEntries.push(applyCardPatch(card, patch, now, user.username));
     applied++;
   }
-
   const files = {};
-  const audit = await readJson(env, "data/audit.json").catch(() => ({ entries: [] }));
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
   audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
-
   if (body.anchors) {
     if (user.role !== "admin" && user.role !== "owner") {
-      return json({ error: "Only admins and owners can change the curve." }, 403);
+      return json({
+        error: "Only admins and owners can change the curve."
+      }, 403);
     }
     const anchors = validateAnchors(body.anchors);
     files["data/anchors.json"] = serializePretty(anchors);
-    auditEntries.push({ at: now, by: user.username, byId: user.id, action: "anchors", ranks: anchors.anchors.map((a) => a.rank) });
+    auditEntries.push({
+      at: now,
+      by: user.username,
+      byId: user.id,
+      action: "anchors",
+      ranks: anchors.anchors.map(a => a.rank)
+    });
   }
-
   if (applied > 0) {
     cardsDoc.cards.sort((a, b) => a.rank - b.rank);
     files["data/cards.json"] = serializeCards(cardsDoc);
   }
-
-  const confirmed = cardsDoc.cards.filter((c) => c.confirmed !== false).length;
+  const confirmed = cardsDoc.cards.filter(c => c.confirmed !== false).length;
   const meta = {
     schema: 1,
     syncedAt: cardsDoc.syncedAt || now,
@@ -525,40 +624,51 @@ async function commit(req, env) {
     total: cardsDoc.cards.length,
     confirmed,
     pending: cardsDoc.cards.length - confirmed,
-    valued: cardsDoc.cards.filter((c) => c.valueOverride != null).length,
-    demandSet: cardsDoc.cards.filter((c) => c.demand != null).length,
+    valued: cardsDoc.cards.filter(c => c.valueOverride != null).length,
+    demandSet: cardsDoc.cards.filter(c => c.demand != null).length,
     revision: (Number((await readJson(env, "data/meta.json").catch(() => ({}))).revision) || 0) + 1
   };
   files["data/meta.json"] = serializePretty(meta);
-
-  audit.entries = auditEntries.map((e) => ({ ...e, by: user.username })).concat(audit.entries).slice(0, MAX_AUDIT);
+  audit.entries = auditEntries.map(e => ({
+    ...e,
+    by: user.username
+  })).concat(audit.entries).slice(0, MAX_AUDIT);
   files["data/audit.json"] = serializePretty(audit);
-
   const sha = await commitFiles(env, files, String(body.message || "Update values").slice(0, 120));
-  return json({ sha, applied });
+  return json({
+    sha,
+    applied
+  });
 }
 
 async function auditList(req, env) {
   const user = await requireUser(req, env);
-  if (user.role === "viewer") return json({ error: "Editors only." }, 403);
-  const audit = await readJson(env, "data/audit.json").catch(() => ({ entries: [] }));
-  return json({ entries: Array.isArray(audit.entries) ? audit.entries.slice(0, 100) : [] });
+  if (user.role === "viewer") return json({
+    error: "Editors only."
+  }, 403);
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
+  return json({
+    entries: Array.isArray(audit.entries) ? audit.entries.slice(0, 100) : []
+  });
 }
-
-// ---------------------------------------------------------------------------
-// Router
-// ---------------------------------------------------------------------------
 
 export async function handle(req, env) {
   const url = new URL(req.url);
   const origin = req.headers.get("origin") || "";
-
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders(env, origin) });
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders(env, origin)
+    });
   }
-
   try {
-    if (url.pathname === "/api/health") return withCors(json({ ok: true, service: "edg-value-api", time: Date.now() }), env, origin);
+    if (url.pathname === "/api/health") return withCors(json({
+      ok: true,
+      service: "edg-value-api",
+      time: Date.now()
+    }), env, origin);
     if (url.pathname === "/auth/discord") return await authStart(req, env);
     if (url.pathname === "/auth/discord/callback") return await authCallback(req, env, url);
     if (url.pathname === "/api/session" && req.method === "GET") return withCors(await session(req, env), env, origin);
@@ -566,12 +676,18 @@ export async function handle(req, env) {
     if (url.pathname === "/api/roles" && req.method === "PUT") return withCors(await putRoles(req, env), env, origin);
     if (url.pathname === "/api/commit" && req.method === "POST") return withCors(await commit(req, env), env, origin);
     if (url.pathname === "/api/audit" && req.method === "GET") return withCors(await auditList(req, env), env, origin);
-    return withCors(json({ error: "Not found." }, 404), env, origin);
+    return withCors(json({
+      error: "Not found."
+    }, 404), env, origin);
   } catch (e) {
-    return withCors(json({ error: e.message || "Server error." }, e.status || 500), env, origin);
+    return withCors(json({
+      error: e.message || "Server error."
+    }, e.status || 500), env, origin);
   }
 }
 
-export default { fetch: handle };
+export default {
+  fetch: handle
+};
 
 export { signJwt, verifyJwt, resolveRole, normalizeRoles, validateRoles, validateAnchors, applyCardPatch, serializeCards, corsHeaders };
