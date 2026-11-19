@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "78d2148c-d0eb-468e-979a-aee250514f02",
+      "name": "ANNIHILATED",
+      "changes": {
+        "value": {
+          "from": 165.22,
+          "to": 100
+        },
+        "holo": {
+          "from": null,
+          "to": 450
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 165.22,
+        "holoOverride": null,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "Limited..",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "9d96d090-5022-4cde-801d-72e03e0b1a1b",
       "name": "Defeated Circles",
       "changes": {
