@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "210ae17a-e6bf-4851-91be-85501194dbf3",
+      "name": "Voltage (ThePurgatory)",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.612
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
       "name": "BLAZEIT",
       "changes": {
