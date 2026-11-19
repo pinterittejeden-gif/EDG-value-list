@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "61ade6ee-e274-45b9-9537-3362259f8625",
+      "name": "The Salt Factory",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.666
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 4
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "9ca78081-b7f1-4cd4-b5f8-c87ec4279a3c",
       "name": "Penumbral",
       "changes": {
