@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "59a49d83-77fd-4890-a04d-689f1947ad16",
+      "name": "Damascus",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.26
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 5
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
       "name": "GRIEF",
       "changes": {
