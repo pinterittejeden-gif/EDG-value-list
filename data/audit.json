@@ -2,6 +2,33 @@
   "schema": 1,
   "entries": [
     {
+      "id": "034634f7-f216-4f34-82dd-003eebd2897e",
+      "name": "Artemis 13",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 7
+        },
+        "holo": {
+          "from": null,
+          "to": 24
+        },
+        "demand": {
+          "from": 9,
+          "to": 8
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 9,
+        "holoDemand": 9,
+        "note": "Wanted for index preety much\nless wanted then grief for sure\n8.9/10 imo\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
       "name": "GRIEF",
       "changes": {
