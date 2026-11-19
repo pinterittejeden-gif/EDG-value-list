@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795123008540,
+      "id": "0e3577a5-b567-4ea0-b39b-43920d3b7caf",
+      "name": "Sevvend Clubstep",
+      "changes": {
+        "demand": {
+          "from": 5,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": "fair",
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795122783753,
       "by": "sillypersoniguess",
       "byId": "1533018753112215634",
