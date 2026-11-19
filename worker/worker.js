@@ -136,6 +136,7 @@ async function gh(env, path, opts = {}) {
       authorization: "Bearer " + env.GITHUB_TOKEN,
       accept: opts.accept || "application/vnd.github+json",
       "x-github-api-version": "2022-11-28",
+      "user-agent": "edg-value-api",
       ...(opts.body ? { "content-type": "application/json" } : {})
     },
     body: opts.body ? JSON.stringify(opts.body) : undefined
@@ -154,9 +155,12 @@ async function gh(env, path, opts = {}) {
 async function readText(env, path) {
   const res = await fetch(
     GH + repoBase(env) + "/contents/" + encPath(path) + "?ref=" + encodeURIComponent(env.BRANCH || "main"),
-    { headers: { authorization: "Bearer " + env.GITHUB_TOKEN, accept: "application/vnd.github.raw", "x-github-api-version": "2022-11-28" } }
+    { headers: { authorization: "Bearer " + env.GITHUB_TOKEN, accept: "application/vnd.github.raw", "x-github-api-version": "2022-11-28", "user-agent": "edg-value-api" } }
   );
-  if (!res.ok) throw fail("Could not read " + path + " (HTTP " + res.status + ").", 502);
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    throw fail("Could not read " + path + " (HTTP " + res.status + "): " + detail.slice(0, 200), 502);
+  }
   return res.text();
 }
 
