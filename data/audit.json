@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "034634f7-f216-4f34-82dd-003eebd2897e",
+      "name": "Artemis 13",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 7,
+        "holoOverride": 24,
+        "demand": 9,
+        "holoDemand": 9,
+        "priceStatus": null,
+        "note": "Wanted for index preety much\nless wanted then grief for sure\n8.9/10 imo\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "9484f345-fbfb-4d82-bb6b-faa642aa3d80",
       "name": "Sinister Silence",
       "changes": {
