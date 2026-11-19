@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "99bfbecd-4821-4914-85fd-dd0bb613510e",
+      "name": "Silentlocked",
+      "changes": {
+        "holoDemand": {
+          "from": null,
+          "to": 8
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "70810896-8147-445f-82d0-028cce2297da",
       "name": "Master of Puppets",
       "changes": {
