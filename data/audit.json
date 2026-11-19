@@ -2,6 +2,38 @@
   "schema": 1,
   "entries": [
     {
+      "id": "4ece95db-18aa-4dd2-9fba-9991e1cce1bc",
+      "name": "Amethyst",
+      "changes": {
+        "value": {
+          "from": 6.452,
+          "to": 5
+        },
+        "holo": {
+          "from": 23.226,
+          "to": 15
+        },
+        "demand": {
+          "from": 10,
+          "to": 8
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 9
+        }
+      },
+      "before": {
+        "valueOverride": 6.452,
+        "holoOverride": 23.226,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "3237ed55-fa08-43ae-a93e-bd485ffe8d55",
       "name": "THE JET ENGINE",
       "changes": {
