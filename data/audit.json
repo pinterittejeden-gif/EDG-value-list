@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
+      "name": "GRIEF",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 20,
+        "holoOverride": 70,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "Mostly used for trading, or completing index's\nHolo: just hypergamy bro..",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
       "name": "Coalescence",
       "changes": {
