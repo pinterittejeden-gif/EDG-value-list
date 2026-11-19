@@ -2,6 +2,34 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9d96d090-5022-4cde-801d-72e03e0b1a1b",
+      "name": "Defeated Circles",
+      "changes": {
+        "value": {
+          "from": 1.032,
+          "to": 1.2
+        },
+        "holo": {
+          "from": 4,
+          "to": 4.4
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 1.032,
+        "holoOverride": 4,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "298bb7f4-38e4-4376-b8b6-8659cf2d2c00",
       "name": "Anathema",
       "changes": {
