@@ -2,6 +2,15 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795099477449,
+      "by": "vxef",
+      "byId": "1172223881122152540",
+      "action": "roles",
+      "owner": 0,
+      "admins": 1,
+      "mods": 0
+    },
+    {
       "at": 1795097516244,
       "by": "import",
       "action": "sheet-import",

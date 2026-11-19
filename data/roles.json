@@ -1,7 +1,9 @@
 {
   "schema": 2,
-  "note": "Discord user IDs only. The owner is also recognised by the Worker OWNER_USERNAMES / OWNER_DISCORD_IDS settings, so vxef always has the admin panel.",
+  "note": "Discord user IDs only. The owner is always recognised by the Worker OWNER_USERNAMES / OWNER_DISCORD_IDS too.",
   "owner": [],
-  "admins": [],
+  "admins": [
+    "908366777417891921"
+  ],
   "mods": []
 }
