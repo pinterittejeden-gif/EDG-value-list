@@ -1890,6 +1890,34 @@
       if (e.key === "Escape") closeAllModals();
     });
     initBulk();
+    initWelcome();
+  }
+  function initWelcome() {
+    var el = $("#welcome");
+    if (!el) return;
+    var key = "dg.welcome.v1";
+    var seen = false;
+    try {
+      seen = localStorage.getItem(key) === "1";
+    } catch (e) {}
+    if (seen) return;
+    el.hidden = false;
+    var btn = $("#welcomeEnter");
+    var closeWelcome = function() {
+      try {
+        localStorage.setItem(key, "1");
+      } catch (e) {}
+      el.hidden = true;
+    };
+    if (btn) {
+      btn.addEventListener("click", closeWelcome);
+      setTimeout(function() {
+        btn.focus();
+      }, 40);
+    }
+    el.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") closeWelcome();
+    });
   }
   function boot() {
     bind();
