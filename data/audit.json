@@ -2,6 +2,37 @@
   "schema": 1,
   "entries": [
     {
+      "id": "034634f7-f216-4f34-82dd-003eebd2897e",
+      "name": "Artemis 13",
+      "changes": {
+        "value": {
+          "from": 10.323,
+          "to": null
+        },
+        "holo": {
+          "from": 32.258,
+          "to": null
+        },
+        "demand": {
+          "from": 10,
+          "to": null
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": null
+        }
+      },
+      "before": {
+        "valueOverride": 10.323,
+        "holoOverride": 32.258,
+        "demand": 10,
+        "holoDemand": 10,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
       "name": "GRIEF",
       "changes": {
