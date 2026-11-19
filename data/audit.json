@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "06898192-2f94-4b57-a18b-d95cc73c69e5",
+      "name": "Kyouki",
+      "changes": {
+        "value": {
+          "from": 0.71,
+          "to": 0.7
+        },
+        "holo": {
+          "from": 2.968,
+          "to": 3
+        },
+        "demand": {
+          "from": 8,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 8
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.71,
+        "holoOverride": 2.968,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "7dd584da-369a-4bb8-86d3-68312926c102",
       "name": "Sacrifice",
       "changes": {
