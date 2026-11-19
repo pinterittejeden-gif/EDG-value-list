@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "7dd584da-369a-4bb8-86d3-68312926c102",
+      "name": "Sacrifice",
+      "changes": {
+        "value": {
+          "from": 0.677,
+          "to": 0.5
+        },
+        "holo": {
+          "from": 2.839,
+          "to": 2.6
+        },
+        "demand": {
+          "from": 6,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "under"
+        }
+      },
+      "before": {
+        "valueOverride": 0.677,
+        "holoOverride": 2.839,
+        "demand": 6,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "3d351b86-3762-4eee-95aa-8dbd16189531",
       "name": "Menace",
       "changes": {
