@@ -1898,14 +1898,14 @@
     var key = "dg.welcome.v1";
     var seen = false;
     try {
-      seen = localStorage.getItem(key) === "1";
+      seen = sessionStorage.getItem(key) === "1";
     } catch (e) {}
     if (seen) return;
     el.hidden = false;
     var btn = $("#welcomeEnter");
     var closeWelcome = function() {
       try {
-        localStorage.setItem(key, "1");
+        sessionStorage.setItem(key, "1");
       } catch (e) {}
       el.hidden = true;
     };
