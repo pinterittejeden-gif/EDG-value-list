@@ -2,6 +2,42 @@
   "schema": 1,
   "entries": [
     {
+      "id": "9ca78081-b7f1-4cd4-b5f8-c87ec4279a3c",
+      "name": "Penumbral",
+      "changes": {
+        "value": {
+          "from": 1.29,
+          "to": 1.3
+        },
+        "holo": {
+          "from": 5.548,
+          "to": 5.6
+        },
+        "demand": {
+          "from": 6,
+          "to": 3
+        },
+        "holoDemand": {
+          "from": 8,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 1.29,
+        "holoOverride": 5.548,
+        "demand": 6,
+        "holoDemand": 8,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "b0f62595-314d-4648-b23e-12756382c126",
       "name": "Sakupen Circles",
       "changes": {
