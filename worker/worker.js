@@ -365,6 +365,15 @@ function applyCardPatch(card, patch, now, by) {
   if (!patch || typeof patch !== "object") throw fail("Invalid card change.", 400);
   if (typeof patch.id !== "string" || !patch.id) throw fail("Card change is missing an id.", 400);
 
+  const before = {
+    valueOverride: card.valueOverride == null ? null : card.valueOverride,
+    holoOverride: card.holoOverride == null ? null : card.holoOverride,
+    demand: card.demand == null ? null : card.demand,
+    holoDemand: card.holoDemand == null ? null : card.holoDemand,
+    note: card.note || "",
+    confirmed: card.confirmed !== false
+  };
+
   const valueOverride = asNumberOrNull(patch.valueOverride, "Value", 0, 1e9);
   const holoOverride = asNumberOrNull(patch.holoOverride, "Holo value", 0, 1e9);
   const demand = asDemand(patch.demand, "Demand");
@@ -391,7 +400,7 @@ function applyCardPatch(card, patch, now, by) {
   card.confirmed = true;
   card.updatedAt = now;
 
-  return { id: card.id, name: card.name, changes };
+  return { id: card.id, name: card.name, changes, before };
 }
 
 function validateAnchors(input) {

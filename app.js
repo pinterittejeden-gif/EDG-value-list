@@ -21,7 +21,6 @@
     rolesRemote: null,
     rolesLoading: false,
     rolesYou: null,
-    patches: new Map(),
     anchorsDraft: null,
     rolesDraft: null,
     busy: false
@@ -255,7 +254,8 @@
   }
 
   function fetchJson(path) {
-    return fetch(path, { cache: "no-cache", credentials: "omit" }).then(function (r) {
+    var sep = path.indexOf("?") === -1 ? "?" : "&";
+    return fetch(path + sep + "v=" + Date.now(), { cache: "no-store", credentials: "omit" }).then(function (r) {
       if (!r.ok) throw new Error(path + " -> HTTP " + r.status);
       return r.json();
     });
@@ -275,7 +275,7 @@
 
   function apiFetch(path, opts) {
     opts = opts || {};
-    if (!API) return Promise.reject(new Error("Discord sign-in is not configured yet. Set apiBase in config.js."));
+    if (!API) return Promise.reject(new Error("Sign in is not configured."));
     var headers = { "Accept": "application/json" };
     if (state.auth.token) headers["Authorization"] = "Bearer " + state.auth.token;
     if (opts.body) headers["Content-Type"] = "application/json";
@@ -306,6 +306,9 @@
       state.auth.globalName = data.user.global_name || data.user.username;
       state.auth.role = data.role;
       state.rolesRemote = null;
+      if (state.auth.role !== "viewer") {
+        return refreshAudit();
+      }
     }).catch(function (err) {
       if (err.status === 401) clearAuth();
       throw err;
@@ -319,7 +322,6 @@
 
   function signOut() {
     clearAuth();
-    state.patches.clear();
     state.anchorsDraft = null;
     state.rolesDraft = null;
     state.rolesRemote = null;
@@ -329,7 +331,7 @@
   }
 
   function startDiscordLogin() {
-    if (!API) return toast("Discord sign-in is not configured. Set apiBase in config.js.", "error");
+    if (!API) return toast("Sign in is not configured.", "error");
     location.href = API + "/auth/discord";
   }
 
@@ -419,10 +421,8 @@
     $("#statPending").textContent = pending.toLocaleString("en-US");
     var unitRank = unitAnchor();
     var unitCard = state.cards.find(function (c) { return num(c.rank) === unitRank; });
-    $("#statUnit").textContent = "1.00 = " + (unitCard ? unitCard.name : "rank " + unitRank);
-    $("#listNote").textContent = "Values are positional and non-linear. 1.00 is " +
-      (unitCard ? unitCard.name + " (rank " + unitRank + ")" : "rank " + unitRank) +
-      ". Holo values follow the community sheet where known, otherwise 3x value.";
+    $("#statUnit").textContent = unitCard ? unitCard.name : "rank " + unitRank;
+    $("#listNote").textContent = "1.00 = " + (unitCard ? unitCard.name : "rank " + unitRank);
   }
 
   function renderChips() {
@@ -517,7 +517,7 @@
     var total = state.filtered.length;
     var pages = Math.max(1, Math.ceil(total / state.view.size));
     $("#pageInfo").textContent = total === 0 ? "0 cards" :
-      "Page " + state.view.page + " of " + pages + " · " + total.toLocaleString("en-US") + " cards";
+      state.view.page + " / " + pages + " · " + total.toLocaleString("en-US");
     $("#prevPage").disabled = state.view.page <= 1;
     $("#nextPage").disabled = state.view.page >= pages;
   }
@@ -598,7 +598,7 @@
       thumbNode(card.thumb, "cd-thumb"),
       h("div", null,
         h("h2", { id: "modalTitle", class: "cd-title", text: card.name }),
-        h("div", { class: "cd-meta", text: "Rank " + card.rank + " · by " + (card.creator || "unknown") + (card.verifier && card.verifier !== "-" ? " · verified by " + card.verifier : "") }),
+        h("div", { class: "cd-meta", text: "Rank " + card.rank + " · " + (card.creator || "unknown") }),
         h("div", { class: "cd-badges" },
           h("span", { class: "tier " + norm(card.tier), text: card.tier }),
           card.twoPlayer ? h("span", { class: "tag", text: "2 Player" }) : null,
@@ -610,33 +610,33 @@
 
     var value = displayValue(card);
     var holo = holoOf(card);
-    var demand = demandOf(card);
     var normalDemand = normalDemandOf(card);
     var holoDemand = holoDemandOf(card);
     body.append(h("div", { class: "cd-grid" },
       statBox("Value", fmtValue(value)),
       statBox("Holo", fmtValue(holo)),
-      statBox(state.view.holo ? "Demand (holo)" : "Demand", demand == null ? "N/A" : demandLabel(demand) + " (" + demand + "/10)")
+      statBox("Demand", normalDemand == null ? "N/A" : demandLabel(normalDemand)),
+      statBox("Holo demand", holoDemand == null ? "N/A" : demandLabel(holoDemand))
     ));
-
-    var valueNote = card.valueOverride != null
-      ? (card.valueSource === "sheet" ? "community sheet" : "manual override")
-      : "curve at rank " + card.rank;
-    body.append(h("div", { class: "cd-meta", text: "Value source: " + valueNote + " · site value " + fmtSite(card.officialValue) }));
-    body.append(h("div", { class: "cd-meta", text: "Normal demand " + (normalDemand == null ? "N/A" : demandLabel(normalDemand)) + " · holo demand " + (holoDemand == null ? "N/A" : demandLabel(holoDemand)) }));
 
     if (card.description) body.append(h("p", { class: "cd-desc", text: card.description }));
     if (card.tags && card.tags.length) {
       body.append(h("div", { class: "tags" }, card.tags.map(function (t) { return h("span", { class: "tag", text: t }); })));
     }
-    if (card.note) body.append(h("p", { class: "cd-desc", text: "Editor note: " + card.note }));
+    if (card.note) body.append(h("p", { class: "cd-desc", text: "Note: " + card.note }));
 
     var links = h("div", { class: "cd-actions" });
     var video = safeLink(card.video);
-    if (video) links.append(h("a", { class: "btn btn-ghost", href: video, target: "_blank", rel: "noopener noreferrer", text: "Watch video" }));
+    if (video) links.append(h("a", { class: "btn btn-ghost", href: video, target: "_blank", rel: "noopener noreferrer", text: "Video" }));
     var aredl = safeLink(card.aredlUrl);
     if (aredl) links.append(h("a", { class: "btn btn-ghost", href: aredl, target: "_blank", rel: "noopener noreferrer", text: "AREDL" }));
-    if (canEdit() && !editing) links.append(h("button", { class: "btn btn-primary", type: "button", text: "Edit values", on: { click: function () { renderCardModal(card, true); } } }));
+    if (canEdit() && !editing) {
+      links.append(h("button", { class: "btn btn-primary", type: "button", text: "Edit", on: { click: function () { renderCardModal(card, true); } } }));
+      var last = latestCardEdit(card.id);
+      if (last) {
+        links.append(h("button", { class: "btn btn-danger", type: "button", text: "Revert", on: { click: function (ev) { publishCardChange(card, last.before, ev.currentTarget, "Revert " + card.name); } } }));
+      }
+    }
     body.append(links);
 
     if (editing && canEdit()) {
@@ -650,7 +650,7 @@
 
   function renderCardEditor(card) {
     var form = h("div", { class: "panel-box" });
-    form.append(h("h3", { text: "Edit card" }));
+    form.append(h("h3", { text: "Edit" }));
 
     var valueInput = h("input", { type: "number", step: "0.001", min: "0", placeholder: "blank = use curve", value: card.valueOverride != null ? String(card.valueOverride) : "" });
     var holoInput = h("input", { type: "number", step: "0.001", min: "0", placeholder: "blank = 3x value", value: card.holoOverride != null ? String(card.holoOverride) : "" });
@@ -662,79 +662,46 @@
     }
     demandSel.value = card.demand == null ? "" : String(Math.round(num(card.demand)));
     holoDemandSel.value = card.holoDemand == null ? "" : String(Math.round(num(card.holoDemand)));
-    var noteInput = h("textarea", { maxlength: "500", placeholder: "Short editor note (optional)" });
+    var noteInput = h("textarea", { maxlength: "500", placeholder: "optional" });
     noteInput.value = card.note || "";
 
     form.append(h("div", { class: "form-grid" },
-      field("Value override", valueInput, "Rank-25 units. Leave blank to follow the curve."),
-      field("Holo override", holoInput, "Leave blank for 3x value."),
-      field("Demand (normal)", demandSel, "Trade interest, separate from value."),
-      field("Demand (holo)", holoDemandSel, "Falls back to normal demand when empty."),
+      field("Value", valueInput, null),
+      field("Holo", holoInput, null),
+      field("Demand", demandSel, null),
+      field("Holo demand", holoDemandSel, null),
       h("div", { class: "form-field full" },
         h("label", { text: "Note" }),
-        noteInput,
-        h("span", { class: "hint", text: "Shown on the card." })
+        noteInput
       )
     ));
 
     var actions = h("div", { class: "form-actions" });
     actions.append(h("button", {
-      class: "btn btn-primary", type: "button", text: card.confirmed === false ? "Confirm and stage" : "Stage change",
+      class: "btn btn-primary", type: "button", text: "Save",
       on: {
-        click: function () {
+        click: function (ev) {
           var patch = {
-            id: card.id,
-            name: card.name,
             valueOverride: valueInput.value.trim() === "" ? null : Number(valueInput.value),
             holoOverride: holoInput.value.trim() === "" ? null : Number(holoInput.value),
             demand: demandSel.value === "" ? null : Number(demandSel.value),
             holoDemand: holoDemandSel.value === "" ? null : Number(holoDemandSel.value),
-            note: noteInput.value.trim(),
-            confirmed: true,
-            was: {
-              valueOverride: card.valueOverride != null ? card.valueOverride : null,
-              holoOverride: card.holoOverride != null ? card.holoOverride : null,
-              demand: card.demand != null ? card.demand : null,
-              holoDemand: card.holoDemand != null ? card.holoDemand : null,
-              valueSource: card.valueSource || null,
-              holoDemandSource: card.holoDemandSource || null,
-              note: card.note || "",
-              confirmed: card.confirmed !== false,
-              updatedAt: card.updatedAt != null ? card.updatedAt : null
-            }
+            note: noteInput.value.trim()
           };
-          if (patch.valueOverride != null && (!Number.isFinite(patch.valueOverride) || patch.valueOverride < 0)) return toast("Value must be a positive number.", "error");
-          if (patch.holoOverride != null && (!Number.isFinite(patch.holoOverride) || patch.holoOverride < 0)) return toast("Holo value must be a positive number.", "error");
-          if (patch.demand != null && (!Number.isFinite(patch.demand) || patch.demand < 0 || patch.demand > 10)) return toast("Demand must be between 0 and 10.", "error");
-          if (patch.holoDemand != null && (!Number.isFinite(patch.holoDemand) || patch.holoDemand < 0 || patch.holoDemand > 10)) return toast("Holo demand must be between 0 and 10.", "error");
-          stagePatch(patch);
-          close("modal");
-          toast("Staged: " + card.name);
+          if (patch.valueOverride != null && (!Number.isFinite(patch.valueOverride) || patch.valueOverride < 0)) return toast("Value must be positive.", "error");
+          if (patch.holoOverride != null && (!Number.isFinite(patch.holoOverride) || patch.holoOverride < 0)) return toast("Holo must be positive.", "error");
+          if (patch.demand != null && (!Number.isFinite(patch.demand) || patch.demand < 0 || patch.demand > 10)) return toast("Demand 0-10.", "error");
+          if (patch.holoDemand != null && (!Number.isFinite(patch.holoDemand) || patch.holoDemand < 0 || patch.holoDemand > 10)) return toast("Holo demand 0-10.", "error");
+          publishCardChange(card, patch, ev.currentTarget);
         }
       }
     }));
     if (card.valueOverride != null || card.holoOverride != null || card.demandSource === "manual" || card.holoDemand != null) {
       actions.append(h("button", {
-        class: "btn btn-danger", type: "button", text: "Reset to curve",
+        class: "btn btn-danger", type: "button", text: "Reset",
         on: {
-          click: function () {
-            stagePatch({
-              id: card.id, name: card.name,
-              valueOverride: null, holoOverride: null, demand: null, holoDemand: null, note: "", confirmed: true,
-              was: {
-                valueOverride: card.valueOverride != null ? card.valueOverride : null,
-                holoOverride: card.holoOverride != null ? card.holoOverride : null,
-                demand: card.demand != null ? card.demand : null,
-                holoDemand: card.holoDemand != null ? card.holoDemand : null,
-                valueSource: card.valueSource || null,
-                holoDemandSource: card.holoDemandSource || null,
-                note: card.note || "",
-                confirmed: card.confirmed !== false,
-                updatedAt: card.updatedAt != null ? card.updatedAt : null
-              }
-            });
-            close("modal");
-            toast("Staged reset: " + card.name);
+          click: function (ev) {
+            publishCardChange(card, { valueOverride: null, holoOverride: null, demand: null, holoDemand: null, note: "" }, ev.currentTarget, "Reset " + card.name);
           }
         }
       }));
@@ -747,43 +714,104 @@
     return h("div", { class: "form-field" }, h("label", { text: label }), input, hint ? h("span", { class: "hint", text: hint }) : null);
   }
 
-  // ---------- staging ----------
+  // ---------- publish ----------
 
-  function stagePatch(patch) {
-    state.patches.set(patch.id, patch);
-    // reflect immediately in the in-memory card
-    var card = state.cards.find(function (c) { return c.id === patch.id; });
-    if (card) {
-      var valueChanged = patch.valueOverride !== (patch.was ? patch.was.valueOverride : null) ||
-        patch.holoOverride !== (patch.was ? patch.was.holoOverride : null);
-      card.valueOverride = patch.valueOverride;
-      card.holoOverride = patch.holoOverride;
-      if (valueChanged) card.valueSource = patch.valueOverride != null ? "manual" : null;
-      card.demand = patch.demand;
-      card.demandSource = patch.demand != null ? "manual" : null;
-      card.holoDemand = patch.holoDemand;
-      card.holoDemandSource = patch.holoDemand != null ? "manual" : null;
-      card.note = patch.note;
-      card.confirmed = true;
-      card.updatedAt = Date.now();
-    }
-    applyFilters();
-    renderStats();
-    renderRows();
-    renderPager();
-    if (canEdit() && !$("#drawer").hidden) renderDrawer();
+  function refreshAudit() {
+    if (!canEdit()) return Promise.resolve();
+    return apiFetch("/api/audit").then(function (data) {
+      if (data && Array.isArray(data.entries)) state.audit = data;
+    }).catch(function () {});
   }
 
-  function patchSummary(patch) {
-    var parts = [];
-    var w = patch.was || {};
-    if (patch.valueOverride !== w.valueOverride) parts.push("value " + (w.valueOverride == null ? "curve" : fmtValue(w.valueOverride)) + " -> " + (patch.valueOverride == null ? "curve" : fmtValue(patch.valueOverride)));
-    if (patch.holoOverride !== w.holoOverride) parts.push("holo " + (patch.holoOverride == null ? "3x" : fmtValue(patch.holoOverride)));
-    if (patch.demand !== w.demand) parts.push("demand " + (patch.demand == null ? "N/A" : demandLabel(patch.demand)));
-    if (patch.holoDemand !== w.holoDemand) parts.push("holo demand " + (patch.holoDemand == null ? "N/A" : demandLabel(patch.holoDemand)));
-    if (patch.note !== w.note) parts.push("note");
-    if (w.confirmed === false) parts.push("confirmed");
-    return parts.length ? parts.join(", ") : "no change";
+  function latestCardEdit(id) {
+    var entries = (state.audit && state.audit.entries) || [];
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      if (e && e.action === "card" && e.id === id && e.before) return e;
+    }
+    return null;
+  }
+
+  function applyLocalCardPatch(card, patch) {
+    var valueChanged = patch.valueOverride !== (card.valueOverride == null ? null : card.valueOverride) ||
+      patch.holoOverride !== (card.holoOverride == null ? null : card.holoOverride);
+    card.valueOverride = patch.valueOverride;
+    card.holoOverride = patch.holoOverride;
+    if (valueChanged) card.valueSource = patch.valueOverride != null ? "manual" : null;
+    if (patch.demand !== card.demand) card.demandSource = patch.demand != null ? "manual" : null;
+    if (patch.holoDemand !== card.holoDemand) card.holoDemandSource = patch.holoDemand != null ? "manual" : null;
+    card.demand = patch.demand;
+    card.holoDemand = patch.holoDemand;
+    card.note = patch.note || "";
+    card.confirmed = true;
+    card.updatedAt = Date.now();
+  }
+
+  function publishCardChange(card, patch, btn, message) {
+    if (!canEdit()) return toast("Sign in with Discord.", "error");
+    if (state.busy) return;
+    var label = btn ? btn.textContent : "Save";
+    state.busy = true;
+    if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
+
+    var body = {
+      changes: [{
+        id: card.id,
+        valueOverride: patch.valueOverride,
+        holoOverride: patch.holoOverride,
+        demand: patch.demand,
+        holoDemand: patch.holoDemand,
+        note: patch.note
+      }],
+      message: message || ("Update " + card.name)
+    };
+
+    apiFetch("/api/commit", { method: "POST", body: body }).then(function () {
+      applyLocalCardPatch(card, patch);
+      if (state.meta) state.meta.generatedAt = Date.now();
+      toast("Saved.", "ok");
+      close("modal");
+      applyFilters();
+      renderStats();
+      renderRows();
+      renderPager();
+      return refreshAudit().then(function () {
+        if (!$("#drawer").hidden) renderDrawer();
+      });
+    }).catch(function (err) {
+      if (err.status === 401) {
+        clearAuth();
+        renderAll();
+        toast("Session expired.", "error");
+      } else {
+        toast(err.message || "Save failed.", "error");
+      }
+    }).then(function () {
+      state.busy = false;
+      if (btn) { btn.disabled = false; btn.textContent = label; }
+    });
+  }
+
+  function publishAnchors(draft, btn) {
+    if (!canEditAnchors()) return toast("Admins only.", "error");
+    if (state.busy) return;
+    var label = btn ? btn.textContent : "Save";
+    state.busy = true;
+    if (btn) { btn.disabled = true; btn.textContent = "Saving..."; }
+
+    apiFetch("/api/commit", { method: "POST", body: { changes: [], anchors: draft, message: "Update curve" } }).then(function () {
+      state.anchors = draft;
+      state.anchorsDraft = null;
+      if (state.meta) state.meta.generatedAt = Date.now();
+      toast("Saved.", "ok");
+      renderAll();
+      renderDrawer();
+    }).catch(function (err) {
+      toast(err.message || "Save failed.", "error");
+    }).then(function () {
+      state.busy = false;
+      if (btn) { btn.disabled = false; btn.textContent = label; }
+    });
   }
 
   // ---------- drawer ----------
@@ -791,6 +819,15 @@
   function openDrawer() {
     renderDrawer();
     open("drawer");
+    if (state.auth.token) {
+      loadSession().then(function () {
+        renderAuthButton();
+        if (!$("#drawer").hidden) renderDrawer();
+      }).catch(function () {
+        renderAuthButton();
+        if (!$("#drawer").hidden) renderDrawer();
+      });
+    }
   }
 
   function renderDrawer() {
@@ -816,37 +853,14 @@
 
     if (!canEdit()) {
       var locked = state.auth.username
-        ? "Your Discord ID is " + state.auth.id + ". Send it to vxef and ask to be added as a mod. Only vxef can change access."
-        : "Sign in with Discord first. Only vxef can add editors, by Discord ID.";
+        ? "Your ID " + state.auth.id + ". Ask vxef."
+        : "Sign in with Discord.";
       body.append(h("div", { class: "panel-box" },
-        h("h3", { text: "Editing is locked" }),
+        h("h3", { text: "Locked" }),
         h("p", { class: "muted", text: locked })
       ));
       return;
     }
-
-    // pending changes
-    var changes = h("div", { class: "panel-box" });
-    changes.append(h("h3", { text: "Pending changes (" + state.patches.size + ")" }));
-    if (state.patches.size === 0) {
-      changes.append(h("p", { class: "muted", text: "Edit a card to stage a change. Nothing is sent until you commit." }));
-    } else {
-      var list = h("div", { class: "changes" });
-      state.patches.forEach(function (patch) {
-        var row = h("div", { class: "change-row" },
-          h("span", null, h("strong", { text: patch.name }), " · " + patchSummary(patch)),
-          h("button", { type: "button", title: "Discard", text: "x", on: { click: function () { discardPatch(patch.id); } } })
-        );
-        list.append(row);
-      });
-      changes.append(list);
-      var msg = h("input", { type: "text", value: "Update values (" + state.patches.size + " cards)", maxlength: "120", placeholder: "Commit message" });
-      changes.append(h("div", { class: "form-field" }, h("label", { text: "Commit message" }), msg));
-      changes.append(h("div", { class: "form-actions" },
-        h("button", { class: "btn btn-primary", type: "button", text: "Commit " + state.patches.size + " change(s)", on: { click: function () { commitChanges(msg.value, this); } } })
-      ));
-    }
-    body.append(changes);
 
     // anchors (admin/owner)
     if (canEditAnchors()) {
@@ -855,7 +869,7 @@
 
     // audit
     var auditBox = h("div", { class: "panel-box" });
-    auditBox.append(h("h3", { text: "Recent edits" }));
+    auditBox.append(h("h3", { text: "Edits" }));
     var entries = (state.audit.entries || []).slice(0, 60);
     if (!entries.length) {
       auditBox.append(h("p", { class: "muted", text: "No edits yet." }));
@@ -863,7 +877,7 @@
       entries.forEach(function (e) {
         var line = h("div", { class: "audit-item" },
           h("strong", { text: e.by || "unknown" }), " · ",
-          (e.action === "roles" ? "updated roles" : e.action === "anchors" ? "updated curve anchors" : "edited " + (e.name || e.id)),
+          (e.action === "roles" ? "roles" : e.action === "anchors" ? "anchors" : (e.name || e.id)),
           " · " + timeAgo(e.at));
         auditBox.append(line);
       });
@@ -873,34 +887,10 @@
 
   function kv(k, v) { return h("div", { class: "kv" }, h("span", { text: k }), h("strong", { text: v })); }
 
-  function discardPatch(id) {
-    var patch = state.patches.get(id);
-    state.patches.delete(id);
-    if (patch && patch.was) {
-      var card = state.cards.find(function (c) { return c.id === id; });
-      if (card) {
-        card.valueOverride = patch.was.valueOverride;
-        card.holoOverride = patch.was.holoOverride;
-        card.valueSource = patch.was.valueSource != null ? patch.was.valueSource : (patch.was.valueOverride != null ? "manual" : null);
-        card.demand = patch.was.demand;
-        card.demandSource = patch.was.demand != null ? "manual" : null;
-        card.holoDemand = patch.was.holoDemand;
-        card.holoDemandSource = patch.was.holoDemandSource != null ? patch.was.holoDemandSource : (patch.was.holoDemand != null ? "manual" : null);
-        card.note = patch.was.note;
-        card.confirmed = patch.was.confirmed;
-        card.updatedAt = patch.was.updatedAt != null ? patch.was.updatedAt : null;
-      }
-    }
-    applyFilters();
-    renderRows();
-    renderStats();
-    renderDrawer();
-  }
-
   function renderAnchorsEditor() {
     var box = h("div", { class: "panel-box" });
-    box.append(h("h3", { text: "Curve anchors" }));
-    box.append(h("p", { class: "muted", text: "Values are log-interpolated between anchors. 1.00 is the unit rank. Add anchors to bend the curve, for example at rank 10 or rank 100." }));
+    box.append(h("h3", { text: "Anchors" }));
+    box.append(h("p", { class: "muted", text: "Log scale between anchors." }));
 
     var draft = state.anchorsDraft || {
       schema: state.anchors.schema || 1,
@@ -909,20 +899,21 @@
       anchors: anchorsSorted(),
       demand: state.anchors.demand
     };
+    state.anchorsDraft = draft;
     var rows = h("div", null);
     draft.anchors.forEach(function (a, idx) {
       rows.append(anchorRow(draft, a, idx));
     });
 
-    var addBtn = h("button", { class: "btn btn-ghost", type: "button", text: "Add anchor", on: { click: function () {
+    var addBtn = h("button", { class: "btn btn-ghost", type: "button", text: "Add", on: { click: function () {
       draft.anchors.push({ rank: 50, value: 0.5, label: "" });
       state.anchorsDraft = draft;
       renderDrawer();
     } } });
 
-    var saveBtn = h("button", { class: "btn btn-primary", type: "button", text: "Stage anchors", on: { click: function () {
+    var saveBtn = h("button", { class: "btn btn-primary", type: "button", text: "Save", on: { click: function (ev) {
       var clean = [];
-      state.anchorsDraft.anchors.forEach(function (a) {
+      draft.anchors.forEach(function (a) {
         var r = Number(a.rank), v = Number(a.value);
         if (!Number.isFinite(r) || r < 1) return;
         if (!Number.isFinite(v) || v <= 0) return;
@@ -931,32 +922,29 @@
       clean.sort(function (a, b) { return a.rank - b.rank; });
       var seen = {};
       for (var i = 0; i < clean.length; i++) {
-        if (seen[clean[i].rank]) return toast("Two anchors share rank " + clean[i].rank + ".", "error");
+        if (seen[clean[i].rank]) return toast("Duplicate rank.", "error");
         seen[clean[i].rank] = true;
       }
-      if (clean.length < 2) return toast("Keep at least two anchors.", "error");
-      state.anchorsDraft = {
+      if (clean.length < 2) return toast("Need two anchors.", "error");
+      publishAnchors({
         schema: 1,
-        unit: state.anchorsDraft.unit || state.anchors.unit,
-        curve: state.anchorsDraft.curve || state.anchors.curve,
+        unit: draft.unit || state.anchors.unit,
+        curve: draft.curve || state.anchors.curve,
         anchors: clean,
-        demand: state.anchorsDraft.demand || state.anchors.demand
-      };
-      toast("Anchors staged. Commit to apply.", "ok");
-      renderDrawer();
+        demand: draft.demand || state.anchors.demand
+      }, ev.currentTarget);
     } } });
 
     box.append(rows, h("div", { class: "form-actions" }, addBtn, saveBtn,
-      state.anchorsDraft ? h("button", { class: "btn btn-danger", type: "button", text: "Discard", on: { click: function () { state.anchorsDraft = null; renderDrawer(); } } }) : null
+      h("button", { class: "btn btn-ghost", type: "button", text: "Reload", on: { click: function () { state.anchorsDraft = null; renderDrawer(); } } })
     ));
-    if (state.anchorsDraft) box.append(h("p", { class: "muted", text: "Anchors staged. They apply after you commit." }));
     return box;
   }
 
   function anchorRow(draft, a, idx) {
     var rankIn = h("input", { type: "number", min: "1", step: "1", value: String(a.rank) });
     var valIn = h("input", { type: "number", min: "0.0001", step: "0.01", value: String(a.value) });
-    var labelIn = h("input", { type: "text", value: a.label || "", placeholder: "label (optional)", maxlength: "40" });
+    var labelIn = h("input", { type: "text", value: a.label || "", placeholder: "label", maxlength: "40" });
     rankIn.addEventListener("input", function () { a.rank = Number(rankIn.value); });
     valIn.addEventListener("input", function () { a.value = Number(valIn.value); });
     labelIn.addEventListener("input", function () { a.label = labelIn.value; });
@@ -971,7 +959,7 @@
 
   function renderRolesEditor() {
     var box = h("div", { class: "panel-box" });
-    box.append(h("h3", { text: "Admin panel: access control" }));
+    box.append(h("h3", { text: "Access" }));
 
     if (!state.rolesDraft) {
       if (!state.rolesLoading) {
@@ -998,9 +986,9 @@
     }
 
     var draft = state.rolesDraft;
-    box.append(h("p", { class: "muted", text: "Only you can see this. Paste a person's Discord ID, pick a role, then add. Save writes data/roles.json." }));
+    box.append(h("p", { class: "muted", text: "Owner only." }));
     if (state.rolesYou) {
-      box.append(h("p", { class: "muted", text: "You: @" + state.rolesYou.username + " (" + state.rolesYou.id + "), owner." }));
+      box.append(h("p", { class: "muted", text: "Owner: @" + state.rolesYou.username }));
     }
 
     var idInput = h("input", { type: "text", placeholder: "Discord ID", maxlength: "20", autocomplete: "off", spellcheck: "false" });
@@ -1043,7 +1031,7 @@
 
     box.append(listBlock("Owners", "owner"), listBlock("Admins", "admins"), listBlock("Mods", "mods"));
     box.append(h("div", { class: "form-actions" },
-      h("button", { class: "btn btn-primary", type: "button", text: "Save access list", on: { click: function (ev) {
+      h("button", { class: "btn btn-primary", type: "button", text: "Save", on: { click: function (ev) {
         var btn = ev.currentTarget;
         btn.disabled = true;
         btn.textContent = "Saving...";
@@ -1056,7 +1044,7 @@
         }).catch(function (err) {
           toast(err.message || "Could not save the access list.", "error");
           btn.disabled = false;
-          btn.textContent = "Save access list";
+          btn.textContent = "Save";
         });
       } } }),
       h("button", { class: "btn btn-ghost", type: "button", text: "Reload", on: { click: function () {
@@ -1068,66 +1056,15 @@
     return box;
   }
 
-  // ---------- commit ----------
-
-  function commitChanges(message, btn) {
-    if (state.patches.size === 0 && !state.anchorsDraft) {
-      return toast("Nothing staged.", "error");
-    }
-    if (!canEdit()) return toast("Sign in with Discord first.", "error");
-    if (state.anchorsDraft && !canEditAnchors()) return toast("Only admins and owners can change the curve.", "error");
-    if (state.busy) return;
-    state.busy = true;
-    if (btn) { btn.disabled = true; btn.textContent = "Publishing..."; }
-
-    var changes = Array.from(state.patches.values()).map(function (p) {
-      return {
-        id: p.id,
-        valueOverride: p.valueOverride,
-        holoOverride: p.holoOverride,
-        demand: p.demand,
-        holoDemand: p.holoDemand,
-        note: p.note
-      };
-    });
-    var body = { changes: changes, message: String(message || "Update values").slice(0, 120) };
-    if (state.anchorsDraft) body.anchors = state.anchorsDraft;
-
-    apiFetch("/api/commit", { method: "POST", body: body }).then(function (data) {
-      state.patches.clear();
-      if (state.anchorsDraft) {
-        state.anchors = state.anchorsDraft;
-        state.anchorsDraft = null;
-      }
-      if (state.meta) state.meta.generatedAt = Date.now();
-      toast(data.sha ? "Published " + data.sha.slice(0, 7) + ". Pages refresh in about a minute." : "Published.", "ok");
-      renderAll();
-      return apiFetch("/api/audit").then(function (audit) {
-        if (audit && Array.isArray(audit.entries)) state.audit = audit;
-      }).catch(function () {}).then(function () { renderDrawer(); });
-    }).catch(function (err) {
-      if (err.status === 401) {
-        clearAuth();
-        renderAll();
-        toast("Session expired. Sign in with Discord again.", "error");
-      } else {
-        toast(err.message || "Publish failed.", "error");
-      }
-    }).then(function () {
-      state.busy = false;
-      if (btn) { btn.disabled = false; btn.textContent = "Commit"; }
-    });
-  }
-
   // ---------- login ----------
 
   function openLogin() {
     var body = $("#loginBody");
     body.textContent = "";
-    body.append(h("p", { class: "muted", text: "Sign in with Discord. Only people vxef adds by Discord ID can edit. You never need a GitHub token." }));
+    body.append(h("p", { class: "muted", text: "Sign in with Discord." }));
 
     if (!API) {
-      body.append(h("p", { class: "muted", text: "Discord sign-in is not configured yet. Set apiBase in config.js to the deployed Worker URL." }));
+      body.append(h("p", { class: "muted", text: "Not configured." }));
       body.append(h("div", { class: "form-actions" },
         h("button", { class: "btn btn-ghost", type: "button", text: "Close", on: { click: function () { close("loginModal"); } } })
       ));
@@ -1173,8 +1110,6 @@
       $("#search").value = ""; $("#sort").value = "value-desc"; $("#status").value = "all"; $("#holo").checked = false; $("#pageSize").value = "100";
       renderAll();
     });
-    $("#guideBtn").addEventListener("click", function () { document.getElementById("guide").scrollIntoView({ behavior: "smooth" }); });
-
     $("#vbody").addEventListener("click", function (e) {
       var tr = e.target.closest("tr[data-id]");
       if (!tr) return;

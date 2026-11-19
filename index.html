@@ -6,31 +6,26 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' https://i.ytimg.com https://img.youtube.com; connect-src 'self' https://api.github.com https://github.com https://*.workers.dev; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="no-referrer">
 <meta name="color-scheme" content="dark">
-<title>Demon Gacha Values - Community Value List</title>
-<meta name="description" content="Community value list and demand tracker for demongacha.com cards. Values anchored at rank 25, edited by trusted moderators.">
+<title>Demon Gacha Values</title>
+<meta name="description" content="Community values for demongacha.com.">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<a class="skip" href="#list">Skip to the value list</a>
+<a class="skip" href="#list">Skip to list</a>
 
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="./" aria-label="Demon Gacha Values home">
-      <img class="brand-mark" src="logo.svg" alt="" width="34" height="34">
-      <span class="brand-text">
-        <span class="brand-name">Demon Gacha Values</span>
-        <span class="brand-sub">community value list</span>
-      </span>
+    <a class="brand" href="./" aria-label="Demon Gacha Values">
+      <img class="brand-mark" src="logo.svg" alt="" width="32" height="32">
+      <span class="brand-text"><span class="brand-name">Demon Gacha Values</span></span>
     </a>
     <nav class="topnav" aria-label="Sections">
       <a href="#list">Values</a>
-      <a href="#guide">How it works</a>
-      <a href="#demand">Demand</a>
       <a href="#sources">Sources</a>
     </nav>
     <div class="topbar-actions">
-      <span id="updated" class="updated" title="Last synced from demongacha.com">loading...</span>
+      <span id="updated" class="updated"></span>
       <button id="authBtn" class="btn btn-ghost" type="button">Sign in</button>
     </div>
   </div>
@@ -40,19 +35,15 @@
   <section class="hero">
     <div class="wrap">
       <div class="hero-copy">
-        <p class="eyebrow">Extreme Demon Gacha</p>
-        <h1>Trade values, measured against rank 25.</h1>
-        <p class="lede">A community value list for demongacha.com. The card sitting at rank 25 is <strong>1.00</strong>; GRIEF currently sits near <strong>23.00</strong>. Everything scales on a non-linear curve, so the top is worth many rank-25 cards, not a few. Demand is tracked separately from value.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#list">Browse the list</a>
-          <button class="btn btn-ghost" id="guideBtn" type="button">How values work</button>
-        </div>
+        <p class="eyebrow">Demon Gacha</p>
+        <h1>Values</h1>
+        <p class="lede">Rank 25 is 1.00. The rest scales non-linearly. Demand is separate.</p>
       </div>
-      <dl class="stats" aria-label="List summary">
+      <dl class="stats" aria-label="Summary">
         <div class="stat"><dt>Cards</dt><dd id="statTotal">-</dd></div>
         <div class="stat"><dt>Priced</dt><dd id="statPriced">-</dd></div>
         <div class="stat"><dt>Pending</dt><dd id="statPending">-</dd></div>
-        <div class="stat"><dt>Unit</dt><dd id="statUnit">rank 25</dd></div>
+        <div class="stat"><dt>Unit</dt><dd id="statUnit">-</dd></div>
       </dl>
     </div>
   </section>
@@ -61,43 +52,38 @@
     <div class="wrap">
       <div class="list-head">
         <h2>Value list</h2>
-        <p id="listNote" class="muted">Values are positional and non-linear. Holo copies default to 3x value.</p>
+        <p id="listNote" class="muted"></p>
       </div>
 
       <div class="toolbar" role="search">
         <div class="field grow">
-          <label class="sr-only" for="search">Search cards</label>
-          <input id="search" type="search" placeholder="Search name, creator, verifier, rank or tag..." autocomplete="off" spellcheck="false">
+          <label class="sr-only" for="search">Search</label>
+          <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false">
         </div>
         <div class="field">
           <label class="sr-only" for="sort">Sort</label>
           <select id="sort">
-            <option value="value-desc">Value: high to low</option>
-            <option value="value-asc">Value: low to high</option>
+            <option value="value-desc">Value high-low</option>
+            <option value="value-asc">Value low-high</option>
             <option value="rank">Rank</option>
-            <option value="demand-desc">Demand: high to low</option>
-            <option value="name">Name A-Z</option>
-            <option value="updated">Recently updated</option>
+            <option value="demand-desc">Demand</option>
+            <option value="name">Name</option>
+            <option value="updated">Updated</option>
           </select>
         </div>
         <div class="field">
           <label class="sr-only" for="status">Status</label>
           <select id="status">
-            <option value="all">All cards</option>
-            <option value="priced">Priced only</option>
-            <option value="pending">Pending (N/A)</option>
-            <option value="override">Has override</option>
+            <option value="all">All</option>
+            <option value="priced">Priced</option>
+            <option value="pending">Pending</option>
+            <option value="override">Overrides</option>
           </select>
         </div>
-        <label class="switch" title="Show holo values (default 3x)">
-          <input id="holo" type="checkbox">
-          <span>Holo values</span>
-        </label>
+        <label class="switch"><input id="holo" type="checkbox"><span>Holo</span></label>
       </div>
 
-      <div class="chips" id="tierChips" role="group" aria-label="Filter by tier">
-        <!-- filled by app.js -->
-      </div>
+      <div class="chips" id="tierChips" role="group" aria-label="Tier"></div>
 
       <div class="table-shell">
         <table class="vtable" id="vtable">
@@ -116,74 +102,35 @@
           <tbody id="vbody"></tbody>
         </table>
         <div class="empty" id="empty" hidden>
-          <p>No cards match these filters.</p>
-          <button class="btn btn-ghost" type="button" id="clearFilters">Clear filters</button>
+          <p>No matches.</p>
+          <button class="btn btn-ghost" type="button" id="clearFilters">Clear</button>
         </div>
       </div>
 
       <div class="pager">
-        <button class="btn btn-ghost" id="prevPage" type="button">Previous</button>
-        <span id="pageInfo" class="muted">-</span>
+        <button class="btn btn-ghost" id="prevPage" type="button">Prev</button>
+        <span id="pageInfo" class="muted"></span>
         <button class="btn btn-ghost" id="nextPage" type="button">Next</button>
         <label class="pager-size">
           <span class="sr-only">Rows per page</span>
           <select id="pageSize">
-            <option value="100">100 / page</option>
-            <option value="250">250 / page</option>
-            <option value="500">500 / page</option>
-            <option value="1000">1000 / page</option>
+            <option value="100">100</option>
+            <option value="250">250</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
           </select>
         </label>
       </div>
     </div>
   </section>
-
-  <section class="guide" id="guide">
-    <div class="wrap guide-grid">
-      <article>
-        <h2>How values work</h2>
-        <p>The list does not use the site's raw point value. It uses position. The card at <strong>rank 25</strong> is the unit: <code>1.00</code>. Every other card is placed against it on a curve.</p>
-        <p>The curve is non-linear. Going from rank 25 to rank 1 is not a straight line. It is a steep climb, because trade demand at the top of the list does not scale evenly. Editors can reshape the curve by adding anchor points (for example, rank 1, rank 10, rank 50) and the site fits a curve between them.</p>
-        <ul class="rules">
-          <li><strong>Value</strong> is what a card is worth in rank-25 units.</li>
-          <li><strong>Holo</strong> value follows the community sheet where known, otherwise 3x the normal value.</li>
-          <li><strong>Demand</strong> is how many people want the card. It is a separate score and never changes the value on its own.</li>
-          <li><strong>N/A</strong> means a card is new and has not been checked by an editor yet.</li>
-        </ul>
-      </article>
-      <article id="demand">
-        <h2>Demand vs value</h2>
-        <p>A card can be valuable and still be easy to trade, or cheap and impossible to find. Value is the price. Demand is the appetite. This list keeps them apart on purpose. Normal and holo copies have their own demand score.</p>
-        <p>Demand is scored from <strong>D</strong> to <strong>S</strong>. A newly added card starts at no score until a moderator sets one.</p>
-        <div class="demand-legend" aria-hidden="true">
-          <span class="demand s">S</span><span>everyone wants it</span>
-          <span class="demand a">A</span><span>strong interest</span>
-          <span class="demand b">B</span><span>steady</span>
-          <span class="demand c">C</span><span>low interest</span>
-          <span class="demand d">D</span><span>rarely asked for</span>
-        </div>
-      </article>
-    </div>
-    <div class="wrap">
-      <div class="sources" id="sources">
-        <h2>Sources and credit</h2>
-        <p>Top-tier values, holo values and demand are based on the community value spreadsheet, with thanks to its maintainers:
-          <a href="https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">community Demonic Values spreadsheet</a>.
-          Card data and thumbnails come from the public demongacha.com API and YouTube. The rest of the curve is interpolated between anchors and can be edited by moderators.</p>
-      </div>
-    </div>
-  </section>
 </main>
 
-<footer class="footer">
+<footer class="footer" id="sources">
   <div class="wrap">
-    <p>Unofficial fan-made community list. Not affiliated with demongacha.com, AREDL, RobTop Games or Geometry Dash. Card data and thumbnails come from the public demongacha.com API and YouTube.</p>
-    <p>Top-tier values and demand are based on the <a href="https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">community Demonic Values spreadsheet</a>. Credit to its maintainers.</p>
-    <p class="muted">Values are community estimates, not official prices.</p>
+    <p>Unofficial. Data from demongacha.com. Values from the <a href="https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer">community sheet</a>.</p>
   </div>
 </footer>
 
-<!-- Card detail / editor -->
 <div class="modal" id="modal" hidden>
   <div class="modal-backdrop" data-close="modal"></div>
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -192,7 +139,6 @@
   </div>
 </div>
 
-<!-- Admin drawer -->
 <div class="drawer" id="drawer" hidden>
   <div class="drawer-backdrop" data-close="drawer"></div>
   <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
@@ -204,12 +150,11 @@
   </aside>
 </div>
 
-<!-- Login modal -->
 <div class="modal" id="loginModal" hidden>
   <div class="modal-backdrop" data-close="loginModal"></div>
   <div class="modal-card small" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
     <button class="modal-close" type="button" data-close="loginModal" aria-label="Close">&times;</button>
-    <h2 id="loginTitle">Editor sign in</h2>
+    <h2 id="loginTitle">Sign in</h2>
     <div id="loginBody"></div>
   </div>
 </div>
