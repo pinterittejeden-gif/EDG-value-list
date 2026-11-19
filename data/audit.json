@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "59a49d83-77fd-4890-a04d-689f1947ad16",
+      "name": "Damascus",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.26,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 5,
+        "priceStatus": null,
+        "note": "only wanted for index, nothing special",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "458bbbdb-a121-4a8f-a7a4-5ea68be04484",
       "name": "Every End",
       "changes": {
