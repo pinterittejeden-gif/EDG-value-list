@@ -8,6 +8,8 @@ const MAX_CHANGES = 200;
 
 const MAX_AUDIT = 500;
 
+const CARD_FIELDS = [ "valueOverride", "holoOverride", "demand", "holoDemand", "priceStatus", "note" ];
+
 const MAX_IDS_PER_ROLE = 200;
 
 const ROLES_CACHE_MS = 3e4;
@@ -183,11 +185,24 @@ async function commitFiles(env, files, message) {
   const parentSha = ref.object.sha;
   const parent = await gh(env, base + "/git/commits/" + parentSha);
   const tree = [];
-  for (const [path, content] of Object.entries(files)) {
+  for (const [path, value] of Object.entries(files)) {
+    if (value === null) {
+      tree.push({
+        path,
+        mode: "100644",
+        type: "blob",
+        sha: null
+      });
+      continue;
+    }
+    const binary = value && typeof value === "object" && typeof value.base64 === "string";
     const blob = await gh(env, base + "/git/blobs", {
       method: "POST",
-      body: {
-        content,
+      body: binary ? {
+        content: value.base64,
+        encoding: "base64"
+      } : {
+        content: String(value),
         encoding: "utf-8"
       }
     });
@@ -247,11 +262,13 @@ function normalizeRoles(data) {
   const admins = list(data && data.admins).filter(id => !owner.includes(id));
   const mods = list(data && data.mods).filter(id => !owner.includes(id) && !admins.includes(id));
   const helpers = list(data && data.helpers).filter(id => !owner.includes(id) && !admins.includes(id) && !mods.includes(id));
+  const blocked = list(data && data.blocked);
   return {
     owner,
     admins,
     mods,
-    helpers
+    helpers,
+    blocked
   };
 }
 
@@ -262,7 +279,8 @@ async function readRoles(env, force = false) {
     owner: [],
     admins: [],
     mods: [],
-    helpers: []
+    helpers: [],
+    blocked: []
   }));
   rolesCache = {
     at: now,
@@ -278,6 +296,7 @@ async function resolveRole(user, env) {
   if (username && envList(env, "OWNER_USERNAMES").map(s => s.toLowerCase()).includes(username)) return "owner";
   const roles = await readRoles(env);
   if (id && roles.owner.includes(id)) return "owner";
+  if (id && roles.blocked.includes(id)) return "blocked";
   if (id && roles.admins.includes(id)) return "admin";
   if (id && roles.mods.includes(id)) return "mod";
   if (id && roles.helpers.includes(id)) return "helper";
@@ -306,11 +325,13 @@ function validateRoles(body) {
   const admins = clean(body.admins, "admins").filter(id => !owner.includes(id));
   const mods = clean(body.mods, "mods").filter(id => !owner.includes(id) && !admins.includes(id));
   const helpers = clean(body.helpers, "helpers").filter(id => !owner.includes(id) && !admins.includes(id) && !mods.includes(id));
+  const blocked = clean(body.blocked, "blocked");
   return {
     owner,
     admins,
     mods,
-    helpers
+    helpers,
+    blocked
   };
 }
 
@@ -413,9 +434,10 @@ function asDemand(value, label) {
   return n;
 }
 
-function applyCardPatch(card, patch, now, by) {
+function applyCardPatch(card, patch, now, by, onlyFields) {
   if (!patch || typeof patch !== "object") throw fail("Invalid card change.", 400);
   if (typeof patch.id !== "string" || !patch.id) throw fail("Card change is missing an id.", 400);
+  const allow = f => !onlyFields || onlyFields.includes(f);
   const before = {
     valueOverride: card.valueOverride == null ? null : card.valueOverride,
     holoOverride: card.holoOverride == null ? null : card.holoOverride,
@@ -425,13 +447,14 @@ function applyCardPatch(card, patch, now, by) {
     note: card.note || "",
     confirmed: card.confirmed !== false
   };
-  const valueOverride = asNumberOrNull(patch.valueOverride, "Value", 0, 1e9);
-  const holoOverride = asNumberOrNull(patch.holoOverride, "Holo value", 0, 1e9);
-  const demand = asDemand(patch.demand, "Demand");
-  const holoDemand = asDemand(patch.holoDemand, "Holo demand");
-  const priceStatus = patch.priceStatus === undefined || patch.priceStatus === null || patch.priceStatus === "" ? null : String(patch.priceStatus);
+  const valueOverride = allow("valueOverride") ? asNumberOrNull(patch.valueOverride, "Value", 0, 1e9) : card.valueOverride == null ? null : card.valueOverride;
+  const holoOverride = allow("holoOverride") ? asNumberOrNull(patch.holoOverride, "Holo value", 0, 1e9) : card.holoOverride == null ? null : card.holoOverride;
+  const demand = allow("demand") ? asDemand(patch.demand, "Demand") : card.demand == null ? null : card.demand;
+  const holoDemand = allow("holoDemand") ? asDemand(patch.holoDemand, "Holo demand") : card.holoDemand == null ? null : card.holoDemand;
+  const priceRaw = allow("priceStatus") ? patch.priceStatus : card.priceStatus;
+  const priceStatus = priceRaw === undefined || priceRaw === null || priceRaw === "" ? null : String(priceRaw);
   if (priceStatus != null && !["over", "under", "fair"].includes(priceStatus)) throw fail("Invalid price status.", 400);
-  const note = patch.note == null ? "" : String(patch.note).slice(0, 500);
+  const note = allow("note") ? patch.note == null ? "" : String(patch.note).slice(0, 500) : card.note || "";
   const changes = {};
   if (valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) changes.value = {
     from: card.valueOverride,
@@ -550,7 +573,8 @@ async function putRoles(req, env) {
     owner: roles.owner.length,
     admins: roles.admins.length,
     mods: roles.mods.length,
-    helpers: roles.helpers.length
+    helpers: roles.helpers.length,
+    blocked: roles.blocked.length
   });
   audit.entries = audit.entries.slice(0, MAX_AUDIT);
   const files = {
@@ -560,7 +584,8 @@ async function putRoles(req, env) {
       owner: roles.owner,
       admins: roles.admins,
       mods: roles.mods,
-      helpers: roles.helpers
+      helpers: roles.helpers,
+      blocked: roles.blocked
     }),
     "data/audit.json": serializePretty(audit)
   };
@@ -583,7 +608,7 @@ async function applyAndCommit(env, user, changes, anchors, message, extraFiles, 
     if (!patch || typeof patch.id !== "string") throw fail("A card change is missing an id.", 400);
     const card = byId.get(patch.id);
     if (!card) throw fail("Unknown card id: " + patch.id, 400);
-    auditEntries.push(applyCardPatch(card, patch, now, user.username));
+    auditEntries.push(applyCardPatch(card, patch, now, user.username, patch.fields));
     applied++;
   }
   const files = {};
@@ -653,13 +678,14 @@ async function commit(req, env) {
   }, 403);
   return json(await applyAndCommit(env, user, changes, body.anchors, body.message, null, null));
 }
-function proposalSanitize(card, patch, now, username) {
+function proposalSanitize(card, patch, now, username, fields) {
   const clone = {
     ...card
   };
-  applyCardPatch(clone, patch, now, username);
+  applyCardPatch(clone, patch, now, username, fields);
   return {
     id: card.id,
+    fields,
     valueOverride: clone.valueOverride,
     holoOverride: clone.holoOverride,
     demand: clone.demand,
@@ -702,7 +728,11 @@ async function propose(req, env) {
     if (!card) return json({
       error: "Unknown card id: " + patch.id
     }, 400);
-    clean.push(proposalSanitize(card, patch, now, user.username));
+    const fields = Array.isArray(patch.fields) ? CARD_FIELDS.filter(f => patch.fields.includes(f)) : CARD_FIELDS.slice();
+    if (!fields.length) return json({
+      error: "Pick at least one field."
+    }, 400);
+    clean.push(proposalSanitize(card, patch, now, user.username, fields));
   }
   const pending = await readJson(env, "data/pending.json").catch(() => ({
     proposals: []
@@ -714,13 +744,17 @@ async function propose(req, env) {
   if (pending.proposals.length >= 200) return json({
     error: "Proposal queue is full."
   }, 429);
+  const reason = String(body.reason || body.message || "").slice(0, 120);
   const proposal = {
     id: crypto.randomUUID(),
     at: now,
     by: user.username,
     byId: user.id,
-    message: String(body.message || "").slice(0, 120),
-    changes: clean
+    kind: "proposal",
+    reason,
+    message: reason,
+    changes: clean,
+    images: []
   };
   pending.proposals.unshift(proposal);
   const audit = await readJson(env, "data/audit.json").catch(() => ({
@@ -749,16 +783,153 @@ async function propose(req, env) {
     count: clean.length
   });
 }
+async function suggest(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role !== "viewer" && user.role !== "helper") return json({
+    error: "Sign in to suggest."
+  }, 403);
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") return json({
+    error: "Invalid body."
+  }, 400);
+  const cardId = typeof body.cardId === "string" ? body.cardId : "";
+  if (!cardId) return json({
+    error: "Pick a card."
+  }, 400);
+  const fields = Array.isArray(body.fields) ? CARD_FIELDS.filter(f => body.fields.includes(f)) : [];
+  if (!fields.length) return json({
+    error: "Pick at least one field."
+  }, 400);
+  const reason = String(body.reason || "").trim();
+  if (reason.length < 10) return json({
+    error: "Add a reason (10+ characters)."
+  }, 400);
+  const cardsDoc = await readJson(env, "data/cards.json");
+  if (!cardsDoc || !Array.isArray(cardsDoc.cards)) return json({
+    error: "cards.json is malformed."
+  }, 500);
+  const card = cardsDoc.cards.find(c => c.id === cardId);
+  if (!card) return json({
+    error: "Unknown card."
+  }, 400);
+  const now = Date.now();
+  const id = crypto.randomUUID();
+  const patch = {
+    id: cardId,
+    valueOverride: body.valueOverride,
+    holoOverride: body.holoOverride,
+    demand: body.demand,
+    holoDemand: body.holoDemand,
+    priceStatus: body.priceStatus,
+    note: body.note
+  };
+  const clone = {
+    ...card
+  };
+  applyCardPatch(clone, patch, now, user.username, fields);
+  const change = {
+    id: card.id,
+    fields,
+    valueOverride: clone.valueOverride,
+    holoOverride: clone.holoOverride,
+    demand: clone.demand,
+    holoDemand: clone.holoDemand,
+    priceStatus: clone.priceStatus,
+    note: clone.note
+  };
+  const files = {};
+  const images = [];
+  if (body.images != null) {
+    if (!Array.isArray(body.images)) return json({
+      error: "Invalid images."
+    }, 400);
+    if (body.images.length > 3) return json({
+      error: "Max 3 images."
+    }, 400);
+    for (let i = 0; i < body.images.length; i++) {
+      const img = body.images[i] || {};
+      const type = String(img.type || "").toLowerCase();
+      const ext = type === "image/png" ? "png" : type === "image/jpeg" || type === "image/jpg" ? "jpg" : type === "image/webp" ? "webp" : type === "image/gif" ? "gif" : "";
+      if (!ext) return json({
+        error: "Images must be png, jpg, webp or gif."
+      }, 400);
+      let data = String(img.data || "");
+      const comma = data.indexOf(",");
+      if (data.startsWith("data:") && comma !== -1) data = data.slice(comma + 1);
+      if (!data) return json({
+        error: "Empty image."
+      }, 400);
+      const bytes = Math.floor(data.length * 3 / 4);
+      if (bytes > 2 * 1024 * 1024) return json({
+        error: "Each image must be under 2MB."
+      }, 400);
+      const path = "data/suggestions/" + id + "/" + i + "." + ext;
+      files[path] = {
+        base64: data
+      };
+      images.push({
+        path,
+        type,
+        name: String(img.name || "").slice(0, 80)
+      });
+    }
+  }
+  const pending = await readJson(env, "data/pending.json").catch(() => ({
+    proposals: []
+  }));
+  pending.proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
+  if (pending.proposals.filter(p => p.byId === user.id).length >= 20) return json({
+    error: "Too many pending suggestions."
+  }, 429);
+  if (pending.proposals.length >= 200) return json({
+    error: "Suggestion queue is full."
+  }, 429);
+  const proposal = {
+    id,
+    at: now,
+    by: user.username,
+    byId: user.id,
+    kind: "suggestion",
+    reason,
+    message: reason,
+    changes: [ change ],
+    images
+  };
+  pending.proposals.unshift(proposal);
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
+  audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
+  audit.entries.unshift({
+    at: now,
+    by: user.username,
+    byId: user.id,
+    action: "suggest",
+    proposal: id,
+    count: 1
+  });
+  audit.entries = audit.entries.slice(0, MAX_AUDIT);
+  files["data/pending.json"] = serializePretty({
+    schema: 1,
+    proposals: pending.proposals
+  });
+  files["data/audit.json"] = serializePretty(audit);
+  const sha = await commitFiles(env, files, "Suggestion from " + user.username);
+  return json({
+    id,
+    sha
+  });
+}
 async function listProposals(req, env) {
   const user = await requireUser(req, env);
-  if (user.role !== "owner" && user.role !== "admin" && user.role !== "helper") return json({
+  if (user.role !== "owner" && user.role !== "admin" && user.role !== "helper" && user.role !== "viewer") return json({
     error: "Not allowed."
   }, 403);
   const pending = await readJson(env, "data/pending.json").catch(() => ({
     proposals: []
   }));
   let proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
-  if (user.role === "helper") proposals = proposals.filter(p => p.byId === user.id);
+  if (user.role === "helper" || user.role === "viewer") proposals = proposals.filter(p => p.byId === user.id);
   return json({
     proposals
   });
@@ -793,12 +964,16 @@ async function approveProposal(req, env) {
     proposalById: proposal.byId,
     count: proposal.changes.length
   } ];
-  const result = await applyAndCommit(env, user, proposal.changes, null, "Approve " + proposal.by + (proposal.message ? ": " + proposal.message : ""), {
+  const extraFiles = {
     "data/pending.json": serializePretty({
       schema: 1,
       proposals: pending.proposals
     })
-  }, extraAudit);
+  };
+  (proposal.images || []).forEach(img => {
+    if (img && img.path) extraFiles[img.path] = null;
+  });
+  const result = await applyAndCommit(env, user, proposal.changes, null, "Approve " + proposal.by + (proposal.reason ? ": " + proposal.reason : ""), extraFiles, extraAudit);
   return json(result);
 }
 async function rejectProposal(req, env) {
@@ -836,14 +1011,94 @@ async function rejectProposal(req, env) {
     count: (proposal.changes || []).length
   });
   audit.entries = audit.entries.slice(0, MAX_AUDIT);
-  const sha = await commitFiles(env, {
+  const files = {
     "data/pending.json": serializePretty({
       schema: 1,
       proposals: pending.proposals
     }),
     "data/audit.json": serializePretty(audit)
-  }, "Reject " + proposal.by + "'s proposal");
+  };
+  (proposal.images || []).forEach(img => {
+    if (img && img.path) files[img.path] = null;
+  });
+  const sha = await commitFiles(env, files, "Reject " + proposal.by + "'s proposal");
   return json({
+    sha
+  });
+}
+async function blockProposalUser(req, env) {
+  const user = await requireUser(req, env);
+  if (user.role !== "owner" && user.role !== "admin") return json({
+    error: "Only owners and admins can block."
+  }, 403);
+  const body = await req.json().catch(() => null);
+  const id = body && typeof body.id === "string" ? body.id : "";
+  if (!id) return json({
+    error: "Missing proposal id."
+  }, 400);
+  const pending = await readJson(env, "data/pending.json").catch(() => ({
+    proposals: []
+  }));
+  pending.proposals = Array.isArray(pending.proposals) ? pending.proposals : [];
+  const index = pending.proposals.findIndex(p => p.id === id);
+  if (index === -1) return json({
+    error: "Proposal not found."
+  }, 404);
+  const targetId = pending.proposals[index].byId;
+  if (!targetId) return json({
+    error: "Proposal has no user."
+  }, 400);
+  const roles = normalizeRoles(await readJson(env, "data/roles.json").catch(() => ({
+    owner: [],
+    admins: [],
+    mods: [],
+    helpers: [],
+    blocked: []
+  })));
+  if (!roles.blocked.includes(targetId)) roles.blocked.push(targetId);
+  const removed = pending.proposals.filter(p => p.byId === targetId);
+  pending.proposals = pending.proposals.filter(p => p.byId !== targetId);
+  const now = Date.now();
+  const audit = await readJson(env, "data/audit.json").catch(() => ({
+    entries: []
+  }));
+  audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
+  audit.entries.unshift({
+    at: now,
+    by: user.username,
+    byId: user.id,
+    action: "block",
+    blocked: targetId,
+    rejected: removed.length
+  });
+  audit.entries = audit.entries.slice(0, MAX_AUDIT);
+  const files = {
+    "data/roles.json": serializePretty({
+      schema: 2,
+      note: "Discord user IDs only. The owner is always recognised by the Worker OWNER_USERNAMES / OWNER_DISCORD_IDS too.",
+      owner: roles.owner,
+      admins: roles.admins,
+      mods: roles.mods,
+      helpers: roles.helpers,
+      blocked: roles.blocked
+    }),
+    "data/pending.json": serializePretty({
+      schema: 1,
+      proposals: pending.proposals
+    }),
+    "data/audit.json": serializePretty(audit)
+  };
+  removed.forEach(p => {
+    (p.images || []).forEach(img => {
+      if (img && img.path) files[img.path] = null;
+    });
+  });
+  const name = removed[0] && removed[0].by ? removed[0].by : targetId;
+  const sha = await commitFiles(env, files, "Block " + name);
+  rolesCache = null;
+  return json({
+    blocked: targetId,
+    rejected: removed.length,
     sha
   });
 }
@@ -883,9 +1138,11 @@ export async function handle(req, env) {
     if (url.pathname === "/api/roles" && req.method === "PUT") return withCors(await putRoles(req, env), env, origin);
     if (url.pathname === "/api/commit" && req.method === "POST") return withCors(await commit(req, env), env, origin);
     if (url.pathname === "/api/propose" && req.method === "POST") return withCors(await propose(req, env), env, origin);
+    if (url.pathname === "/api/suggest" && req.method === "POST") return withCors(await suggest(req, env), env, origin);
     if (url.pathname === "/api/proposals" && req.method === "GET") return withCors(await listProposals(req, env), env, origin);
     if (url.pathname === "/api/proposals/approve" && req.method === "POST") return withCors(await approveProposal(req, env), env, origin);
     if (url.pathname === "/api/proposals/reject" && req.method === "POST") return withCors(await rejectProposal(req, env), env, origin);
+    if (url.pathname === "/api/proposals/block" && req.method === "POST") return withCors(await blockProposalUser(req, env), env, origin);
     if (url.pathname === "/api/audit" && req.method === "GET") return withCors(await auditList(req, env), env, origin);
     return withCors(json({
       error: "Not found."

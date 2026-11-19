@@ -325,11 +325,12 @@
       owner: list(r.owner),
       admins: list(r.admins),
       mods: list(r.mods),
-      helpers: list(r.helpers)
+      helpers: list(r.helpers),
+      blocked: list(r.blocked)
     };
   }
   function canEdit() {
-    return !!state.auth.token && state.auth.role !== "viewer";
+    return !!state.auth.token && state.auth.role !== "viewer" && state.auth.role !== "blocked";
   }
   function canEditAnchors() {
     return !!state.auth.token && (state.auth.role === "owner" || state.auth.role === "admin");
@@ -342,6 +343,9 @@
   }
   function canPropose() {
     return !!state.auth.token && state.auth.role === "helper";
+  }
+  function canSuggest() {
+    return !!state.auth.token && state.auth.role === "viewer";
   }
   function apiFetch(path, opts) {
     opts = opts || {};
@@ -813,10 +817,10 @@
       return c.id === id;
     });
     if (!card) return;
-    renderCardModal(card, editing);
+    renderCardModal(card, editing, false);
     open("modal");
   }
-  function renderCardModal(card, editing) {
+  function renderCardModal(card, editing, suggesting) {
     var body = $("#modalBody");
     body.textContent = "";
     var head = h("div", {
@@ -895,7 +899,7 @@
         text: "Edit",
         on: {
           click: function() {
-            renderCardModal(card, true);
+            renderCardModal(card, true, false);
           }
         }
       }));
@@ -912,9 +916,31 @@
           }
         }));
       }
+    } else if (canSuggest() && !suggesting) {
+      links.append(h("button", {
+        class: "btn btn-primary",
+        type: "button",
+        text: "Suggest",
+        on: {
+          click: function() {
+            renderCardModal(card, false, true);
+          }
+        }
+      }));
+    } else if (!state.auth.token) {
+      links.append(h("button", {
+        class: "btn btn-primary",
+        type: "button",
+        text: "Sign in to suggest",
+        on: {
+          click: openLogin
+        }
+      }));
     }
     body.append(links);
-    if (editing && canEdit()) {
+    if (suggesting && canSuggest()) {
+      body.append(renderSuggestionForm(card));
+    } else if (editing && canEdit()) {
       body.append(renderCardEditor(card));
     }
   }
@@ -928,6 +954,224 @@
       class: "v",
       text: v
     }));
+  }
+  function renderSuggestionForm(card) {
+    var form = h("div", {
+      class: "panel-box"
+    });
+    form.append(h("h3", {
+      text: "Suggest a change"
+    }));
+    var valueInput = h("input", {
+      type: "number",
+      step: "0.001",
+      min: "0",
+      placeholder: "blank = curve",
+      value: card.valueOverride != null ? String(card.valueOverride) : ""
+    });
+    var holoInput = h("input", {
+      type: "number",
+      step: "0.001",
+      min: "0",
+      placeholder: "blank = 3x",
+      value: card.holoOverride != null ? String(card.holoOverride) : ""
+    });
+    var demandSel = h("select", null, h("option", {
+      value: "",
+      text: "N/A"
+    }));
+    var holoDemandSel = h("select", null, h("option", {
+      value: "",
+      text: "N/A"
+    }));
+    for (var d = 0; d <= 10; d++) {
+      demandSel.append(h("option", {
+        value: String(d),
+        text: d + " (" + demandLabel(d) + ")"
+      }));
+      holoDemandSel.append(h("option", {
+        value: String(d),
+        text: d + " (" + demandLabel(d) + ")"
+      }));
+    }
+    demandSel.value = card.demand == null ? "" : String(Math.round(num(card.demand)));
+    holoDemandSel.value = card.holoDemand == null ? "" : String(Math.round(num(card.holoDemand)));
+    var priceSel = h("select", null, h("option", {
+      value: "",
+      text: "none"
+    }), h("option", {
+      value: "over",
+      text: "overpriced"
+    }), h("option", {
+      value: "under",
+      text: "underpriced"
+    }), h("option", {
+      value: "fair",
+      text: "fair"
+    }));
+    priceSel.value = card.priceStatus || "";
+    var noteInput = h("textarea", {
+      maxlength: "500",
+      placeholder: "optional"
+    });
+    noteInput.value = card.note || "";
+    var reasonInput = h("textarea", {
+      maxlength: "500",
+      placeholder: "Why should this change? (required)"
+    });
+    var imageInput = h("input", {
+      type: "file",
+      accept: "image/png,image/jpeg,image/webp,image/gif",
+      multiple: true
+    });
+    var previews = h("div", {
+      class: "proposal-imgs"
+    });
+    var selectedImages = [];
+    function renderPreviews() {
+      previews.textContent = "";
+      selectedImages.forEach(function(img, idx) {
+        previews.append(h("span", {
+          class: "proposal-img-wrap"
+        }, h("img", {
+          class: "proposal-img",
+          src: "data:" + img.type + ";base64," + img.data,
+          alt: img.name || ""
+        }), h("button", {
+          type: "button",
+          text: "x",
+          title: "Remove",
+          on: {
+            click: function() {
+              selectedImages.splice(idx, 1);
+              renderPreviews();
+            }
+          }
+        })));
+      });
+    }
+    imageInput.addEventListener("change", function() {
+      var files = Array.from(imageInput.files || []);
+      imageInput.value = "";
+      (async function() {
+        for (var i = 0; i < files.length; i++) {
+          if (selectedImages.length >= 3) {
+            toast("Max 3 images.", "error");
+            break;
+          }
+          var file = files[i];
+          if (!/^image\/(png|jpeg|jpg|webp|gif)$/.test(file.type)) {
+            toast("Images must be png, jpg, webp or gif.", "error");
+            continue;
+          }
+          if (file.size > 2 * 1024 * 1024) {
+            toast("Each image must be under 2MB.", "error");
+            continue;
+          }
+          var data = await new Promise(function(resolve) {
+            var reader = new FileReader();
+            reader.onload = function() {
+              resolve(String(reader.result).split(",")[1]);
+            };
+            reader.onerror = function() {
+              resolve(null);
+            };
+            reader.readAsDataURL(file);
+          });
+          if (data) selectedImages.push({
+            name: file.name,
+            type: file.type,
+            data: data
+          });
+        }
+        renderPreviews();
+      })();
+    });
+    form.append(h("div", {
+      class: "form-grid"
+    }, field("Value", valueInput, null), field("Holo", holoInput, null), field("Demand", demandSel, null), field("Holo demand", holoDemandSel, null), field("Price", priceSel, null), h("div", {
+      class: "form-field full"
+    }, h("label", {
+      text: "Note"
+    }), noteInput), h("div", {
+      class: "form-field full"
+    }, h("label", {
+      text: "Reason (required)"
+    }), reasonInput), h("div", {
+      class: "form-field full"
+    }, h("label", {
+      text: "Screenshots (max 3)"
+    }), imageInput, previews)));
+    var actions = h("div", {
+      class: "form-actions"
+    });
+    actions.append(h("button", {
+      class: "btn btn-primary",
+      type: "button",
+      text: "Send suggestion",
+      on: {
+        click: function(ev) {
+          var patch = {
+            valueOverride: valueInput.value.trim() === "" ? null : Number(valueInput.value),
+            holoOverride: holoInput.value.trim() === "" ? null : Number(holoInput.value),
+            demand: demandSel.value === "" ? null : Number(demandSel.value),
+            holoDemand: holoDemandSel.value === "" ? null : Number(holoDemandSel.value),
+            priceStatus: priceSel.value === "" ? null : priceSel.value,
+            note: noteInput.value.trim()
+          };
+          if (patch.valueOverride != null && (!Number.isFinite(patch.valueOverride) || patch.valueOverride < 0)) return toast("Value must be positive.", "error");
+          if (patch.holoOverride != null && (!Number.isFinite(patch.holoOverride) || patch.holoOverride < 0)) return toast("Holo must be positive.", "error");
+          if (patch.demand != null && (!Number.isFinite(patch.demand) || patch.demand < 0 || patch.demand > 10)) return toast("Demand 0-10.", "error");
+          if (patch.holoDemand != null && (!Number.isFinite(patch.holoDemand) || patch.holoDemand < 0 || patch.holoDemand > 10)) return toast("Holo demand 0-10.", "error");
+          var fields = changedFields(card, patch);
+          if (!fields.length) return toast("Change at least one field.", "error");
+          var reason = reasonInput.value.trim();
+          if (reason.length < 10) return toast("Add a reason (10+ characters).", "error");
+          if (state.busy) return;
+          var btn = ev.currentTarget;
+          state.busy = true;
+          btn.disabled = true;
+          btn.textContent = "Sending...";
+          apiFetch("/api/suggest", {
+            method: "POST",
+            body: {
+              cardId: card.id,
+              fields: fields,
+              valueOverride: patch.valueOverride,
+              holoOverride: patch.holoOverride,
+              demand: patch.demand,
+              holoDemand: patch.holoDemand,
+              priceStatus: patch.priceStatus,
+              note: patch.note,
+              reason: reason,
+              images: selectedImages
+            }
+          }).then(function() {
+            toast("Suggestion sent.", "ok");
+            close("modal");
+            state.proposals = null;
+            if (!$("#drawer").hidden) renderDrawer();
+          }).catch(function(err) {
+            toast(err.message || "Could not send suggestion.", "error");
+          }).then(function() {
+            state.busy = false;
+            btn.disabled = false;
+            btn.textContent = "Send suggestion";
+          });
+        }
+      }
+    }), h("button", {
+      class: "btn btn-ghost",
+      type: "button",
+      text: "Cancel",
+      on: {
+        click: function() {
+          renderCardModal(card, false, false);
+        }
+      }
+    }));
+    form.append(actions);
+    return form;
   }
   function renderCardEditor(card) {
     var form = h("div", {
@@ -1067,25 +1311,45 @@
     }
     return null;
   }
-  function applyLocalCardPatch(card, patch) {
-    var valueChanged = patch.valueOverride !== (card.valueOverride == null ? null : card.valueOverride) || patch.holoOverride !== (card.holoOverride == null ? null : card.holoOverride);
-    card.valueOverride = patch.valueOverride;
-    card.holoOverride = patch.holoOverride;
-    if (valueChanged) card.valueSource = patch.valueOverride != null ? "manual" : null;
-    if (patch.demand !== card.demand) card.demandSource = patch.demand != null ? "manual" : null;
-    if (patch.holoDemand !== card.holoDemand) card.holoDemandSource = patch.holoDemand != null ? "manual" : null;
-    card.demand = patch.demand;
-    card.holoDemand = patch.holoDemand;
-    card.priceStatus = patch.priceStatus || null;
-    card.note = patch.note || "";
+  function applyLocalCardPatch(card, patch, onlyFields) {
+    var allow = function(f) {
+      return !onlyFields || onlyFields.indexOf(f) !== -1;
+    };
+    var valueChanged = (allow("valueOverride") && patch.valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) || (allow("holoOverride") && patch.holoOverride !== (card.holoOverride == null ? null : card.holoOverride));
+    if (allow("valueOverride")) card.valueOverride = patch.valueOverride;
+    if (allow("holoOverride")) card.holoOverride = patch.holoOverride;
+    if (valueChanged) card.valueSource = card.valueOverride != null ? "manual" : null;
+    if (allow("demand")) {
+      if (patch.demand !== card.demand) card.demandSource = patch.demand != null ? "manual" : null;
+      card.demand = patch.demand;
+    }
+    if (allow("holoDemand")) {
+      if (patch.holoDemand !== card.holoDemand) card.holoDemandSource = patch.holoDemand != null ? "manual" : null;
+      card.holoDemand = patch.holoDemand;
+    }
+    if (allow("priceStatus")) card.priceStatus = patch.priceStatus || null;
+    if (allow("note")) card.note = patch.note || "";
     card.confirmed = true;
     card.updatedAt = Date.now();
+  }
+  function changedFields(card, patch) {
+    var fields = [];
+    if (patch.valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) fields.push("valueOverride");
+    if (patch.holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) fields.push("holoOverride");
+    if (patch.demand !== (card.demand == null ? null : card.demand)) fields.push("demand");
+    if (patch.holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) fields.push("holoDemand");
+    if ((patch.priceStatus || null) !== (card.priceStatus == null ? null : card.priceStatus)) fields.push("priceStatus");
+    if ((patch.note || "") !== (card.note || "")) fields.push("note");
+    return fields;
   }
   function publishCardChange(card, patch, btn, message) {
     if (!canEdit()) return toast("Sign in with Discord.", "error");
     if (canPropose()) {
+      var fields = changedFields(card, patch);
+      if (!fields.length) return toast("No change.", "error");
       submitProposal([ {
         id: card.id,
+        fields: fields,
         valueOverride: patch.valueOverride,
         holoOverride: patch.holoOverride,
         demand: patch.demand,
@@ -1306,9 +1570,10 @@
   function publishBulkItems(items, message, btn) {
     if (!canEdit()) return toast("Sign in with Discord.", "error");
     if (canPropose()) {
-      submitProposal(items.map(function(it) {
+      var changes = items.map(function(it) {
         return {
           id: it.card.id,
+          fields: changedFields(it.card, it.patch),
           valueOverride: it.patch.valueOverride,
           holoOverride: it.patch.holoOverride,
           demand: it.patch.demand,
@@ -1316,7 +1581,11 @@
           priceStatus: it.patch.priceStatus,
           note: it.patch.note
         };
-      }), message, btn);
+      }).filter(function(c) {
+        return c.fields.length;
+      });
+      if (!changes.length) return toast("No changes.", "error");
+      submitProposal(changes, message, btn);
       return;
     }
     if (state.busy) return;
@@ -1409,7 +1678,7 @@
     publishBulkItems(items, "Revert selected", $("#bulkRevert"));
   }
   function loadProposals(force) {
-    if (!(canApprove() || canPropose())) return Promise.resolve();
+    if (!(canApprove() || canPropose() || canSuggest())) return Promise.resolve();
     if (!force && (state.proposals || state.proposalsLoading)) return Promise.resolve();
     state.proposalsLoading = true;
     return apiFetch("/api/proposals").then(function(data) {
@@ -1426,13 +1695,17 @@
       return x.id === change.id;
     });
     if (!card) return change.id;
+    var fields = Array.isArray(change.fields) ? change.fields : null;
+    var has = function(f) {
+      return !fields || fields.indexOf(f) !== -1;
+    };
     var parts = [];
-    if (change.valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) parts.push("value " + fmtValue(change.valueOverride));
-    if (change.holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) parts.push("holo " + fmtValue(change.holoOverride));
-    if (change.demand !== (card.demand == null ? null : card.demand)) parts.push("demand " + (change.demand == null ? "N/A" : demandLabel(change.demand) + " " + change.demand + "/10"));
-    if (change.holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) parts.push("holo demand " + (change.holoDemand == null ? "N/A" : demandLabel(change.holoDemand) + " " + change.holoDemand + "/10"));
-    if ((change.priceStatus || null) !== (card.priceStatus == null ? null : card.priceStatus)) parts.push("price " + (change.priceStatus ? priceLabel(change.priceStatus) : "none"));
-    if ((change.note || "") !== (card.note || "")) parts.push("note");
+    if (has("valueOverride") && change.valueOverride !== (card.valueOverride == null ? null : card.valueOverride)) parts.push("value " + fmtValue(change.valueOverride));
+    if (has("holoOverride") && change.holoOverride !== (card.holoOverride == null ? null : card.holoOverride)) parts.push("holo " + fmtValue(change.holoOverride));
+    if (has("demand") && change.demand !== (card.demand == null ? null : card.demand)) parts.push("demand " + (change.demand == null ? "N/A" : demandLabel(change.demand) + " " + change.demand + "/10"));
+    if (has("holoDemand") && change.holoDemand !== (card.holoDemand == null ? null : card.holoDemand)) parts.push("holo demand " + (change.holoDemand == null ? "N/A" : demandLabel(change.holoDemand) + " " + change.holoDemand + "/10"));
+    if (has("priceStatus") && (change.priceStatus || null) !== (card.priceStatus == null ? null : card.priceStatus)) parts.push("price " + (change.priceStatus ? priceLabel(change.priceStatus) : "none"));
+    if (has("note") && (change.note || "") !== (card.note || "")) parts.push("note");
     return card.name + (parts.length ? ": " + parts.join(", ") : "");
   }
   function renderProposalsEditor() {
@@ -1440,7 +1713,7 @@
       class: "panel-box"
     });
     box.append(h("h3", {
-      text: "Proposals"
+      text: canApprove() || canPropose() ? "Proposals" : "Suggestions"
     }));
     if (!state.proposals) {
       if (!state.proposalsLoading) loadProposals();
@@ -1467,19 +1740,33 @@
       }, h("strong", {
         text: "@" + (p.by || "unknown")
       }), h("span", {
-        text: timeAgo(p.at)
+        text: (p.kind === "suggestion" ? "suggestion · " : "proposal · ") + timeAgo(p.at)
       })), h("div", {
         class: "proposal-cards",
         text: summary
-      }), p.message ? h("div", {
+      }), p.reason || p.message ? h("div", {
         class: "muted",
-        text: p.message
-      }) : null, canApprove() ? h("div", {
+        text: "Reason: " + (p.reason || p.message)
+      }) : null, (p.images || []).length ? h("div", {
+        class: "proposal-imgs"
+      }, p.images.map(function(img) {
+        return h("a", {
+          class: "proposal-img-link",
+          href: img.path,
+          target: "_blank",
+          rel: "noopener noreferrer"
+        }, h("img", {
+          class: "proposal-img",
+          src: img.path,
+          alt: img.name || "",
+          loading: "lazy"
+        }));
+      })) : null, canApprove() ? h("div", {
         class: "form-actions"
       }, h("button", {
         class: "btn btn-primary",
         type: "button",
-        text: "Approve",
+        text: "Accept",
         on: {
           click: function(ev) {
             approveProposal(p.id, ev.currentTarget);
@@ -1492,6 +1779,15 @@
         on: {
           click: function(ev) {
             rejectProposal(p.id, ev.currentTarget);
+          }
+        }
+      }), h("button", {
+        class: "btn btn-danger",
+        type: "button",
+        text: "Block",
+        on: {
+          click: function(ev) {
+            blockProposal(p.id, ev.currentTarget);
           }
         }
       })) : h("div", {
@@ -1572,7 +1868,7 @@
           var card = state.cards.find(function(x) {
             return x.id === c.id;
           });
-          if (card) applyLocalCardPatch(card, c);
+          if (card) applyLocalCardPatch(card, c, c.fields);
         });
       }
       state.proposals = null;
@@ -1619,6 +1915,33 @@
       }
     });
   }
+  function blockProposal(id, btn) {
+    if (!canApprove() || state.busy) return;
+    var label = btn ? btn.textContent : "Block";
+    state.busy = true;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Blocking...";
+    }
+    apiFetch("/api/proposals/block", {
+      method: "POST",
+      body: {
+        id: id
+      }
+    }).then(function() {
+      state.proposals = null;
+      toast("Blocked.", "ok");
+      return loadProposals(true);
+    }).catch(function(err) {
+      toast(err.message || "Block failed.", "error");
+    }).then(function() {
+      state.busy = false;
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+    });
+  }
   function openDrawer() {
     renderDrawer();
     open("drawer");
@@ -1635,7 +1958,7 @@
   function renderDrawer() {
     var body = $("#drawerBody");
     body.textContent = "";
-    $("#drawerTitle").textContent = state.auth.role === "owner" || state.auth.role === "admin" ? "Admin panel" : state.auth.role === "helper" ? "Helper panel" : "Editor panel";
+    $("#drawerTitle").textContent = state.auth.role === "owner" || state.auth.role === "admin" ? "Admin panel" : state.auth.role === "helper" ? "Helper panel" : state.auth.username ? "My panel" : "Editor panel";
     body.append(h("div", {
       class: "panel-box"
     }, h("h3", {
@@ -1660,11 +1983,11 @@
     if (canManageRoles()) {
       body.append(renderRolesEditor());
     }
-    if (canApprove() || canPropose()) {
+    if (canApprove() || canPropose() || canSuggest()) {
       body.append(renderProposalsEditor());
     }
     if (!canEdit()) {
-      var locked = state.auth.username ? "Your ID " + state.auth.id + ". Ask vxef." : "Sign in with Discord.";
+      var locked = state.auth.role === "blocked" ? "You are blocked from suggesting." : canSuggest() ? "View only. Use Suggest on a card." : state.auth.username ? "Your ID " + state.auth.id + ". Ask vxef." : "Sign in with Discord.";
       body.append(h("div", {
         class: "panel-box"
       }, h("h3", {
@@ -1862,7 +2185,8 @@
             owner: data.roles.owner.slice(),
             admins: data.roles.admins.slice(),
             mods: data.roles.mods.slice(),
-            helpers: (data.roles.helpers || []).slice()
+            helpers: (data.roles.helpers || []).slice(),
+            blocked: (data.roles.blocked || []).slice()
           };
           state.rolesLoading = false;
           renderDrawer();
@@ -1917,7 +2241,7 @@
     function addId() {
       var id = idInput.value.trim();
       if (!/^\d{16,20}$/.test(id)) return toast("That is not a Discord user ID. Right-click a name in Discord and Copy User ID.", "error");
-      [ "owner", "admins", "mods", "helpers" ].forEach(function(k) {
+      [ "owner", "admins", "mods", "helpers", "blocked" ].forEach(function(k) {
         draft[k] = draft[k].filter(function(x) {
           return x !== id;
         });
@@ -1967,7 +2291,7 @@
       });
       return wrap;
     }
-    box.append(listBlock("Owners", "owner"), listBlock("Admins", "admins"), listBlock("Mods", "mods"), listBlock("Helpers", "helpers"));
+    box.append(listBlock("Owners", "owner"), listBlock("Admins", "admins"), listBlock("Mods", "mods"), listBlock("Helpers", "helpers"), listBlock("Blocked", "blocked"));
     box.append(h("div", {
       class: "form-actions"
     }, h("button", {
