@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "b0f62595-314d-4648-b23e-12756382c126",
+      "name": "Sakupen Circles",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 1.02
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 8
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "d3a53d45-e7e1-4ec4-9395-441816eb8425",
       "name": "Solar Flare",
       "changes": {
