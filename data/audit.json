@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "84080532-a440-4069-882c-88a286aabee1",
+      "name": "ORBIT",
+      "changes": {
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 3.2,
+        "holoOverride": 10,
+        "demand": 5,
+        "holoDemand": 5,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
       "id": "c32b8cbb-ada5-456e-b1c9-a4e091fe3e72",
       "name": "Green Bullet",
       "changes": {
