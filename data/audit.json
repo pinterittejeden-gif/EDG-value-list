@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "ed9c1e0f-05ee-4e4f-84eb-9cb172cd526e",
+      "name": "Trickshot",
+      "changes": {
+        "value": {
+          "from": 0.161,
+          "to": 0.08
+        }
+      },
+      "before": {
+        "valueOverride": 0.161,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795121738792,
       "by": "vxef",
       "byId": "1172223881122152540",
