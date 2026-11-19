@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "51a1538a-b53a-4f31-9fed-715b4e9e5951",
+      "name": "CHIL",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.8
+        },
+        "demand": {
+          "from": 7,
+          "to": 8
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795105515346,
       "by": "vxef",
       "byId": "1172223881122152540",
