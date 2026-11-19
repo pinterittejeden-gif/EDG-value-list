@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "007000f3-c6b4-440a-a4b3-af7e86e132e9",
+      "name": "Firework",
+      "changes": {
+        "value": {
+          "from": 0.323,
+          "to": 0.87
+        },
+        "demand": {
+          "from": 7,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 8
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.323,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "7081880b-fe8c-4d3f-8557-a895b7aee521",
       "name": "Snowbound",
       "changes": {
