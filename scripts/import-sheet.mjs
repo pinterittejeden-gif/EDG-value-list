@@ -75,6 +75,7 @@ async function loadCsv() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const text = await res.text();
     if (!text || text.length < 100) throw new Error("Empty response");
+    if (!/Level Name/i.test(text) || !/Demand/i.test(text)) throw new Error("Unexpected sheet format");
     return {
       text,
       live: true
@@ -154,6 +155,8 @@ const unit = v => Math.round(v / unitValue * 1e3) / 1e3;
 let matchedName = 0, matchedRank = 0, priced = 0, holoPriced = 0, demands = 0, holoDemands = 0;
 
 const numericCards = [];
+const changedCards = [];
+const auditAt = Date.now();
 
 for (const row of sheetRows) {
   let card = byName.get(normName(row.name));
@@ -175,6 +178,10 @@ for (const row of sheetRows) {
     });
   }
   if (manual) continue;
+  const beforeValue = card.valueOverride == null ? null : card.valueOverride;
+  const beforeHolo = card.holoOverride == null ? null : card.holoOverride;
+  const beforeDemand = card.demand == null ? null : card.demand;
+  const beforeHoloDemand = card.holoDemand == null ? null : card.holoDemand;
   if (sheetUnits != null) {
     card.valueOverride = sheetUnits;
     card.valueSource = "sheet";
@@ -193,6 +200,14 @@ for (const row of sheetRows) {
     card.holoDemand = row.holoDemand;
     card.holoDemandSource = "sheet";
     holoDemands++;
+  }
+  const changeSet = {};
+  if (card.valueOverride !== beforeValue) changeSet.value = { from: beforeValue, to: card.valueOverride };
+  if (card.holoOverride !== beforeHolo) changeSet.holo = { from: beforeHolo, to: card.holoOverride };
+  if (card.demand !== beforeDemand) changeSet.demand = { from: beforeDemand, to: card.demand };
+  if (card.holoDemand !== beforeHoloDemand) changeSet.holoDemand = { from: beforeHoloDemand, to: card.holoDemand };
+  if (Object.keys(changeSet).length) {
+    changedCards.push({ at: auditAt, by: "sheet", action: "card", id: card.id, name: card.name, changes: changeSet });
   }
 }
 
@@ -300,7 +315,7 @@ const audit = await readJson("data/audit.json", {
 audit.entries = Array.isArray(audit.entries) ? audit.entries : [];
 
 audit.entries.unshift({
-  at: Date.now(),
+  at: auditAt,
   by: "import",
   action: "sheet-import",
   url: SHEET_URL,
@@ -309,7 +324,7 @@ audit.entries.unshift({
   demands,
   holoDemands,
   unitValue
-});
+}, ...changedCards);
 
 audit.entries = audit.entries.slice(0, 500);
 

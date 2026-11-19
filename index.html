@@ -32,6 +32,7 @@
     <nav class="topnav" aria-label="Sections">
       <a href="#list">Values</a>
       <a href="#sources">Sources</a>
+      <a href="#changelog" id="changelogLink">Changelog</a>
       <a href="#admin" id="adminLink" hidden>Admin panel</a>
     </nav>
     <div class="topbar-actions">
@@ -162,6 +163,20 @@
       </div>
     </div>
     <div id="drawerBody" class="drawer-body"></div>
+  </aside>
+</div>
+
+<div class="drawer" id="changelog" hidden>
+  <div class="drawer-backdrop" data-close="changelog"></div>
+  <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="changelogTitle">
+    <div class="drawer-head">
+      <h2 id="changelogTitle">Changelog</h2>
+      <div class="drawer-actions">
+        <button class="btn btn-ghost" id="changelogBack" type="button">Back to values</button>
+        <button class="modal-close" type="button" data-close="changelog" aria-label="Close">&times;</button>
+      </div>
+    </div>
+    <div id="changelogBody" class="changelog-body"></div>
   </aside>
 </div>
 

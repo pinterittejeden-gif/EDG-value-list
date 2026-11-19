@@ -816,10 +816,10 @@
   function close(id) {
     var n = $("#" + id);
     if (n) n.hidden = true;
-    if (id === "drawer") document.body.classList.remove("no-scroll");
+    if (id === "drawer" || id === "changelog") document.body.classList.remove("no-scroll");
   }
   function closeAllModals() {
-    [ "modal", "drawer", "loginModal" ].forEach(close);
+    [ "modal", "drawer", "loginModal", "changelog" ].forEach(close);
   }
   function openCard(id, editing) {
     var card = state.cards.find(function(c) {
@@ -1986,6 +1986,73 @@
       });
     }
   }
+  function byText(by) {
+    if (!by) return "unknown";
+    if (by === "sheet" || by === "import") return "sheet sync";
+    return "@" + by;
+  }
+  function changelogValue(v) {
+    return v == null ? "curve" : fmtValue(v);
+  }
+  function changelogHolo(v) {
+    return v == null ? "3x" : fmtValue(v);
+  }
+  function changelogDemand(v) {
+    return v == null ? "N/A" : String(Math.round(v));
+  }
+  function changelogPrice(v) {
+    return v ? priceLabel(v) : "none";
+  }
+  function changeLines(name, changes) {
+    var lines = [];
+    if (changes.value) lines.push("Changed Value of " + name + ": " + changelogValue(changes.value.from) + " -> " + changelogValue(changes.value.to));
+    if (changes.holo) lines.push("Changed Holo of " + name + ": " + changelogHolo(changes.holo.from) + " -> " + changelogHolo(changes.holo.to));
+    if (changes.demand) lines.push("Changed Demand of " + name + ": " + changelogDemand(changes.demand.from) + " -> " + changelogDemand(changes.demand.to));
+    if (changes.holoDemand) lines.push("Changed Holo Demand of " + name + ": " + changelogDemand(changes.holoDemand.from) + " -> " + changelogDemand(changes.holoDemand.to));
+    if (changes.priceStatus) lines.push("Changed Price of " + name + ": " + changelogPrice(changes.priceStatus.from) + " -> " + changelogPrice(changes.priceStatus.to));
+    if (changes.note) lines.push("Updated Note for " + name);
+    return lines;
+  }
+  function renderChangelog() {
+    var body = $("#changelogBody");
+    body.textContent = "";
+    var entries = (state.audit.entries || []).filter(function(e) {
+      return e && e.changes && (e.changes.value || e.changes.holo || e.changes.demand || e.changes.holoDemand || e.changes.priceStatus || e.changes.note);
+    });
+    if (!entries.length) {
+      body.append(h("p", {
+        class: "muted",
+        text: "No changes yet."
+      }));
+      return;
+    }
+    entries.slice(0, 250).forEach(function(e) {
+      var card = state.cards.find(function(x) {
+        return x.id === e.id;
+      });
+      var name = e.name || (card && card.name) || "Card";
+      var lines = changeLines(name, e.changes);
+      if (!lines.length) return;
+      body.append(h("div", {
+        class: "changelog-item"
+      }, h("div", null, lines.map(function(line) {
+        return h("div", {
+          class: "changelog-text",
+          text: line
+        });
+      })), h("div", {
+        class: "changelog-meta",
+        text: byText(e.by) + " · " + timeAgo(e.at)
+      })));
+    });
+  }
+  function openChangelog() {
+    renderChangelog();
+    open("changelog");
+    document.body.classList.add("no-scroll");
+    var panel = $("#changelog .drawer-panel");
+    if (panel) panel.scrollTop = 0;
+  }
   function renderSessionBox() {
     return h("div", {
       class: "panel-box"
@@ -2441,6 +2508,13 @@
     });
     $("#drawerBack").addEventListener("click", function() {
       close("drawer");
+    });
+    $("#changelogLink").addEventListener("click", function(e) {
+      e.preventDefault();
+      openChangelog();
+    });
+    $("#changelogBack").addEventListener("click", function() {
+      close("changelog");
     });
     $("#vtable thead").addEventListener("click", function(e) {
       var th = e.target.closest("th[data-sort]");

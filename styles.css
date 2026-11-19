@@ -335,6 +335,17 @@ tr:hover .row-edit, .row-edit:focus { opacity: 1; }
 .drawer-body { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); align-items: start; }
 .panel-wide { grid-column: 1 / -1; }
 .no-scroll { overflow: hidden; }
+.changelog-body { display: grid; gap: 8px; }
+.changelog-item {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;
+  padding: 10px 12px; border: 1px solid var(--border); background: var(--panel);
+}
+.changelog-text { font-size: 14px; line-height: 1.5; }
+.changelog-meta { color: var(--muted-2); font-size: 12px; white-space: nowrap; text-align: right; }
+@media (max-width: 760px) {
+  .changelog-item { flex-direction: column; gap: 4px; }
+  .changelog-meta { text-align: left; }
+}
 
 
 .cd-head { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 16px; padding-right: 28px; }
