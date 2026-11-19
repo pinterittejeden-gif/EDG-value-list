@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
+      "name": "Society",
+      "changes": {
+        "demand": {
+          "from": 10,
+          "to": 9
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 9
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 8.387,
+        "holoOverride": 29.677,
+        "demand": 10,
+        "holoDemand": 10,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795102979089,
       "by": "vxef",
       "byId": "1172223881122152540",
