@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 
 import path from "node:path";
 
-import { ROOT, fetchAllCards, officialCard, blankPendingCard, readJson, writeJson, writeJsonLines } from "./lib.mjs";
+import { ROOT, fetchAllCards, officialCard, blankNewCard, readJson, writeJson, writeJsonLines } from "./lib.mjs";
 
 const now = Date.now();
 
@@ -29,14 +29,14 @@ const cards = items.map(live => {
   const prev = prevById.get(live.id);
   if (!prev) {
     added++;
-    return blankPendingCard(live, now);
+    return blankNewCard(live, now);
   }
   const next = {
     ...prev
   };
   const before = JSON.stringify(prev);
   for (const [k, v] of Object.entries(officialCard(live, now))) {
-    if ([ "confirmed", "valueOverride", "holoOverride", "demand", "demandSource", "note", "updatedAt", "addedAt" ].includes(k)) continue;
+    if ([ "confirmed", "valueOverride", "valueSource", "holoOverride", "demand", "demandSource", "holoDemand", "holoDemandSource", "priceStatus", "note", "updatedAt", "addedAt" ].includes(k)) continue;
     next[k] = v;
   }
   if (JSON.stringify(next) !== before) touched++;

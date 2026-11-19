@@ -125,10 +125,10 @@ export function officialCard(card, now) {
   };
 }
 
-export function blankPendingCard(card, now) {
+export function blankNewCard(card, now) {
   return {
     ...officialCard(card, now),
-    confirmed: false,
+    confirmed: true,
     demand: null,
     demandSource: null
   };

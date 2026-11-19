@@ -165,25 +165,31 @@ for (const row of sheetRows) {
     }
   }
   if (!card) continue;
-  if (row.value != null && card.valueSource !== "manual") {
-    card.valueOverride = unit(row.value);
-    card.valueSource = "sheet";
-    priced++;
+  const manual = card.valueSource === "manual" || card.demandSource === "manual" || card.holoDemandSource === "manual" || card.priceStatus != null || (card.valueOverride != null && card.valueSource !== "sheet") || (card.holoOverride != null && card.valueSource !== "sheet") || (card.demand != null && card.demandSource !== "sheet" && card.demandSource !== "seed") || (card.holoDemand != null && card.holoDemandSource !== "sheet");
+  let sheetUnits = null;
+  if (row.value != null) {
+    sheetUnits = unit(row.value);
     numericCards.push({
       card,
-      units: card.valueOverride
+      units: sheetUnits
     });
   }
-  if (row.holo != null && card.valueSource !== "manual") {
+  if (manual) continue;
+  if (sheetUnits != null) {
+    card.valueOverride = sheetUnits;
+    card.valueSource = "sheet";
+    priced++;
+  }
+  if (row.holo != null) {
     card.holoOverride = unit(row.holo);
     holoPriced++;
   }
-  if (row.demand != null && card.demandSource !== "manual") {
+  if (row.demand != null) {
     card.demand = row.demand;
     card.demandSource = "sheet";
     demands++;
   }
-  if (row.holoDemand != null && card.holoDemandSource !== "manual") {
+  if (row.holoDemand != null) {
     card.holoDemand = row.holoDemand;
     card.holoDemandSource = "sheet";
     holoDemands++;
