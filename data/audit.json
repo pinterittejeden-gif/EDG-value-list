@@ -2,6 +2,43 @@
   "schema": 1,
   "entries": [
     {
+      "id": "1085c65b-4d52-45d0-b7dd-f29e94266f4b",
+      "name": "cognitohazard",
+      "changes": {
+        "value": {
+          "from": 0.677,
+          "to": 0.5
+        },
+        "holo": {
+          "from": 2.968,
+          "to": 2.8
+        },
+        "demand": {
+          "from": 8,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 7
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "under"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.677,
+        "holoOverride": 2.968,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
       "name": "Society",
       "changes": {
