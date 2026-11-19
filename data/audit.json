@@ -2,6 +2,35 @@
   "schema": 1,
   "entries": [
     {
+      "id": "d6f7ba38-9787-42a2-acf2-4585e69cbb91",
+      "name": "Silent clubstep",
+      "changes": {
+        "value": {
+          "from": 1.548,
+          "to": 1.7
+        },
+        "holo": {
+          "from": 6.452,
+          "to": 6.6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 1.548,
+        "holoOverride": 6.452,
+        "demand": 8,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "51a1538a-b53a-4f31-9fed-715b4e9e5951",
       "name": "CHIL",
       "changes": {
