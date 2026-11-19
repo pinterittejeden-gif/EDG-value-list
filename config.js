@@ -7,10 +7,7 @@ window.DG_CONFIG = {
     updatedLabel: "Values are edited by hand and synced from demongacha.com"
   },
   // Cloudflare Worker that handles Discord OAuth and publishes edits.
-  // Deploy worker/ and paste its URL here, for example:
-  //   apiBase: "https://edg-value-api.your-subdomain.workers.dev"
-  // Leave empty to keep the site read-only.
-  apiBase: "",
+  apiBase: "https://edg-value-api.pinteritte-jeden.workers.dev",
   repo: {
     owner: "pinterittejeden-gif",
     name: "EDG-value-list",

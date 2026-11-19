@@ -271,7 +271,7 @@ async function requireUser(req, env) {
 }
 
 async function authStart(req, env) {
-  if (!env.DISCORD_CLIENT_ID) return fail("Discord client id is not configured.", 500);
+  if (!env.DISCORD_CLIENT_ID) throw fail("Discord client id is not configured.", 500);
   const state = crypto.randomUUID();
   const url = new URL("https://discord.com/oauth2/authorize");
   url.searchParams.set("client_id", env.DISCORD_CLIENT_ID);
@@ -292,7 +292,7 @@ async function authCallback(req, env, url) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state") || "";
   const expected = cookie(req, "dg_state");
-  if (!code || !state || state !== expected) return fail("Invalid or expired OAuth state. Start again.", 400);
+  if (!code || !state || state !== expected) throw fail("Invalid or expired OAuth state. Start again.", 400);
 
   const body = new URLSearchParams({
     client_id: env.DISCORD_CLIENT_ID,
@@ -306,14 +306,14 @@ async function authCallback(req, env, url) {
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body
   });
-  if (!tokenRes.ok) return fail("Discord token exchange failed.", 502);
+  if (!tokenRes.ok) throw fail("Discord token exchange failed.", 502);
   const token = await tokenRes.json();
-  if (!token.access_token) return fail("Discord did not return an access token.", 502);
+  if (!token.access_token) throw fail("Discord did not return an access token.", 502);
 
   const userRes = await fetch(DISCORD_API + "/users/@me", { headers: { authorization: "Bearer " + token.access_token } });
-  if (!userRes.ok) return fail("Discord user lookup failed.", 502);
+  if (!userRes.ok) throw fail("Discord user lookup failed.", 502);
   const user = await userRes.json();
-  if (!user || !user.id) return fail("Discord did not return a user.", 502);
+  if (!user || !user.id) throw fail("Discord did not return a user.", 502);
 
   const role = await resolveRole(user, env);
   const now = Math.floor(Date.now() / 1000);
@@ -327,7 +327,7 @@ async function authCallback(req, env, url) {
   }, env.SESSION_SECRET);
 
   const site = env.SITE_URL || origins(env)[0];
-  if (!site) return fail("SITE_URL is not configured.", 500);
+  if (!site) throw fail("SITE_URL is not configured.", 500);
   const target = new URL(site);
   target.hash = "auth=" + encodeURIComponent(jwt);
   return new Response(null, {
