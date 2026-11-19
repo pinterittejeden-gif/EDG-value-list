@@ -2,6 +2,25 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f3dd5ead-dda4-415c-affb-2308dd09a0d4",
+      "name": "GRIEF",
+      "changes": {
+        "demand": {
+          "from": 9,
+          "to": 10
+        }
+      },
+      "before": {
+        "valueOverride": 20,
+        "holoOverride": 70,
+        "demand": 9,
+        "holoDemand": 10,
+        "note": "Mostly used for trading, or completing index's\nHolo: just hypergamy bro..",
+        "confirmed": true
+      },
+      "by": "proguyz78"
+    },
+    {
       "id": "034634f7-f216-4f34-82dd-003eebd2897e",
       "name": "Artemis 13",
       "changes": {
