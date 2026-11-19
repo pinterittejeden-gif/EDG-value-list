@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "f79695b9-ddb2-46ab-bef6-a231917db6d5",
+      "name": "Apocalyptic Trilogy",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.635
+        },
+        "demand": {
+          "from": 7,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 5
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "fair"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "213ff25e-eac6-47fb-baee-6180b436ec8d",
       "name": "Through The Gates",
       "changes": {
