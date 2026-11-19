@@ -2,6 +2,26 @@
   "schema": 1,
   "entries": [
     {
+      "id": "a7dce4c2-1503-4a62-94b5-15afaf40e0dc",
+      "name": "Prismline",
+      "changes": {
+        "value": {
+          "from": 0.61,
+          "to": 0.612
+        }
+      },
+      "before": {
+        "valueOverride": 0.61,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 6,
+        "priceStatus": "under",
+        "note": "preety niche level",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "4736d3e3-6166-44eb-941d-d94a5f2d6cc4",
       "name": "Ultra Paracosm",
       "changes": {
