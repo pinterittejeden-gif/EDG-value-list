@@ -2,6 +2,15 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795102979089,
+      "by": "vxef",
+      "byId": "1172223881122152540",
+      "action": "roles",
+      "owner": 0,
+      "admins": 1,
+      "mods": 3
+    },
+    {
       "id": "78d2148c-d0eb-468e-979a-aee250514f02",
       "name": "ANNIHILATED",
       "changes": {
