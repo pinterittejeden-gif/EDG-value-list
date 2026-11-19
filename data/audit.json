@@ -4,6 +4,21 @@
     {
       "id": "fe68a17e-503f-4d9c-bec0-fde6bd847a69",
       "name": "Make Paul Dance",
+      "changes": {},
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 6,
+        "priceStatus": "fair",
+        "note": "Making him dance rn",
+        "confirmed": true
+      },
+      "by": "dashipoh"
+    },
+    {
+      "id": "fe68a17e-503f-4d9c-bec0-fde6bd847a69",
+      "name": "Make Paul Dance",
       "changes": {
         "demand": {
           "from": 7,
