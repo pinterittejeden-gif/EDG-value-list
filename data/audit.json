@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "id": "a7dce4c2-1503-4a62-94b5-15afaf40e0dc",
+      "name": "Prismline",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.61
+        },
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "under"
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "id": "c586d155-f78c-43f6-933c-3c11c4aa6600",
       "name": "poocubed",
       "changes": {
