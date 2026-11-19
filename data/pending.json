@@ -1,4 +1,31 @@
 {
   "schema": 1,
-  "proposals": []
+  "proposals": [
+    {
+      "id": "0bcc30a8-4ec1-4ebf-94ba-9ca2271a1b5c",
+      "at": 1795122479442,
+      "by": "sillypersoniguess",
+      "byId": "1533018753112215634",
+      "kind": "suggestion",
+      "reason": "Literally nobody has much of this card and its rare",
+      "message": "Literally nobody has much of this card and its rare",
+      "changes": [
+        {
+          "id": "0e3577a5-b567-4ea0-b39b-43920d3b7caf",
+          "fields": [
+            "valueOverride",
+            "demand",
+            "priceStatus"
+          ],
+          "valueOverride": 0.8,
+          "holoOverride": null,
+          "demand": 8,
+          "holoDemand": 8,
+          "priceStatus": "over",
+          "note": "Really all of the mid tier epics are the exact same, price is set by the curve"
+        }
+      ],
+      "images": []
+    }
+  ]
 }
