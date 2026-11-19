@@ -2,6 +2,38 @@
   "schema": 1,
   "entries": [
     {
+      "id": "7274331e-37b4-4e90-8711-dec7a5d0f00f",
+      "name": "KILLSTEALER",
+      "changes": {
+        "value": {
+          "from": 1.194,
+          "to": 1.4
+        },
+        "holo": {
+          "from": 4.645,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": 10,
+          "to": 8
+        },
+        "priceStatus": {
+          "from": null,
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 1.194,
+        "holoOverride": 4.645,
+        "demand": 6,
+        "holoDemand": 10,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
       "name": "BLAZEIT",
       "changes": {
