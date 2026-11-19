@@ -2,6 +2,30 @@
   "schema": 1,
   "entries": [
     {
+      "id": "56d52163-e3e2-4357-9843-29002b100e07",
+      "name": "NOMAD",
+      "changes": {
+        "demand": {
+          "from": 7,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 8
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795121986960,
       "by": "vxef",
       "byId": "1172223881122152540",
