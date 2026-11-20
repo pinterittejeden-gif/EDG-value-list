@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "syncedAt": 1795094427351,
-  "generatedAt": 1795193880588,
+  "generatedAt": 1795193909370,
   "total": 1627,
   "confirmed": 1627,
   "pending": 0,
-  "valued": 90,
+  "valued": 91,
   "demandSet": 1627,
-  "revision": 181
+  "revision": 182
 }
