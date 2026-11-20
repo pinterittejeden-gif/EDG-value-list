@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193379791,
+      "id": "68f7dca1-2735-431b-84f5-5fe940e27da8",
+      "name": "Fracture",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.58
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193354043,
       "id": "c40aeba7-841e-47e8-8c05-9e02dddedb83",
       "name": "Loops of Fury",
