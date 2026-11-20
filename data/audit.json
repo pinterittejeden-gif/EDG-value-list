@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193709333,
+      "id": "0e3577a5-b567-4ea0-b39b-43920d3b7caf",
+      "name": "Sevvend Clubstep",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.682
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 6,
+        "holoDemand": 8,
+        "priceStatus": "over",
+        "note": "for some reason overpriced? no clue why but people just offer alot for it. ah those cherryslop cards...",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193674216,
       "id": "7236da3d-a27b-4a7d-b3ac-aa2a6aff1119",
       "name": "Gaggatrondra",
