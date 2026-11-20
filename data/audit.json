@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194159243,
+      "id": "21bb5019-d59c-4f9b-94de-281cf4b0ced7",
+      "name": "LIMBO",
+      "changes": {
+        "value": {
+          "from": 0.41,
+          "to": 1.2
+        }
+      },
+      "before": {
+        "valueOverride": 0.41,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 9,
+        "priceStatus": "over",
+        "note": "😍😍😍😍😍😍😍😍😍😍😍 overpriced rn bcs of vapestinct",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194127013,
       "id": "21bb5019-d59c-4f9b-94de-281cf4b0ced7",
       "name": "LIMBO",
