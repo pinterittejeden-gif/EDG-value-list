@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193641214,
+      "id": "c6a61442-41b8-4ecd-b55a-7bbeb6d1cb47",
+      "name": "Stellar Night",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.491
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193616687,
       "id": "c46ddc54-db3f-4641-888a-f087a38ea4c9",
       "name": "BRITNEY NO SCLEARS",
