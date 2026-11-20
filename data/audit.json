@@ -2,6 +2,39 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193765124,
+      "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
+      "name": "BLAZEIT",
+      "changes": {
+        "value": {
+          "from": 0.87,
+          "to": 0.63
+        },
+        "demand": {
+          "from": 8,
+          "to": 5
+        },
+        "holoDemand": {
+          "from": 9,
+          "to": 6
+        },
+        "priceStatus": {
+          "from": "over",
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.87,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 9,
+        "priceStatus": "over",
+        "note": "Overpriced like all the new cards",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193709333,
       "id": "0e3577a5-b567-4ea0-b39b-43920d3b7caf",
       "name": "Sevvend Clubstep",
