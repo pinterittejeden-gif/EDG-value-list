@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193846648,
+      "id": "94000633-1b00-4e52-ae77-48fab8aecf9d",
+      "name": "Edge of Destiny",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.466
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193816057,
       "id": "84080532-a440-4069-882c-88a286aabee1",
       "name": "ORBIT",
