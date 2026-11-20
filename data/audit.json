@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193590076,
+      "id": "b2252317-dcf2-432d-ba36-59642218803c",
+      "name": "Saul Goodman",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.723
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 8,
+        "priceStatus": "over",
+        "note": "Popular rn because of doogs",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193577519,
       "id": "84080532-a440-4069-882c-88a286aabee1",
       "name": "ORBIT",
