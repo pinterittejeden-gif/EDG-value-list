@@ -2,6 +2,24 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193792758,
+      "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
+      "name": "BLAZEIT",
+      "changes": {
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.63,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 6,
+        "priceStatus": "fair",
+        "note": "Overpriced like all the new cards",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193765124,
       "id": "db14f08e-b813-475f-8518-6cdcd7db20b9",
       "name": "BLAZEIT",
