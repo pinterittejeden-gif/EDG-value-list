@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193517114,
+      "id": "cadb645e-dbc2-4c08-9cbc-a26f5cb3ac6e",
+      "name": "The Hallucination",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.528
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193481442,
       "id": "35f5084b-8cf0-4896-bda2-1b4596f2fb9e",
       "name": "Deadlier Clubstep",
