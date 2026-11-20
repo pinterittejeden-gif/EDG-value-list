@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193354043,
+      "id": "c40aeba7-841e-47e8-8c05-9e02dddedb83",
+      "name": "Loops of Fury",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.57
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193318221,
       "id": "51200df7-7a51-455c-b2c8-25cc6f6f0114",
       "name": "NervHell",
