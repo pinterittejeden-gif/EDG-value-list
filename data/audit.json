@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795195556021,
+      "id": "7dd584da-369a-4bb8-86d3-68312926c102",
+      "name": "Sacrifice",
+      "changes": {
+        "value": {
+          "from": 0.5,
+          "to": 0.52
+        }
+      },
+      "before": {
+        "valueOverride": 0.5,
+        "holoOverride": 2.6,
+        "demand": 4,
+        "holoDemand": 6,
+        "priceStatus": "under",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795195456467,
       "id": "da77ff62-f03a-40e5-a11c-4753ea7f568a",
       "name": "Critical Heat",
