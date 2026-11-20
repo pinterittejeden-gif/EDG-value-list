@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194097299,
+      "id": "822815ac-fcb8-40b3-b42d-bd692095129c",
+      "name": "The Catacombs",
+      "changes": {
+        "value": {
+          "from": 0.206,
+          "to": 0.42
+        }
+      },
+      "before": {
+        "valueOverride": 0.206,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194074472,
       "id": "d3a53d45-e7e1-4ec4-9395-441816eb8425",
       "name": "Solar Flare",
