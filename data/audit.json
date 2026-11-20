@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193481442,
+      "id": "35f5084b-8cf0-4896-bda2-1b4596f2fb9e",
+      "name": "Deadlier Clubstep",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.537
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193460169,
       "id": "4fac9298-93ae-4553-abe9-72a562567318",
       "name": "MINUSdry",
