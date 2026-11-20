@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194617867,
+      "id": "699e6b35-7f79-4413-b300-0b30c0cdb8d6",
+      "name": "ORDINARY",
+      "changes": {
+        "value": {
+          "from": 0.27,
+          "to": 0.489
+        }
+      },
+      "before": {
+        "valueOverride": 0.27,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": 8,
+        "priceStatus": "over",
+        "note": "Popular level by vit12 (aka. Daily Dose of GD), wanted alot,",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194578951,
       "id": "876b0b3b-0916-4764-94dc-2e433f8109c3",
       "name": "Operation Evolution",
