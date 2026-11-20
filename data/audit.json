@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193460169,
+      "id": "4fac9298-93ae-4553-abe9-72a562567318",
+      "name": "MINUSdry",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.539
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193435006,
       "id": "c59d6dce-489a-40b2-aa8e-e91ff760fc2e",
       "name": "Calibrate",
