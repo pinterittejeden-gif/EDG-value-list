@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194250745,
+      "id": "0029b449-c191-4a9b-91a2-40a3c96037f6",
+      "name": "Codependence (Solo)",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.395
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194216382,
       "id": "fe68a17e-503f-4d9c-bec0-fde6bd847a69",
       "name": "Make Paul Dance",
