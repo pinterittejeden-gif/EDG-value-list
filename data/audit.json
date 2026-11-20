@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194063726,
+      "id": "3d351b86-3762-4eee-95aa-8dbd16189531",
+      "name": "Menace",
+      "changes": {
+        "value": {
+          "from": 0.806,
+          "to": 0.8
+        },
+        "holo": {
+          "from": 3.226,
+          "to": 3.2
+        }
+      },
+      "before": {
+        "valueOverride": 0.806,
+        "holoOverride": 3.226,
+        "demand": 6,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795194025315,
       "id": "4cfb07b5-3e6e-4d7e-9833-d7f013a85064",
       "name": "The Plunge",
