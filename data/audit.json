@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795195006886,
+      "id": "92b9d057-f34a-4358-820e-f8bb0af88a43",
+      "name": "Deimos (ItsHybrid)",
+      "changes": {
+        "priceStatus": {
+          "from": "fair",
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 0.7,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": 7,
+        "priceStatus": "fair",
+        "note": "Not bad card at all, very popular",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795194992151,
       "id": "06898192-2f94-4b57-a18b-d95cc73c69e5",
       "name": "Kyouki",
