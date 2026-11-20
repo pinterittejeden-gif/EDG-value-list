@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194350905,
+      "id": "0bee4513-5d63-4c8a-b769-de32bdf5a331",
+      "name": "Mayhem",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.366
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194332586,
       "id": "46351fca-4eee-46c3-a8ac-c9f3d930e89d",
       "name": "Belladonna",
