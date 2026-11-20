@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193562032,
+      "id": "146c9eed-2b47-483c-93a2-6b336adea84a",
+      "name": "COMBUSTION",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.51
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Comobusatrion",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193539799,
       "id": "f9158d5d-ecda-414c-a507-b8eb99d4d99f",
       "name": "Thinking Space II",
