@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194487862,
+      "id": "345a0d2d-b272-4f17-9264-4ef3407f5314",
+      "name": "walter white",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.56
+        },
+        "demand": {
+          "from": 8,
+          "to": 6
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 8,
+        "priceStatus": "over",
+        "note": "Up rn because of doogs",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194437504,
       "id": "5dd207e6-8773-471c-a153-4fae56250ad4",
       "name": "Wavterminal",
