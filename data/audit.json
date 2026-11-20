@@ -2,6 +2,17 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795175011397,
+      "by": "vxef",
+      "byId": "1172223881122152540",
+      "action": "roles",
+      "owner": 0,
+      "admins": 1,
+      "mods": 5,
+      "helpers": 1,
+      "blocked": 0
+    },
+    {
       "at": 1795124191033,
       "id": "56d52163-e3e2-4357-9843-29002b100e07",
       "name": "NOMAD",
