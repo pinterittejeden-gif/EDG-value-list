@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194437504,
+      "id": "5dd207e6-8773-471c-a153-4fae56250ad4",
+      "name": "Wavterminal",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.326
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194391721,
       "id": "7d12b962-b2e5-4e36-97f5-9b1da3db7b19",
       "name": "CHROMACAVE",
