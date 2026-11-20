@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194992151,
+      "id": "06898192-2f94-4b57-a18b-d95cc73c69e5",
+      "name": "Kyouki",
+      "changes": {
+        "priceStatus": {
+          "from": "fair",
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 0.7,
+        "holoOverride": 3,
+        "demand": 6,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795194911699,
       "id": "4ae11fe6-fd93-4a4b-8481-3048d3edf736",
       "name": "Acheron",
