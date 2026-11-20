@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194578951,
+      "id": "876b0b3b-0916-4764-94dc-2e433f8109c3",
+      "name": "Operation Evolution",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.299
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194525103,
       "id": "2c273751-18cc-4871-87e4-5a1a9879e05e",
       "name": "Infinite Chaos",
