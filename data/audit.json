@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193401953,
+      "id": "c586d155-f78c-43f6-933c-3c11c4aa6600",
+      "name": "poocubed",
+      "changes": {
+        "value": {
+          "from": 0.258,
+          "to": 0.72
+        },
+        "priceStatus": {
+          "from": "fair",
+          "to": "over"
+        }
+      },
+      "before": {
+        "valueOverride": 0.258,
+        "holoOverride": null,
+        "demand": 7,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "A bit of demand bcs of doogs",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193379791,
       "id": "68f7dca1-2735-431b-84f5-5fe940e27da8",
       "name": "Fracture",
