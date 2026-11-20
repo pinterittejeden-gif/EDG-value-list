@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193294774,
+      "id": "56d52163-e3e2-4357-9843-29002b100e07",
+      "name": "NOMAD",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.605
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193053869,
       "by": "vxef",
       "byId": "1172223881122152540",
