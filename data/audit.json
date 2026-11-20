@@ -2,6 +2,24 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795195456467,
+      "id": "da77ff62-f03a-40e5-a11c-4753ea7f568a",
+      "name": "Critical Heat",
+      "changes": {
+        "note": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795195032914,
       "id": "4ae11fe6-fd93-4a4b-8481-3048d3edf736",
       "name": "Acheron",
