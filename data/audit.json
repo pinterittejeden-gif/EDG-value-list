@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194127013,
+      "id": "21bb5019-d59c-4f9b-94de-281cf4b0ced7",
+      "name": "LIMBO",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.41
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 9,
+        "priceStatus": "over",
+        "note": "😍😍😍😍😍😍😍😍😍😍😍 overpriced rn bcs of vapestinct",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194097299,
       "id": "822815ac-fcb8-40b3-b42d-bd692095129c",
       "name": "The Catacombs",
