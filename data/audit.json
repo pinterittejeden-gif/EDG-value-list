@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795193318221,
+      "id": "51200df7-7a51-455c-b2c8-25cc6f6f0114",
+      "name": "NervHell",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.596
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795193294774,
       "id": "56d52163-e3e2-4357-9843-29002b100e07",
       "name": "NOMAD",
