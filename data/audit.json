@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795195604684,
+      "id": "ae0be266-2806-4af8-9cb1-d962a8a83010",
+      "name": "Based After Based",
+      "changes": {
+        "priceStatus": {
+          "from": "under",
+          "to": "fair"
+        }
+      },
+      "before": {
+        "valueOverride": 0.6,
+        "holoOverride": 2.9,
+        "demand": 5,
+        "holoDemand": 7,
+        "priceStatus": "under",
+        "note": "falls out of legendary soon. somewhat better than cognitohazard by a tiny margin",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795195556021,
       "id": "7dd584da-369a-4bb8-86d3-68312926c102",
       "name": "Sacrifice",
