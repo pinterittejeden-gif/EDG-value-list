@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795194525103,
+      "id": "2c273751-18cc-4871-87e4-5a1a9879e05e",
+      "name": "Infinite Chaos",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.306
+        }
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": 5,
+        "holoDemand": 8,
+        "priceStatus": "fair",
+        "note": "Really all of the mid tier epics are the exact same, price is set by the curve",
+        "confirmed": true
+      },
+      "by": "purnaciroberto"
+    },
+    {
       "at": 1795194487862,
       "id": "345a0d2d-b272-4f17-9264-4ef3407f5314",
       "name": "walter white",
