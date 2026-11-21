@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287526874,
+      "id": "d79120ff-015e-457f-a164-52e98b40f411",
+      "name": "Subterminal Point",
+      "changes": {
+        "value": {
+          "from": 0.82,
+          "to": 0.7
+        }
+      },
+      "before": {
+        "valueOverride": 0.82,
+        "holoOverride": null,
+        "demand": 6,
+        "holoDemand": 7,
+        "priceStatus": "over",
+        "note": "peak level, people uses it to flex, or set as banner",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287477054,
       "id": "b0c5c3a8-02a4-4a64-ad6f-46253ff77c9a",
       "name": "KOCMOC",
