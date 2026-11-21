@@ -2,6 +2,28 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287477054,
+      "id": "b0c5c3a8-02a4-4a64-ad6f-46253ff77c9a",
+      "name": "KOCMOC",
+      "changes": {
+        "value": {
+          "from": 0.92,
+          "to": 0.7
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.92,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 9,
+        "priceStatus": "over",
+        "note": "Most favourited level imo",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287431004,
       "id": "7dd584da-369a-4bb8-86d3-68312926c102",
       "name": "Sacrifice",
