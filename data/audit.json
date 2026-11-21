@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287270446,
+      "id": "5a7db296-3286-4056-8ed6-5dd92658125f",
+      "name": "METROPOLIS",
+      "changes": {
+        "value": {
+          "from": 3.3,
+          "to": 2
+        },
+        "holo": {
+          "from": 11,
+          "to": 7
+        }
+      },
+      "before": {
+        "valueOverride": 3.3,
+        "holoOverride": 11,
+        "demand": 9,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "new card, extremely inflated",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287218383,
       "id": "5a7db296-3286-4056-8ed6-5dd92658125f",
       "name": "METROPOLIS",
