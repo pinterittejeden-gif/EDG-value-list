@@ -2,6 +2,28 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287696218,
+      "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
+      "name": "Coalescence",
+      "changes": {
+        "value": {
+          "from": 0.17,
+          "to": 0.08
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.17,
+        "holoOverride": null,
+        "demand": 4,
+        "holoDemand": 6,
+        "priceStatus": "under",
+        "note": "about to fall from #100, will prolly lose its Epic'ness\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287657627,
       "id": "cfb5fb27-a0d8-48bc-8ed9-bae291e24f1a",
       "name": "Eyes in the Water",
