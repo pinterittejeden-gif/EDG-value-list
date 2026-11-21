@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287431004,
+      "id": "7dd584da-369a-4bb8-86d3-68312926c102",
+      "name": "Sacrifice",
+      "changes": {
+        "value": {
+          "from": 0.52,
+          "to": 0.65
+        }
+      },
+      "before": {
+        "valueOverride": 0.52,
+        "holoOverride": 2.6,
+        "demand": 4,
+        "holoDemand": 6,
+        "priceStatus": "under",
+        "note": "",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287417657,
       "id": "ae0be266-2806-4af8-9cb1-d962a8a83010",
       "name": "Based After Based",
