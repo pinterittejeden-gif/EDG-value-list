@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287573835,
+      "id": "51a1538a-b53a-4f31-9fed-715b4e9e5951",
+      "name": "CHIL",
+      "changes": {
+        "value": {
+          "from": 0.8,
+          "to": 0.7
+        }
+      },
+      "before": {
+        "valueOverride": 0.8,
+        "holoOverride": null,
+        "demand": 8,
+        "holoDemand": 7,
+        "priceStatus": "over",
+        "note": "People know it becayse it was the hardest level with the letter \"C\" at the begining",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287526874,
       "id": "d79120ff-015e-457f-a164-52e98b40f411",
       "name": "Subterminal Point",
