@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287417657,
+      "id": "ae0be266-2806-4af8-9cb1-d962a8a83010",
+      "name": "Based After Based",
+      "changes": {
+        "value": {
+          "from": 0.6,
+          "to": 0.7
+        }
+      },
+      "before": {
+        "valueOverride": 0.6,
+        "holoOverride": 2.9,
+        "demand": 5,
+        "holoDemand": 7,
+        "priceStatus": "fair",
+        "note": "falls out of legendary soon. somewhat better than cognitohazard by a tiny margin",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287372438,
       "id": "70607b1e-a97c-444a-b598-dbeb9bb2f30b",
       "name": "frame reframe",
