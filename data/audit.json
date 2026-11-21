@@ -2,6 +2,40 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795287340645,
+      "id": "1085c65b-4d52-45d0-b7dd-f29e94266f4b",
+      "name": "cognitohazard",
+      "changes": {
+        "value": {
+          "from": 0.5,
+          "to": 0.7
+        },
+        "holo": {
+          "from": 2.8,
+          "to": 2.5
+        },
+        "demand": {
+          "from": 4,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": 7,
+          "to": 8
+        },
+        "note": true
+      },
+      "before": {
+        "valueOverride": 0.5,
+        "holoOverride": 2.8,
+        "demand": 4,
+        "holoDemand": 7,
+        "priceStatus": "under",
+        "note": "falls out of legendary soon, nobody wants it",
+        "confirmed": true
+      },
+      "by": "vxef"
+    },
+    {
       "at": 1795287270446,
       "id": "5a7db296-3286-4056-8ed6-5dd92658125f",
       "name": "METROPOLIS",
