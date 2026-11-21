@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795267519150,
+      "id": "034634f7-f216-4f34-82dd-003eebd2897e",
+      "name": "Artemis 13",
+      "changes": {
+        "holo": {
+          "from": 24,
+          "to": 23
+        }
+      },
+      "before": {
+        "valueOverride": 7,
+        "holoOverride": 24,
+        "demand": 10,
+        "holoDemand": 10,
+        "priceStatus": "over",
+        "note": "Wanted for index preety much\nless wanted then grief for sure\n8.9/10 imo\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795267497126,
       "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
       "name": "Society",
