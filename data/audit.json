@@ -2,6 +2,27 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795267497126,
+      "id": "94fddf8f-5edf-4db6-8ba7-9106d5b67d08",
+      "name": "Society",
+      "changes": {
+        "holo": {
+          "from": 20,
+          "to": 23
+        }
+      },
+      "before": {
+        "valueOverride": 6,
+        "holoOverride": 20,
+        "demand": 9,
+        "holoDemand": 10,
+        "priceStatus": "fair",
+        "note": "Only popular because former top 1\n\n- cduking",
+        "confirmed": true
+      },
+      "by": "endergamerz."
+    },
+    {
       "at": 1795195604684,
       "id": "ae0be266-2806-4af8-9cb1-d962a8a83010",
       "name": "Based After Based",
