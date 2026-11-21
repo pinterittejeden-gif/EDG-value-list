@@ -1,11 +1,18 @@
 {
   "schema": 1,
-  "syncedAt": 1795094427351,
+  "syncedAt": 1795274015278,
   "generatedAt": 1795271132847,
-  "total": 1627,
+  "total": 1629,
   "confirmed": 1627,
-  "pending": 0,
+  "pending": 2,
   "valued": 103,
   "demandSet": 1627,
-  "revision": 213
+  "revision": 214,
+  "updatedAt": 1795287096513,
+  "pages": 9,
+  "lastChange": {
+    "added": 2,
+    "updated": 0,
+    "touched": 1626
+  }
 }

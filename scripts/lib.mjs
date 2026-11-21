@@ -128,7 +128,7 @@ export function officialCard(card, now) {
 export function blankNewCard(card, now) {
   return {
     ...officialCard(card, now),
-    confirmed: true,
+    confirmed: false,
     demand: null,
     demandSource: null
   };
