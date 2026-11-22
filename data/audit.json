@@ -2,6 +2,41 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795364525741,
+      "id": "c0104eeb-f24e-431a-b070-6931d1e8adfe",
+      "name": "plane map (Solo)",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.0588
+        },
+        "holo": {
+          "from": null,
+          "to": 0.176
+        },
+        "demand": {
+          "from": null,
+          "to": 6
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 7
+        },
+        "note": true,
+        "confirmed": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": null,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": false
+      },
+      "by": "zrissy"
+    },
+    {
       "at": 1795360036424,
       "by": "import",
       "action": "sheet-import",
