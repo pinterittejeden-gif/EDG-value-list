@@ -26,7 +26,7 @@ jobs:
 
       - name: Sync card catalog from demongacha.com
         env:
-          CATALOG_BASE: https://edg-value-api.pinteritte-jeden.workers.dev
+          CATALOG_BASE: https://r.jina.ai/https://demongacha.com
         run: node scripts/sync-cards.mjs
 
       - name: Import the community value sheet

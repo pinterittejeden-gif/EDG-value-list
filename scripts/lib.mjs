@@ -52,7 +52,8 @@ async function fetchPage(page, pageSize) {
       const res = await fetch(url, {
         headers: {
           "user-agent": UA,
-          accept: "application/json"
+          accept: "text/plain, */*",
+          "x-no-cache": "true"
         },
         signal: AbortSignal.timeout(3e4)
       });
@@ -61,7 +62,9 @@ async function fetchPage(page, pageSize) {
         continue;
       }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      const text = await res.text();
+      const start = text.search(/[{\[]/);
+      const json = JSON.parse(start > 0 ? text.slice(start) : text);
       if (!Array.isArray(json.items)) throw new Error("Malformed response");
       return json;
     } catch (err) {
