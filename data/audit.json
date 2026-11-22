@@ -2,6 +2,41 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795365227223,
+      "id": "24c0102b-6475-41c9-a36f-e8fa4f58197e",
+      "name": "plane map (2P)",
+      "changes": {
+        "value": {
+          "from": null,
+          "to": 0.0134
+        },
+        "holo": {
+          "from": null,
+          "to": 0.0401
+        },
+        "demand": {
+          "from": null,
+          "to": 1
+        },
+        "holoDemand": {
+          "from": null,
+          "to": 1
+        },
+        "note": true,
+        "confirmed": true
+      },
+      "before": {
+        "valueOverride": null,
+        "holoOverride": null,
+        "demand": null,
+        "holoDemand": null,
+        "priceStatus": null,
+        "note": "",
+        "confirmed": false
+      },
+      "by": "zrissy"
+    },
+    {
       "at": 1795364833091,
       "id": "c0104eeb-f24e-431a-b070-6931d1e8adfe",
       "name": "plane map (Solo)",
