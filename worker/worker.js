@@ -1104,6 +1104,31 @@ async function blockProposalUser(req, env) {
   });
 }
 
+async function levelsProxy(url) {
+  const upstream = new URL("https://demongacha.com/api/levels");
+  for (const key of [ "page", "pageSize" ]) {
+    const value = url.searchParams.get(key);
+    if (value != null) upstream.searchParams.set(key, value);
+  }
+  const res = await fetch(upstream.toString(), {
+    headers: {
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+      accept: "application/json, text/plain, */*",
+      "accept-language": "en-US,en;q=0.9",
+      referer: "https://demongacha.com/"
+    }
+  });
+  const body = await res.arrayBuffer();
+  return new Response(body, {
+    status: res.status,
+    headers: {
+      "content-type": res.headers.get("content-type") || "application/json; charset=utf-8",
+      "cache-control": "no-store",
+      "access-control-allow-origin": "*"
+    }
+  });
+}
+
 async function auditList(req, env) {
   const user = await requireUser(req, env);
   if (user.role === "viewer") return json({
@@ -1132,6 +1157,7 @@ export async function handle(req, env) {
       service: "edg-value-api",
       time: Date.now()
     }), env, origin);
+    if (url.pathname === "/api/levels" && req.method === "GET") return await levelsProxy(url);
     if (url.pathname === "/auth/discord") return await authStart(req, env);
     if (url.pathname === "/auth/discord/callback") return await authCallback(req, env, url);
     if (url.pathname === "/api/session" && req.method === "GET") return withCors(await session(req, env), env, origin);
