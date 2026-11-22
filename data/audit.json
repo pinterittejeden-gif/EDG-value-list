@@ -2,6 +2,31 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795364550362,
+      "id": "c0104eeb-f24e-431a-b070-6931d1e8adfe",
+      "name": "plane map (Solo)",
+      "changes": {
+        "demand": {
+          "from": 6,
+          "to": 4
+        },
+        "holoDemand": {
+          "from": 7,
+          "to": 4
+        }
+      },
+      "before": {
+        "valueOverride": 0.0588,
+        "holoOverride": 0.176,
+        "demand": 6,
+        "holoDemand": 7,
+        "priceStatus": null,
+        "note": "plane = map",
+        "confirmed": true
+      },
+      "by": "zrissy"
+    },
+    {
       "at": 1795364525741,
       "id": "c0104eeb-f24e-431a-b070-6931d1e8adfe",
       "name": "plane map (Solo)",
