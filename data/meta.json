@@ -1,11 +1,27 @@
 {
   "schema": 1,
-  "syncedAt": 1795274015278,
-  "generatedAt": 1795287696218,
-  "total": 1629,
+  "syncedAt": 1795338816605,
+  "generatedAt": 1795360036450,
+  "total": 1631,
   "confirmed": 1629,
-  "pending": 0,
+  "pending": 2,
   "valued": 105,
   "demandSet": 1629,
-  "revision": 226
+  "revision": 228,
+  "updatedAt": 1795360027343,
+  "pages": 9,
+  "lastChange": {
+    "added": 2,
+    "updated": 0,
+    "touched": 1628
+  },
+  "sheetImport": {
+    "url": "https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0",
+    "unitValue": 775,
+    "priced": 0,
+    "holoPriced": 0,
+    "demands": 0,
+    "holoDemands": 0,
+    "at": 1795360036450
+  }
 }

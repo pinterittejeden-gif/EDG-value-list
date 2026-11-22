@@ -2,6 +2,17 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795360036424,
+      "by": "import",
+      "action": "sheet-import",
+      "url": "https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0",
+      "priced": 0,
+      "holoPriced": 0,
+      "demands": 0,
+      "holoDemands": 0,
+      "unitValue": 775
+    },
+    {
       "at": 1795287696218,
       "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
       "name": "Coalescence",
