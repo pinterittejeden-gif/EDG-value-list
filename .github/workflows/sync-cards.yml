@@ -3,7 +3,6 @@ name: Update values
 on:
   schedule:
     - cron: "17 6 * * *"
-  workflow_dispatch:
 
 permissions:
   contents: write
