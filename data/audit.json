@@ -2,6 +2,17 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795457267192,
+      "by": "import",
+      "action": "sheet-import",
+      "url": "https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0",
+      "priced": 0,
+      "holoPriced": 0,
+      "demands": 0,
+      "holoDemands": 0,
+      "unitValue": 775
+    },
+    {
       "at": 1795404913065,
       "id": "c0104eeb-f24e-431a-b070-6931d1e8adfe",
       "name": "plane map (Solo)",
