@@ -1,4 +1,29 @@
 {
   "schema": 1,
-  "proposals": []
+  "proposals": [
+    {
+      "id": "2172c5a2-98a5-4649-8df8-48af0d29e117",
+      "at": 1795552148736,
+      "by": "ytforlife_59723",
+      "byId": "1426350278944358462",
+      "kind": "suggestion",
+      "reason": "This change should be higher because even though its a big drop i still dosent justify the 0.08 you could heighten it",
+      "message": "This change should be higher because even though its a big drop i still dosent justify the 0.08 you could heighten it",
+      "changes": [
+        {
+          "id": "9c12bb17-9512-4771-b6e9-9e51c819ed01",
+          "fields": [
+            "valueOverride"
+          ],
+          "valueOverride": 0.1,
+          "holoOverride": null,
+          "demand": 4,
+          "holoDemand": 6,
+          "priceStatus": "under",
+          "note": "took a value hit after falling from top 100"
+        }
+      ],
+      "images": []
+    }
+  ]
 }
