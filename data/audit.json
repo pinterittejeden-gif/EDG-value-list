@@ -2,6 +2,14 @@
   "schema": 1,
   "entries": [
     {
+      "at": 1795720996278,
+      "by": "ssblue.",
+      "byId": "1170165728217940068",
+      "action": "suggest",
+      "proposal": "fee1e9bb-19fc-483c-8e3c-2ebff6c2605d",
+      "count": 1
+    },
+    {
       "at": 1795626785131,
       "by": "import",
       "action": "sheet-import",

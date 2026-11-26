@@ -2,6 +2,34 @@
   "schema": 1,
   "proposals": [
     {
+      "id": "fee1e9bb-19fc-483c-8e3c-2ebff6c2605d",
+      "at": 1795720996278,
+      "by": "ssblue.",
+      "byId": "1170165728217940068",
+      "kind": "suggestion",
+      "reason": "losing value rly fast",
+      "message": "losing value rly fast",
+      "changes": [
+        {
+          "id": "5a7db296-3286-4056-8ed6-5dd92658125f",
+          "fields": [
+            "valueOverride",
+            "holoOverride",
+            "demand",
+            "holoDemand",
+            "note"
+          ],
+          "valueOverride": 1.4,
+          "holoOverride": 5.5,
+          "demand": 8,
+          "holoDemand": 9,
+          "priceStatus": "over",
+          "note": "lose of value"
+        }
+      ],
+      "images": []
+    },
+    {
       "id": "2172c5a2-98a5-4649-8df8-48af0d29e117",
       "at": 1795552148736,
       "by": "ytforlife_59723",
