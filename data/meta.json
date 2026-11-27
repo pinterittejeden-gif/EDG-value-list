@@ -1,19 +1,19 @@
 {
   "schema": 1,
-  "syncedAt": 1795690372483,
+  "syncedAt": 1795781528982,
   "generatedAt": 1795626785154,
   "total": 1639,
   "confirmed": 1631,
   "pending": 8,
   "valued": 107,
   "demandSet": 1631,
-  "revision": 238,
-  "updatedAt": 1795712031943,
+  "revision": 239,
+  "updatedAt": 1795797571183,
   "pages": 9,
   "lastChange": {
     "added": 0,
     "updated": 0,
-    "touched": 41
+    "touched": 94
   },
   "sheetImport": {
     "url": "https://docs.google.com/spreadsheets/d/1zSUN6pZ-kzTptvaG_gEPOAkldx38Qwuv16_4iNqG1d0/edit?gid=0#gid=0",
