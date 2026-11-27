@@ -2,6 +2,31 @@
   "schema": 1,
   "proposals": [
     {
+      "id": "1aaa9024-28e8-4202-beb5-6a470b14afb2",
+      "at": 1795767883797,
+      "by": "emeryaku",
+      "byId": "610560453705465856",
+      "kind": "suggestion",
+      "reason": "Dropped to common",
+      "message": "Dropped to common",
+      "changes": [
+        {
+          "id": "fc7f4470-f6af-4cc4-9587-f3f22ce3fa5e",
+          "fields": [
+            "demand",
+            "holoDemand"
+          ],
+          "valueOverride": null,
+          "holoOverride": null,
+          "demand": 2,
+          "holoDemand": 2,
+          "priceStatus": null,
+          "note": ""
+        }
+      ],
+      "images": []
+    },
+    {
       "id": "fee1e9bb-19fc-483c-8e3c-2ebff6c2605d",
       "at": 1795720996278,
       "by": "ssblue.",
